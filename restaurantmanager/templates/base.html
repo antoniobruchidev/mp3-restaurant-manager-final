@@ -1,12 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carpez Kitchen Manager</title>
-</head>
-<body>
-    {% block content %}
-    {% endblock %}
-</body>
-</html> 
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="A simple web app to track a restaurant daily tasks" />
+        <!-- Compiled and minified CSS -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" />
+        <script src="https://kit.fontawesome.com/c18c39146b.js"></script>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+        <title>Restaurant Manager</title>
+    </head>
+
+    <body>
+        <header>
+            <nav class="brown darken-4">
+                <div class="nav-wrapper">
+                    <a href="{{ url_for('home') }}" class="brand-logo orange-text text-accent-4">Carpez's Kitchen</a>
+                    <a href="#" data-target="mobile-demo" class="sidenav-trigger">
+                        <i class="fa-solid fa-bars orange-text text-accent-4"></i>
+                    </a>
+                    <ul class="right hide-on-med-and-down">
+                        <li>
+                            <a class="orange-text text-accent-4" href="{{ url_for('home') }}">Home</a>
+                        </li>
+                        <li>
+                            <a class="orange-text text-accent-4" href="#!">Menu</a>
+                        </li>
+                        <li>
+                            <a class="orange-text text-accent-4" href="#!">Table</a>
+                        </li>
+                        <li>
+                            <a class="orange-text text-accent-4 modal-trigger" href="{{ url_for('login') }}">Login</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <ul class="sidenav brown darken-3" id="mobile-demo">
+                <li>
+                    <a href="{{ url_for('home') }}" class="orange-text text-accent-4 center-align">Home</a>
+                </li>
+                <li>
+                    <a href="#!" class="orange-text text-accent-4 center-align">Menu</a>
+                </li>
+                <li>
+                    <a href="#!" class="orange-text text-accent-4 center-align">Table</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('login') }}" class="orange-text text-accent-4 center-align">Login</a>
+                </li>
+            </ul>
+        </header>
+        <main class="brown lighten-4 brown-text text-brown-darken-4">
+            <div class="container">
+            {% block content %}
+            {% endblock %}
+            </div>
+        </main>
+        <footer class="page-footer brown darken-4">
+            <div class="container">
+            </div>
+            <div class="footer-copyright">
+                <div class="container orange-text text-accent-4">
+                    © 2014 Copyright Text
+                    <a class="orange-text text-accent-4 right" href="#!">More Links</a>
+                </div>
+            </div>
+        </footer>
+        <!-- Compiled and minified JavaScript -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+        <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    </body>
+
