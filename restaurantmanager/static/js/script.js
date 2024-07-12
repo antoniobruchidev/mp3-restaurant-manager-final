@@ -22,10 +22,16 @@ const connectWithMetamask = async () => {
   // For this, you need the account signer...
   const signer = provider.getSigner()
 
-  $('#web3_address').val(address);
-  $('#mnemonic').val("EOA");
-  $('#priv').val("EOA");
-  $('#submit').click();
+  const page = window.location.pathname;
+  if (page === '/login') {
+    $('#web3_address').val(address);
+    $('#submit').click();
+  } else if (page === '/register') {
+    $('#web3_address').val(address);
+    $('#mnemonic').val("EOA");
+    $('#priv').val("EOA");
+    $('#submit').click();
+  }
 
   return true;
 }
@@ -38,7 +44,8 @@ function handleCredentialResponse(response) {
   const page = window.location.pathname;
   const userCredential = decodeJWT(response.credential);
   if (page === '/login') {
-    // some stuff
+    $('#google_id').val(userCredential.sub);
+    $('#submit').click();
   } else if (page === '/register') {
     const wallet = createWallet();
     $('#web3_address').val(wallet.address);
@@ -74,15 +81,25 @@ const createWallet = () => {
  * Event listener to handle the user's choice of account type
  */
 const handleConnectionChoice = () => {
-  if($('#account_type').val()  === '1') {
-    connectWithMetamask();
-  } else if ($('#account_type').val()  === '2') {
-    wallet = createWallet();
-    $('#web3_address').val(wallet.address);
-    $('#priv').val(wallet.privateKey);
-    $('#mnemonic').val(wallet.mnemonic.phrase);
-  } else if  ($('#account_type').val()  === '3')  {
-    $('#g_id_signin').click();
+  const page = window.location.pathname;
+  if(page === '/register') {
+    if($('#account_type').val()  === '1') {
+      connectWithMetamask();
+    } else if ($('#account_type').val()  === '2') {
+      wallet = createWallet();
+      $('#web3_address').val(wallet.address);
+      $('#priv').val(wallet.privateKey);
+      $('#mnemonic').val(wallet.mnemonic.phrase);
+    } else if  ($('#account_type').val()  === '3')  {
+      $('#web3_address').val(wallet.address);
+      $('#priv').val(wallet.privateKey);
+      $('#mnemonic').val(wallet.mnemonic.phrase);
+      $('#g_id_signin').click();
+    }
+  } else if(page === '/login') {
+    if($('#account_type').val() === '1') {
+      connectWithMetamask();
+    }
   }
 }
 

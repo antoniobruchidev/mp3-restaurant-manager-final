@@ -1,5 +1,6 @@
 from restaurantmanager import db
 import enum
+from flask_login import UserMixin
 
 
 class AccountType(enum.Enum):
@@ -92,7 +93,7 @@ delivery_boughtitems = db.Table(
         'boughtitems.id', ondelete="CASCADE"))
 )
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     # schema for the user table
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
