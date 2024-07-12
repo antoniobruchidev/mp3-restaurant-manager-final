@@ -7,7 +7,8 @@ from flask_wtf import FlaskForm
 
 
 class RegisterForm(FlaskForm):
-    account_type = SelectField('Account Type', choices=[('0', 'Choose your connection option'), (
+    account_type = SelectField('Account Type', choices=[(
+        '0', 'Choose your connection option'), (
         '1', 'Metamask'), ('2', 'Email'), ('3', 'Google')])
     web3_address = StringField('Web3 Address', validators=[
                                InputRequired(), Length(42)])
@@ -28,9 +29,9 @@ class RegisterForm(FlaskForm):
 
 class LoginForm(FlaskForm):
     account_type = SelectField('Account Type', choices=[(
-        1, 'Metamask'), (2, 'Google'), (3, 'Email')])
-    web3_address = StringField('Web3 Address', validators=[
-                               InputRequired(), Length(42)])
+        '0', 'Choose your connection option'),
+        ('1', 'Metamask'), ('2', 'Email'), ('3', 'Google')])
+    web3_address = StringField('Web3 Address')
     google_id = StringField('Google ID')
     email = StringField('Email')
     password = PasswordField('Password')
