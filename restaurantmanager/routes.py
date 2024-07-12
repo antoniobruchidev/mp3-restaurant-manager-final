@@ -1,6 +1,8 @@
 from flask import render_template
 from restaurantmanager import app, db
 from restaurantmanager.models import Message, User, Wallet, Supplier, BoughtItem, ManufactoredItem, Recipe, SellableItem, StockMovement, Order, Delivery
+from flask_login import UserMixin
+from restaurantmanager.forms import LoginForm, RegisterForm
 
 
 @app.route('/')
@@ -8,11 +10,13 @@ def home():
     return render_template('home.html')
 
 
-@app.route('/login')
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    return render_template('login.html')
+    form = LoginForm()
+    return render_template('login.html', form=form)
 
 
-@app.route('/register')
+@app.route('/register', methods=['GET', 'POST'])
 def register():
-    return render_template('register.html')
+    form = RegisterForm()
+    return render_template('register.html', form=form)

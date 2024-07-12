@@ -3,5 +3,16 @@
 <h1 class="center-align">
     Register Page
 </h1>
-<a href="{{ url_for('login') }}" class="orange-text text-darken-4">Login</a>
+<form method="POST" action="">
+    {{ form.hidden_tag() }}
+    {{ form.account_type(placeholder="Select signin method") }}
+    {{ form.web3_address(placeholder="0x...") }}
+    {{ form.google_id(placeholder="Sign in with google") }}
+    {{ form.email(placeholder="Email Address") }}
+    {{ form.password(placeholder="Password") }}
+    {{ form.confirm_password(placeholder="Confirm Password") }}
+    {{ form.submit }}
+</form>
+<br>
+<a href="{{ url_for('login') }}" class="brown-text text-darken-3">Login</a>
 {% endblock %}
