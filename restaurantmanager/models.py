@@ -96,13 +96,13 @@ class User(db.Model):
     # schema for the user table
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
-    web3_address = db.Column(db.String(20), unique=True, nullable=False)
+    web3_address = db.Column(db.String(42), unique=True, nullable=False)
     account_type = db.Column(db.Enum(AccountType), nullable=False)
     f_name = db.Column(db.String(20), nullable=True)
     l_name = db.Column(db.String(20), nullable=True)
     google_id = db.Column(db.String, nullable=True)
     email = db.Column(db.String(30), nullable=True)
-    password = db.Column(db.String(80), nullable=True)
+    password = db.Column(db.String(255), nullable=True)
     vat_number = db.Column(db.String, nullable=True)
     roles = db.Column(db.ARRAY(db.String), default = [])
 
