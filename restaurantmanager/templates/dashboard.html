@@ -2,4 +2,5 @@
 {% block content %}
 <h1>Welcome to your dashboard</h1>
 <p>User: {{ current_user.web3_address }}</p>
+<a href="{{ url_for('logout') }}">Logout</a>
 {% endblock %}

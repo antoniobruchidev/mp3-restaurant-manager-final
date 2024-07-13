@@ -62,6 +62,13 @@ def dashboard():
     return render_template('dashboard.html')
 
 
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
+
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     g_client_id = os.environ.get('GOOGLE_CLIENT_ID')
