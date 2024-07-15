@@ -1,6 +1,26 @@
 {% extends "base.html" %}
+{% block headscripts %}
+<script>
+    const user = {
+        f_name: "{{ f_name }}",
+        l_name: "{{ l_name }}",
+        email: "{{ email }}",
+        web3_address: "{{ web3_address }}",
+        is_owner: "{{ is_owner }}",
+        is_manager: "{{ is_manager }}",
+        is_chef: "{{ is_chef }}",
+        is_waiter: "{{ is_waiter }}"
+    }
+</script>
+{% endblock %}
 {% block content %}
 <h1>Welcome to your dashboard</h1>
-<p>User: {{ current_user.web3_address }}</p>
+<p>Account: {{ web3_address }}</p>
+{% if email != (web3_address + '@internal.kitchenmanager') %}
+<p>Email:  {{ email }}</p>
+{% endif %}
+{% if (f_name + l_name) != '' %}
+<p>User:  {{ f_name + " " + l_name }}</p>
+{% endif %}
 <a href="{{ url_for('logout') }}">Logout</a>
 {% endblock %}
