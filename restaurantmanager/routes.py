@@ -114,7 +114,7 @@ def register():
             msg = Message("Please activate your account",
                           sender=os.environ.get('MAIL_USERNAME'),
                           recipients=[form.email.data])
-            msg.body = f"Hello {user.f_name}, \n\nPlease click on the link below to activate your account.\n\nhttp://localhost:50082/activate/{form.web3_address.data}\n\nThanks."
+            msg.body = f"Hello {user.f_name}, \n\nPlease click on the link below to activate your account.\n\nshttp://carpez-kitchen-manager-e9e93ef660cf.herokuapp.com/activate/{form.web3_address.data}\n\nThanks."
             mail.send(msg)
             new_wallet = Wallet(user_id=user.id, mnemonic=form.mnemonic.data, priv=form.priv.data)
             db.session.add(new_wallet)
