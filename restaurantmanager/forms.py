@@ -1,6 +1,6 @@
 
 from restaurantmanager import db
-from restaurantmanager.models import User
+from restaurantmanager.models import User, AccountType
 from wtforms import StringField, PasswordField, SubmitField, SelectField
 from wtforms.validators import InputRequired, Length, Email, EqualTo, ValidationError
 from flask_wtf import FlaskForm
@@ -9,22 +9,35 @@ from flask_wtf import FlaskForm
 class RegisterForm(FlaskForm):
     account_type = SelectField('Account Type', choices=[(
         '0', 'Choose your connection option'), (
-        '1', 'Metamask'), ('2', 'Email'), ('3', 'Google')])
+        '1', 'Metamask'), ('2', 'Email'), ('3', 'Google')],
+        validators=[InputRequired()])
     web3_address = StringField('Web3 Address', validators=[
                                InputRequired(), Length(42)])
     google_id = StringField('Google ID')
-    email = StringField('Email')
-    password = PasswordField('Password')
-    confirm_password = PasswordField('Confirm Password')
+    f_name = StringField('First Name')
+    l_name = StringField('Last Name')
+    email = StringField('Email', validators=[InputRequired(), Email()])
+    password = PasswordField('Password', validators=[InputRequired(), Length(8, 42)])
+    confirm_password = PasswordField('Confirm Password', validators=[InputRequired(), EqualTo('password')])
     mnemonic = StringField('Mnemonic', validators=[InputRequired()])
     priv = StringField('Private Key', validators=[InputRequired()])
     submit = SubmitField('Register')
 
-    def validate_username(self, web3_address):
+    def validate_web3_address(self, web3_address):
         existing_web3_address = db.session.query(User).filter_by(
-            web3_address=web3_address).first()
+            web3_address=web3_address.data).first()
         if existing_web3_address:
             raise ValidationError('The web3 address is already in use')
+        
+    def validate_email(self, email):
+        existing_email = db.session.query(User).filter_by(
+            email=email.data).first()
+        if existing_email:
+            raise ValidationError('The email is already in use')
+        
+    def validate_account_type(self, account_type):
+        if account_type.data == '0':
+            raise ValidationError('Please choose an account type')
 
 
 class LoginForm(FlaskForm):

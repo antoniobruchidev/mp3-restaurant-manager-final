@@ -102,18 +102,19 @@ class User(db.Model, UserMixin):
     f_name = db.Column(db.String(20), nullable=True)
     l_name = db.Column(db.String(20), nullable=True)
     google_id = db.Column(db.String, nullable=True)
-    email = db.Column(db.String(30), nullable=True)
+    email = db.Column(db.String(66), nullable=True)
     password = db.Column(db.String(255), nullable=True)
     vat_number = db.Column(db.String, nullable=True)
     roles = db.Column(db.ARRAY(db.String), default = [])
+    activated = db.Column(db.Boolean, default=False)
 
     def __repr__(self):
         return "#{0} | {1} | Roles: {2}".format(self.id, self.web3_address, self.roles)
 
 
-class Message(db.Model):
+class InternalMessage(db.Model):
     # schema for the message table
-    __tablename__ = 'messages'
+    __tablename__ = 'internalmessages'
 
     id = db.Column(db.Integer, primary_key=True)
     sender_id = db.Column(db.Integer, db.ForeignKey(

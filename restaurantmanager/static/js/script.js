@@ -28,6 +28,12 @@ const connectWithMetamask = async () => {
     $('#submit').click();
   } else if (page === '/register') {
     $('#web3_address').val(address);
+    $('#email').val(`${address}@internal.kitchenmanager`);
+    $('#f_name').val('EOA')
+    $('#l_name').val('EOA')
+    $('#google_id').val('EOA')
+    $('#password').val(address);
+    $('#confirm_password').val(address);
     $('#mnemonic').val("EOA");
     $('#priv').val("EOA");
     $('#submit').click();
@@ -51,8 +57,12 @@ function handleCredentialResponse(response) {
     $('#web3_address').val(wallet.address);
     $('#priv').val(wallet.privateKey);
     $('#mnemonic').val(wallet.mnemonic.phrase);
+    $('#f_name').val(userCredential.given_name);
+    $('#l_name').val(userCredential.family_name);
     $('#google_id').val(userCredential.sub);
-    $('#password').val("google");
+    $('#email').val(userCredential.email);
+    $('#password').val("googleaccount");
+    $('#confirm_password').val("googleaccount");
     $('#submit').click();
   }
 
@@ -91,6 +101,7 @@ const handleConnectionChoice = () => {
       $('#priv').val(wallet.privateKey);
       $('#mnemonic').val(wallet.mnemonic.phrase);
     } else if  ($('#account_type').val()  === '3')  {
+      wallet = createWallet();
       $('#web3_address').val(wallet.address);
       $('#priv').val(wallet.privateKey);
       $('#mnemonic').val(wallet.mnemonic.phrase);
