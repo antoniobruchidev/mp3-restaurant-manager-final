@@ -1,10 +1,11 @@
 import os
 from flask import redirect, render_template, url_for
-from restaurantmanager import app, db, argon2
+from restaurantmanager import app, db, argon2, mail
 from restaurantmanager.models import AccountType, InternalMessage, User, Wallet, Supplier, BoughtItem, ManufactoredItem, Recipe, SellableItem, StockMovement, Order, Delivery
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
 from restaurantmanager.forms import LoginForm, RegisterForm
 from restaurantmanager.web3interface import w3, check_role, grant_role, role_hash
+from flask_mail import Message
 
 
 login_manager = LoginManager()
@@ -43,12 +44,14 @@ def login():
             user = db.session.query(User).filter_by(
                 email=form.email.data).first()
             if user:
-                print(user.password)
-                if argon2.check_password_hash(user.password, form.password.data):
-                    logged_in = User.query.filter_by(
-                        email=form.email.data).first()
-                login_user(logged_in)
-                return redirect(url_for('dashboard'))
+                if user.activated:
+                    if argon2.check_password_hash(user.password, form.password.data):
+                        logged_in = User.query.filter_by(
+                            email=form.email.data).first()
+                    login_user(logged_in)
+                    return redirect(url_for('dashboard'))
+                else:
+                    return redirect(url_for('login'))
             else:
                 return redirect(url_for('login'))
         elif form.account_type.data == '1':
@@ -108,6 +111,11 @@ def register():
             db.session.add(new_user)
             db.session.commit()
             user = db.session.query(User).filter_by(web3_address=form.web3_address.data).first()
+            msg = Message("Please activate your account",
+                          sender=os.environ.get('MAIL_USERNAME'),
+                          recipients=[form.email.data])
+            msg.body = f"Hello {user.f_name}, \n\nPlease click on the link below to activate your account.\n\nhttp://localhost:50082/activate/{form.web3_address.data}\n\nThanks."
+            mail.send(msg)
             new_wallet = Wallet(user_id=user.id, mnemonic=form.mnemonic.data, priv=form.priv.data)
             db.session.add(new_wallet)
             db.session.commit()
@@ -115,3 +123,15 @@ def register():
     print(form.errors)
 
     return render_template('register.html', form=form, g_client_id=g_client_id)
+
+@app.route('/activate/<web3_address>')
+def activate(web3_address):
+    print(web3_address)
+    user = db.session.query(User).filter_by(web3_address=web3_address).first()
+    print(user.activated)
+    if user.activated:
+        return redirect(url_for('login'))
+    else:
+        user.activated = True
+        db.session.commit()
+        return redirect(url_for('login'))
