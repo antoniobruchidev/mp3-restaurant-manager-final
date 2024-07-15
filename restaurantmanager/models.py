@@ -127,6 +127,32 @@ class InternalMessage(db.Model):
         return "#{0} | from {1} to {2} @ {3}".format(self.id, self.sender_id, self.board, self.timestamp)
 
 
+class InternalMessageReply(db.Model):
+    # schema for message replies table
+    __tablename__ = 'internalmessagesreplies'
+    id = db.Column(db.Integer, primary_key=True)
+    message_id = db.Column(db.Integer, db.ForeignKey(
+         'internalmessages.id', ondelete="CASCADE"), nullable=False)
+    reply = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, nullable=False)
+
+    def  __repr__(self):
+        return "#{0} | from {1} to {2} @ {3}".format(self.id, self.message_id, self.reply, self.timestamp)
+    
+
+class InternalMail(db.Model):
+    # schema for the mail table
+     __tablename__ = 'internalmails'
+     id = db.Column(db.Integer, primary_key=True)
+     sender_id = db.Column(db.Integer, db.ForeignKey(
+         'users.id', ondelete="CASCADE"), nullable=False)
+     recipient_id = db.Column(db.Integer, db.ForeignKey(
+         'users.id', ondelete="CASCADE"), nullable=False)
+     subject = db.Column(db.Text, nullable=False)
+     body = db.Column(db.Text, nullable=False)
+     timestamp = db.Column(db.DateTime, nullable=False)
+
+
 class Wallet(db.Model):
     # schema for the wallet table
     __tablename__ = 'wallets'

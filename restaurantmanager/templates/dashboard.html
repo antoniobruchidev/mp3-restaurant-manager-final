@@ -22,5 +22,12 @@
 {% if (f_name + l_name) != '' %}
 <p>User:  {{ f_name + " " + l_name }}</p>
 {% endif %}
+{% for message in messages  %}
+<hr>
+<p>Message ID: {{ message.id }}</p>
+<p>Message: {{ message.message }}</p>
+<p>To: {{ message.board }}</p>
+<p>Sent:  {{ message.timestamp }}</p>
+{% endfor %}
 <a href="{{ url_for('logout') }}">Logout</a>
 {% endblock %}

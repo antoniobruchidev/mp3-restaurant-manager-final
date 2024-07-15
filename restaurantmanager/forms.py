@@ -1,7 +1,7 @@
 
 from restaurantmanager import db
 from restaurantmanager.models import User, AccountType
-from wtforms import StringField, PasswordField, SubmitField, SelectField
+from wtforms import IntegerField, StringField, PasswordField, SubmitField, SelectField, TextAreaField
 from wtforms.validators import InputRequired, Length, Email, EqualTo, ValidationError
 from flask_wtf import FlaskForm
 
@@ -49,3 +49,20 @@ class LoginForm(FlaskForm):
     email = StringField('Email')
     password = PasswordField('Password')
     submit = SubmitField('Login')
+
+
+class CreateMessageForm(FlaskForm):
+    message = TextAreaField('Message', validators=[InputRequired()])
+    board_id = SelectField('Board', choices=[('0', 'Choose a board'), ('1', 'Owners board'), ('2', 'Managers board'), ('3', 'Chefs board'), ('4', 'Waiters board')])
+    submit = SubmitField('Send')
+
+    def validate_board_id(self, board_id):
+        if board_id.data == '0':
+            raise ValidationError('Please choose a messageboard')
+        
+
+class AnswerMessageForm(FlaskForm):
+    answer = TextAreaField('Answer', validators=[InputRequired()])
+    sender_id = IntegerField('Sender ID', validators=[InputRequired()])
+    submit = SubmitField('Send')
+

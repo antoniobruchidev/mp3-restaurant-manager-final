@@ -11,3 +11,7 @@ main {
 .sidenav li > a {
   font-size: 36px;
 }
+
+em {
+  font-size: smaller;
+}

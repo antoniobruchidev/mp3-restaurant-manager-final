@@ -1,9 +1,10 @@
 import os
+import datetime
 from flask import redirect, render_template, url_for
 from restaurantmanager import app, db, argon2, mail
-from restaurantmanager.models import AccountType, InternalMessage, User, Wallet, Supplier, BoughtItem, ManufactoredItem, Recipe, SellableItem, StockMovement, Order, Delivery
+from restaurantmanager.models import AccountType, Board, InternalMessage, User, Wallet, Supplier, BoughtItem, ManufactoredItem, Recipe, SellableItem, StockMovement, Order, Delivery
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
-from restaurantmanager.forms import LoginForm, RegisterForm
+from restaurantmanager.forms import AddEmployeeForm, CreateMessageForm, LoginForm, RegisterForm
 from restaurantmanager.web3interface import w3, check_role, grant_role, role_hash
 from flask_mail import Message
 
@@ -85,8 +86,9 @@ def dashboard():
     else:
         l_name = ""
     email = current_user.email
+    my_messages = db.session.query(InternalMessage).filter_by(sender_id=current_user.id).all()
 
-    return render_template('dashboard.html', is_owner=is_owner, is_manager=is_manager, is_chef=is_chef, is_waiter=is_waiter, web3_address=web3_address, f_name=f_name, l_name=l_name, email=email)
+    return render_template('dashboard.html', is_owner=is_owner, is_manager=is_manager, is_chef=is_chef, is_waiter=is_waiter, web3_address=web3_address, f_name=f_name, l_name=l_name, email=email, messages=my_messages)
 
 
 @app.route('/logout')
@@ -94,6 +96,36 @@ def dashboard():
 def logout():
     logout_user()
     return redirect(url_for('login'))
+
+
+@app.route('/messageboard')
+@login_required
+def messageboard():
+    is_owner = check_role(role_hash('owner'), current_user.web3_address)
+    if is_owner:
+        board_messages = db.session.query(InternalMessage).filter_by(board=Board.owner).all()
+        return render_template('messageboard.html', board_messages=board_messages)
+    else:
+        return redirect(url_for('dashboard'))
+
+
+@app.route('/messageboards/sendmessage', methods=['GET', 'POST'])
+@login_required
+def sendmessage():
+    date = datetime.datetime.now()
+    print(date)
+    form = CreateMessageForm()
+    if form.validate_on_submit():
+        message = InternalMessage(
+            sender_id=current_user.id,
+            board=Board(int(form.board_id.data)),
+            message=form.message.data,
+            timestamp=date
+        )
+        db.session.add(message)
+        db.session.commit()
+        return redirect(url_for('dashboard'))
+    return render_template('sendmessage.html', form=form)
 
 
 @app.route('/register', methods=['GET', 'POST'])

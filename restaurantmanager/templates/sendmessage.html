@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="center-align">
+    Register Page
+</h1>
+<form method="POST" action="">
+    {{ form.hidden_tag() }}
+    {{ form.board_id }}
+    {{ form.message }}
+    {{ form.submit }}
+</form>
+<br>
+<a href="{{ url_for('login') }}" class="brown-text text-darken-3">Login</a>
+{% endblock %}
