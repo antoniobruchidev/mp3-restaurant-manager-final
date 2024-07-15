@@ -105,7 +105,7 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(66), nullable=True)
     password = db.Column(db.String(255), nullable=True)
     vat_number = db.Column(db.String, nullable=True)
-    roles = db.Column(db.ARRAY(db.String), default = [])
+    roles = db.Column(db.Boolean, default=False)
     activated = db.Column(db.Boolean, default=False)
 
     def __repr__(self):

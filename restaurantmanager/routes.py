@@ -128,6 +128,55 @@ def sendmessage():
     return render_template('sendmessage.html', form=form)
 
 
+@app.route('/owner/staff')
+@login_required
+def staff():
+    is_owner = check_role(role_hash('owner'), current_user.web3_address)
+    if is_owner:
+        employees = db.session.query(User).filter_by(roles = True).all()
+        print(employees)
+        return render_template('staff.html', employees=employees)
+    else:
+        return redirect(url_for('dashboard'))
+
+
+@app.route('/owner/addemployee', methods=['GET', 'POST'])
+@login_required
+def add_employee():
+    is_owner = check_role(role_hash('owner'), current_user.web3_address)
+    if is_owner:
+        form = AddEmployeeForm()
+        if form.validate_on_submit():
+            hashed_password = argon2.generate_password_hash(form.password.data)
+            activated = False
+            if form.account_type.data != '2':
+                activated = True
+            new_user = User(f_name=form.f_name.data, l_name=form.l_name.data, password=hashed_password, email=form.email.data, google_id=form.google_id.data, web3_address=form.web3_address.data, account_type=AccountType(
+                int(form.account_type.data)), activated=activated, roles=True)
+            db.session.add(new_user)
+            db.session.commit()
+            user = db.session.query(User).filter_by(web3_address=form.web3_address.data).first()
+            msg = Message("Please activate your account",
+                          sender=os.environ.get('MAIL_USERNAME'),
+                          recipients=[form.email.data])
+            msg.body = f"Hello {user.f_name}, \n\nPlease click on the link below to activate your account.\n\nhttps://carpez-kitchen-manager-e9e93ef660cf.herokuapp.com/activate/{form.web3_address.data}\n\nThanks."
+            mail.send(msg)
+            new_wallet = Wallet(user_id=user.id, mnemonic=form.mnemonic.data, priv=form.priv.data)
+            db.session.add(new_wallet)
+            db.session.commit()
+            if form.role.data == '1':
+                grant_role(role_hash('manager'), current_user.web3_address, user.web3_address)
+                grant_role(role_hash('waiter'), current_user.web3_address, user.web3_address)
+            elif form.role.data == '2':
+                grant_role(role_hash('chef'), current_user.web3_address, user.web3_address)
+            elif form.role.data ==  '3':
+                grant_role(role_hash('waiter'), current_user.web3_address, user.web3_address)
+            return redirect(url_for('staff'))
+        return render_template('addemployee.html', form=form, g_client_id=os.environ.get('GOOGLE_CLIENT_ID'))
+    else:
+        return redirect(url_for('login'))
+    
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     g_client_id = os.environ.get('GOOGLE_CLIENT_ID')

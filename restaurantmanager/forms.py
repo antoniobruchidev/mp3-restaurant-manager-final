@@ -65,4 +65,11 @@ class AnswerMessageForm(FlaskForm):
     answer = TextAreaField('Answer', validators=[InputRequired()])
     sender_id = IntegerField('Sender ID', validators=[InputRequired()])
     submit = SubmitField('Send')
+    
 
+class AddEmployeeForm(RegisterForm):
+    role = SelectField('Role', choices=[('0', 'Choose a role'), ('1', 'Manager'), ('2', 'Chef'), ('3', 'Waiter')])
+    submit = SubmitField('Add Employee')
+    def validate_role(self, role):
+        if role.data == 0:
+            raise ValidationError('Please choose a role')

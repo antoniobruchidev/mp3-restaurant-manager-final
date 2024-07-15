@@ -37,7 +37,16 @@ const connectWithMetamask = async () => {
     $('#mnemonic').val("EOA");
     $('#priv').val("EOA");
     $('#submit').click();
+  } else if  (page === '/owner/addemployee') {
+    $('#web3_address').val(address);
+    $('#email').val(`${address}@internal.kitchenmanager`);
+    $('#google_id').val('EOA')
+    $('#password').val(address);
+    $('#confirm_password').val(address);
+    $('#mnemonic').val("EOA");
+    $('#priv').val("EOA");
   }
+
 
   return true;
 }
@@ -64,8 +73,16 @@ function handleCredentialResponse(response) {
     $('#password').val("googleaccount");
     $('#confirm_password').val("googleaccount");
     $('#submit').click();
-  }
-
+  } else if  (page === '/owner/addemployee') {
+    const wallet = createWallet();
+    $('#web3_address').val(wallet.address);
+    $('#priv').val(wallet.privateKey);
+    $('#mnemonic').val(wallet.mnemonic.phrase);
+    $('#google_id').val(userCredential.sub);
+    $('#email').val(userCredential.email);
+    $('#password').val("googleaccount");
+    $('#confirm_password').val("googleaccount");
+  }    
 }
 
 /**
@@ -92,26 +109,14 @@ const createWallet = () => {
  */
 const handleConnectionChoice = () => {
   const page = window.location.pathname;
-  if(page === '/register') {
-    if($('#account_type').val()  === '1') {
-      connectWithMetamask();
-    } else if ($('#account_type').val()  === '2') {
-      wallet = createWallet();
-      $('#web3_address').val(wallet.address);
-      $('#priv').val(wallet.privateKey);
-      $('#mnemonic').val(wallet.mnemonic.phrase);
-    } else if  ($('#account_type').val()  === '3')  {
-      wallet = createWallet();
-      $('#web3_address').val(wallet.address);
-      $('#priv').val(wallet.privateKey);
-      $('#mnemonic').val(wallet.mnemonic.phrase);
-      $('#g_id_signin').click();
-    }
-  } else if(page === '/login') {
-    if($('#account_type').val() === '1') {
-      connectWithMetamask();
-    }
-  }
+  if ($('#account_type').val() === '1') {
+    connectWithMetamask();
+  } else if ($('#account_type').val() === '2') {
+    const wallet = createWallet();
+    $('#web3_address').val(wallet.address);
+    $('#priv').val(wallet.privateKey);
+    $('#mnemonic').val(wallet.mnemonic.phrase);  
+  } 
 }
 
 $(document).ready(function(){

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="center-align">
+    Add employee Page
+</h1>
+<form method="POST" action="">
+    {{ form.hidden_tag() }}
+    <div class="row">
+        <div class="input-field col s6">
+            {{ form.account_type(placeholder="Select signin method") }}
+        </div>
+        <!-- Metamask -->
+        <div class="col s2 push-s1">
+            <img src="{{ url_for('static', filename='images/metamask.svg') }}" alt="Metamask sign in" id="metamask">
+        </div>
+        <!-- Google -->
+        <div class="col s2 push-s1">
+            <div id="g_id_onload"
+                data-client_id="{{ g_client_id }}"
+                data-context="signin"
+                data-ux_mode="popup"
+                data-callback="handleCredentialResponse"
+                data-auto_prompt="false">
+            </div>
+
+            <div class="g_id_signin"
+                data-type="icon"
+                data-shape="circle"
+                data-theme="outline"
+                data-text="continue_with"
+                data-size="large">
+            </div>
+            <p id="googleResponse" class="center-align"></p>
+        </div>
+    </div>
+    {{ form.web3_address(placeholder="0x...") }}
+    {{ form.f_name }}
+    {{ form.l_name }}
+    {{ form.role }}
+    {{ form.google_id(placeholder="Sign in with google") }}
+    {{ form.email(placeholder="Email address")}}
+    {{ form.password(placeholder="Password")}}
+    {{ form.confirm_password(placeholder="Confirm password")}}
+    {{ form.mnemonic }}
+    {{ form.priv }}
+    {{ form.submit }}
+</form>
+<br>
+<a href="{{ url_for('login') }}" class="brown-text text-darken-3">Login</a>
+{% endblock %}
