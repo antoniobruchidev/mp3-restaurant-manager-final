@@ -47,4 +47,60 @@ The platform is designed to be a restaurant management system. It will be able t
 1. python 3.10.12
 3. Flask-SQLAlchemy
 4. HTML
+5. CSS
+6. JS
+7. Materialize
+8. Postgresql
+9. Flask_Login
+10. wtforms
+11. Flask_Mail
+12. web3
 
+## Development
+
+### User Authentication
+
+Probably the trickiest part of this project given the owner's user stories.
+I created an authentication process that can login users and employees, they can regiter and login the platform using Metamask or compatible ethereum wallet. They can also register and login with Google or simply using their email and a password.
+
+#### The user register with metamask or compatible ethereum wallet.
+
+The platform will store the user web3, address given and family name (not required), it will create a fake email in the form of web3_address@internal.kitchenmanager to populate the required email field. it will also create a password to populate the required password field, but the user will not be able to access the platform with the fake email and password until they change it after logging in with metamask. (To be implemented). The user won't need activation.
+
+#### The user register with google
+
+The platform will store the user google id, its email, given and family name. It will create a new ethereum wallet which will be assigned to the user, storing also the mnemonic phrase and private key (they should both be encrypted). It will also populate the password field with a password that the user won't be able to access the platform with until they change it after logging in with google.(To be implemented). The user won't need activation, maybe a simple confirmation email.
+
+#### The user register with email and password
+
+The platform will store the user email, given and family name (not required). It will create a new ethereum wallet which will be assigned to the user, storing also the mnemonic phrase and private key  (they should both be encrypted). It will also populate the password field with a password that the user won't be able to access the platform with until they change it after logging in with email and password.(To be implemented). The platform will send an email asking for the user to activate their account.
+
+#### User login
+
+Selecting metamask, or selecting google and clicking on the login button and selecting the desired google account will log the user in, if registered, redirecting to the dashboard.
+Selecting email and password will log the user in, if registered and activated, redirecting to the dashboard.
+With bad credentials the user will be redirected to the login page in any case. (To be implemented error message).
+
+#### User registration validation
+
+```python
+restaurantmanager/forms.py (25-40)
+
+    def validate_web3_address(self, web3_address):
+        existing_web3_address = db.session.query(User).filter_by(
+            web3_address=web3_address.data).first()
+        if existing_web3_address:
+            raise ValidationError('The web3 address is already in use')
+        
+    def validate_email(self, email):
+        existing_email = db.session.query(User).filter_by(
+            email=email.data).first()
+        if existing_email:
+            raise ValidationError('The email is already in use')
+        
+    def validate_account_type(self, account_type):
+        if account_type.data == '0':
+            raise ValidationError('Please choose an account type')
+```
+
+The above code ensure that user MUST select an account type and both web3 address and emails are uniques.
