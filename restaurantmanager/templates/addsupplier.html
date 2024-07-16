@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="center-align">
+    Add employee Page
+</h1>
+<form method="POST" action="">
+    {{ form.hidden_tag() }}
+    {{ form.name }}
+    {{ form.email(placeholder="Email address")}}
+    {{ form.info }}
+    {{ form.submit }}
+</form>
+<br>
+<a href="{{ url_for('dashboard') }}">Dashboard</a>
+{% endblock %}

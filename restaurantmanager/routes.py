@@ -4,7 +4,7 @@ from flask import redirect, render_template, url_for
 from restaurantmanager import app, db, argon2, mail
 from restaurantmanager.models import AccountType, Board, InternalMessage, User, Wallet, Supplier, BoughtItem, ManufactoredItem, Recipe, SellableItem, StockMovement, Order, Delivery
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
-from restaurantmanager.forms import AddEmployeeForm, CreateMessageForm, LoginForm, RegisterForm
+from restaurantmanager.forms import AddEmployeeForm, AddSupplierForm, CreateMessageForm, LoginForm, RegisterForm
 from restaurantmanager.web3interface import w3, check_role, grant_role, role_hash
 from flask_mail import Message
 
@@ -102,11 +102,30 @@ def logout():
 @login_required
 def messageboard():
     is_owner = check_role(role_hash('owner'), current_user.web3_address)
+    is_manager = check_role(role_hash('manager'), current_user.web3_address)
+    is_chef = check_role(role_hash('chef'), current_user.web3_address)
+    is_waiter = check_role(role_hash('waiter'), current_user.web3_address)
     if is_owner:
-        board_messages = db.session.query(InternalMessage).filter_by(board=Board.owner).all()
-        return render_template('messageboard.html', board_messages=board_messages)
+        owner_messages = db.session.query(InternalMessage).filter_by(board=Board.owner).all()
     else:
-        return redirect(url_for('dashboard'))
+        owner_messages = []
+    if is_manager:
+        manager_messages = db.session.query(InternalMessage).filter_by(board=Board.manager).all()
+    else:
+        manager_messages = []
+    if is_chef:
+        chef_messages = db.session.query(InternalMessage).filter_by(board=Board.chef).all()
+    else:
+        chef_messages = []
+    if is_waiter:
+        waiter_messages = db.session.query(InternalMessage).filter_by(board=Board.waiter).all()
+    else:
+        waiter_messages = []
+    public_messages = db.session.query(InternalMessage).filter_by(board=Board.public).all()
+    board_messages = owner_messages + manager_messages + chef_messages + waiter_messages + public_messages
+
+    return render_template('messageboard.html', board_messages=board_messages)
+    
 
 
 @app.route('/messageboards/sendmessage', methods=['GET', 'POST'])
@@ -144,9 +163,12 @@ def staff():
 @login_required
 def add_employee():
     is_owner = check_role(role_hash('owner'), current_user.web3_address)
-    if is_owner:
+    is_manager = check_role(role_hash('manager'), current_user.web3_address)
+    if is_owner or is_manager:
         form = AddEmployeeForm()
         if form.validate_on_submit():
+            if not is_owner and form.roles.data == '1':
+                return redirect(url_for('add_employee'), form=form, g_client_id=os.environ.get('GOOGLE_CLIENT_ID'))
             hashed_password = argon2.generate_password_hash(form.password.data)
             activated = False
             if form.account_type.data != '2':
@@ -175,7 +197,44 @@ def add_employee():
         return render_template('addemployee.html', form=form, g_client_id=os.environ.get('GOOGLE_CLIENT_ID'))
     else:
         return redirect(url_for('login'))
-    
+
+
+@app.route('/suppliers')
+@login_required
+def suppliers():
+    is_manager = check_role(role_hash('manager'), current_user.web3_address)
+    if is_manager:
+        suppliers = db.session.query(Supplier).all()
+        return render_template('suppliers.html', suppliers=suppliers)
+    else:
+        return redirect(url_for('logout'))
+
+
+@app.route('/supplier/<int:supplier_id>')
+@login_required
+def supplier(supplier_id):
+    is_manager = check_role(role_hash('manager'), current_user.web3_address)
+    if is_manager:
+        supplier = db.session.query(Supplier).filter_by(id=supplier_id).first()
+        boughtitems = db.session.query(BoughtItem).filter_by(supplier_id=supplier_id).all()
+        return render_template('supplier.html', supplier=supplier, boughtitems=boughtitems)
+    else:
+        return redirect(url_for('logout'))
+
+@app.route('/manager/addsupplier', methods=['GET', 'POST'])
+@login_required
+def add_supplier():
+    is_manager = check_role(role_hash('manager'), current_user.web3_address)
+    if is_manager:
+        form = AddSupplierForm()
+        if form.validate_on_submit():
+            supplier = Supplier(name=form.name.data, email=form.email.data, info=form.info.data)
+            db.session.add(supplier)
+            db.session.commit()
+            return redirect(url_for('suppliers'))
+        return render_template('addsupplier.html', form=form, g_client_id=os.environ.get('GOOGLE_CLIENT_ID'))
+    else:
+        return redirect(url_for('logout'))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():

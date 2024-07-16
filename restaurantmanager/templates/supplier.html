@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Supplier: {{ supplier.name }}</h1>
+<p>Email:  {{ supplier.email }}</p>
+{% for boughtitem in boughtitems  %}
+<hr>
+<p>Item ID: {{ boughtitem.id }}</p>
+<p>Desc: {{ boughtitem.description }}</p>
+<p>stock:  {{ boughtitem.stock }}</p>
+{% endfor %}
+<hr>
+<a href="{{ url_for('staff') }}">Staff</a>
+<a href="{{ url_for('add_employee') }}">Add_employee</a>
+<a href="{{ url_for('suppliers') }}">Suppliers</a>
+<a href="{{ url_for('add_supplier') }}">Add_suppliers</a>
+<a href="{{ url_for('messageboard') }}">Message Board</a>
+<a href="{{ url_for('logout') }}">Logout</a>
+{% endblock %}

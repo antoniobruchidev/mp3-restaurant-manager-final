@@ -73,3 +73,11 @@ class AddEmployeeForm(RegisterForm):
     def validate_role(self, role):
         if role.data == 0:
             raise ValidationError('Please choose a role')
+        
+
+class AddSupplierForm(FlaskForm):
+    name = StringField('Name', validators=[InputRequired()])
+    email = StringField('Email', validators=[InputRequired(), Email()])
+    info = TextAreaField('Info', validators=[InputRequired()])
+    submit = SubmitField('Add Supplier')
+
