@@ -29,5 +29,16 @@
 <p>To: {{ message.board }}</p>
 <p>Sent:  {{ message.timestamp }}</p>
 {% endfor %}
+<hr>
+<a href="{{ url_for('staff') }}">Staff</a>
+<br>
+<a href="{{ url_for('add_employee') }}">Add_employee</a>
+<br>
+<a href="{{ url_for('suppliers')  }}">Suppliers</a>
+<br>
+<a href="{{ url_for('add_supplier')  }}">Add_suppliers</a>
+<br>
+<a href="{{ url_for('messageboard') }}">Message Board</a>
+<br>
 <a href="{{ url_for('logout') }}">Logout</a>
 {% endblock %}
