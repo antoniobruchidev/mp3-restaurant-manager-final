@@ -4,7 +4,7 @@ from flask import redirect, render_template, url_for
 from restaurantmanager import app, db, argon2, mail
 from restaurantmanager.models import AccountType, Board, InternalMessage, User, Wallet, Supplier, BoughtItem, ManufactoredItem, Recipe, SellableItem, StockMovement, Order, Delivery
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
-from restaurantmanager.forms import AddEmployeeForm, AddSupplierForm, CreateMessageForm, LoginForm, RegisterForm
+from restaurantmanager.forms import AddBoughtItemForm, AddEmployeeForm, AddSupplierForm, CreateMessageForm, LoginForm, RegisterForm
 from restaurantmanager.web3interface import w3, check_role, grant_role, role_hash
 from flask_mail import Message
 
@@ -234,6 +234,51 @@ def add_supplier():
             db.session.commit()
             return redirect(url_for('get_suppliers'))
         return render_template('addsupplier.html', form=form)
+    else:
+        return redirect(url_for('logout'))
+
+
+@app.route('/manager/addboughtitem/<int:supplier_id>', methods=['GET',  'POST'])
+@login_required
+def add_bought_item(supplier_id):
+    is_manager = check_role(role_hash('manager'), current_user.web3_address)
+    if is_manager:
+        form = AddBoughtItemForm()
+        form.supplier_id.data = supplier_id
+        print(type(form.supplier_id.data))
+        if form.validate_on_submit():
+            print(type(form.supplier_id.data))
+            boughtitem = BoughtItem(name=form.name.data, supplier_id=form.supplier_id.data, stock=0)
+            db.session.add(boughtitem)
+            db.session.commit()
+            print(form.errors)
+            return redirect(url_for('get_supplier', supplier_id = supplier_id))
+        return render_template('addboughtitem.html', form=form, supplier_id=supplier_id)
+    else:
+        return redirect(url_for('logout'))
+
+
+@app.route('/manager/boughtitems')
+@login_required
+def get_bought_items():
+    is_manager = check_role(role_hash('manager'), current_user.web3_address)
+    if is_manager:
+        boughtitems = db.session.query(BoughtItem).all()
+        suppliers = db.session.query(Supplier).all()
+        
+        return render_template('boughtitems.html', boughtitems=boughtitems, suppliers=suppliers)
+    else:
+        return redirect(url_for('logout'))
+
+
+@app.route('/manager/boughtitem/<int:bought_item_id>')
+@login_required
+def get_bought_item(bought_item_id):
+    is_manager = check_role(role_hash('manager'), current_user.web3_address)
+    if is_manager:
+        boughtitem = db.session.query(BoughtItem).filter_by(id=bought_item_id).first()
+        supplier = db.session.query(Supplier).filter_by(id=boughtitem.supplier_id).first()
+        return render_template('supplier.html', boughtitem=boughtitem, supplier=supplier)
     else:
         return redirect(url_for('logout'))
     

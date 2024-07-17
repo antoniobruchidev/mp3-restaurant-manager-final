@@ -81,3 +81,13 @@ class AddSupplierForm(FlaskForm):
     info = TextAreaField('Info', validators=[InputRequired()])
     submit = SubmitField('Add Supplier')
 
+
+class AddBoughtItemForm(FlaskForm):
+    name = StringField('Name', validators=[InputRequired()])
+    supplier_id = IntegerField('Supplier ID', validators=[InputRequired()])
+    submit = SubmitField('Add Item')
+
+    def validate_supplier_id(self, supplier_id):
+        if supplier_id.data == 0:
+            raise ValidationError('Please choose a supplier')
+

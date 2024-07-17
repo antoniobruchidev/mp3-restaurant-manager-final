@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="center-align">
+    Add Ingredient Page
+</h1>
+<form method="POST" action="{{ url_for('add_bought_item', supplier_id=supplier_id)}}">
+    {{ form.hidden_tag() }}
+    {{ form.name }}
+    {{ form.supplier_id  }}
+    {{ form.submit }}
+</form>
+<hr>
+<a href="{{ url_for('dashboard') }}">Dashboard</a>
+{% endblock %}
