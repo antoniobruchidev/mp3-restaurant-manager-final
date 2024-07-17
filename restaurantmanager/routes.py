@@ -149,7 +149,7 @@ def sendmessage():
 
 @app.route('/owner/staff')
 @login_required
-def staff():
+def get_employees():
     is_owner = check_role(role_hash('owner'), current_user.web3_address)
     if is_owner:
         employees = db.session.query(User).filter_by(roles = True).all()
@@ -199,9 +199,9 @@ def add_employee():
         return redirect(url_for('login'))
 
 
-@app.route('/suppliers')
+@app.route('/manager/suppliers')
 @login_required
-def suppliers():
+def get_suppliers():
     is_manager = check_role(role_hash('manager'), current_user.web3_address)
     if is_manager:
         suppliers = db.session.query(Supplier).all()
@@ -210,9 +210,9 @@ def suppliers():
         return redirect(url_for('logout'))
 
 
-@app.route('/supplier/<int:supplier_id>')
+@app.route('/manager/suppliers/<int:supplier_id>')
 @login_required
-def supplier(supplier_id):
+def get_supplier(supplier_id):
     is_manager = check_role(role_hash('manager'), current_user.web3_address)
     if is_manager:
         supplier = db.session.query(Supplier).filter_by(id=supplier_id).first()
@@ -220,6 +220,7 @@ def supplier(supplier_id):
         return render_template('supplier.html', supplier=supplier, boughtitems=boughtitems)
     else:
         return redirect(url_for('logout'))
+
 
 @app.route('/manager/addsupplier', methods=['GET', 'POST'])
 @login_required
@@ -231,10 +232,11 @@ def add_supplier():
             supplier = Supplier(name=form.name.data, email=form.email.data, info=form.info.data)
             db.session.add(supplier)
             db.session.commit()
-            return redirect(url_for('suppliers'))
-        return render_template('addsupplier.html', form=form, g_client_id=os.environ.get('GOOGLE_CLIENT_ID'))
+            return redirect(url_for('get_suppliers'))
+        return render_template('addsupplier.html', form=form)
     else:
         return redirect(url_for('logout'))
+    
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -263,6 +265,7 @@ def register():
     print(form.errors)
 
     return render_template('register.html', form=form, g_client_id=g_client_id)
+
 
 @app.route('/activate/<web3_address>')
 def activate(web3_address):

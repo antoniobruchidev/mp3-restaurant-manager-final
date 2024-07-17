@@ -30,11 +30,11 @@
 <p>Sent:  {{ message.timestamp }}</p>
 {% endfor %}
 <hr>
-<a href="{{ url_for('staff') }}">Staff</a>
+<a href="{{ url_for('get_employees') }}">Staff</a>
 <br>
 <a href="{{ url_for('add_employee') }}">Add_employee</a>
 <br>
-<a href="{{ url_for('suppliers')  }}">Suppliers</a>
+<a href="{{ url_for('get_suppliers')  }}">Suppliers</a>
 <br>
 <a href="{{ url_for('add_supplier')  }}">Add_suppliers</a>
 <br>

@@ -5,14 +5,16 @@
 {% for boughtitem in boughtitems  %}
 <hr>
 <p>Item ID: {{ boughtitem.id }}</p>
+<p>Item Name:  {{ boughtitem.name  }}</p>
 <p>Desc: {{ boughtitem.description }}</p>
 <p>stock:  {{ boughtitem.stock }}</p>
 {% endfor %}
 <hr>
-<a href="{{ url_for('staff') }}">Staff</a>
-<a href="{{ url_for('add_employee') }}">Add_employee</a>
-<a href="{{ url_for('suppliers') }}">Suppliers</a>
-<a href="{{ url_for('add_supplier') }}">Add_suppliers</a>
+<a href="{{ url_for('get_suppliers') }}">Suppliers</a>
+<br>
+<a href="{{ url_for('add_bought_item', supplier_id=supplier.id) }}">Add Item</a>
+<br>
 <a href="{{ url_for('messageboard') }}">Message Board</a>
+<br>
 <a href="{{ url_for('logout') }}">Logout</a>
 {% endblock %}
