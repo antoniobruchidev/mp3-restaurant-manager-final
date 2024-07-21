@@ -3,7 +3,14 @@
 <h1 class="center-align">
     Add Ingredient Page
 </h1>
-<form method="POST" action="{{ url_for('add_bought_item', supplier_id=supplier_id)}}">
+{% with messages = get_flashed_messages() %}
+   {% if messages %}
+      {% for message in messages %}
+         {{ message }}
+      {% endfor %}
+   {% endif %}
+{% endwith %}
+<form method="POST" action="{{ url_for('add_ingredient', supplier_id=supplier_id)}}">
     {{ form.hidden_tag() }}
     {{ form.name }}
     {{ form.supplier_id  }}

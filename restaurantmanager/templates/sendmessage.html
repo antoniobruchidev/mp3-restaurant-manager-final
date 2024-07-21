@@ -6,9 +6,10 @@
 <form method="POST" action="">
     {{ form.hidden_tag() }}
     {{ form.board_id }}
+    {{ form.subject }}
     {{ form.message }}
     {{ form.submit }}
 </form>
 <br>
-<a href="{{ url_for('dashboard') }}"">Dashboard</a>
+<a href="{{ url_for('dashboard') }}">Dashboard</a>
 {% endblock %}

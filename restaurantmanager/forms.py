@@ -52,6 +52,7 @@ class LoginForm(FlaskForm):
 
 
 class CreateMessageForm(FlaskForm):
+    subject = StringField('Subject', validators=[InputRequired()])
     message = TextAreaField('Message', validators=[InputRequired()])
     board_id = SelectField('Board', choices=[('0', 'Choose a board'), ('1', 'Owners board'), ('2', 'Managers board'), ('3', 'Chefs board'), ('4', 'Waiters board')])
     submit = SubmitField('Send')
@@ -82,7 +83,7 @@ class AddSupplierForm(FlaskForm):
     submit = SubmitField('Add Supplier')
 
 
-class AddBoughtItemForm(FlaskForm):
+class AddIngredientForm(FlaskForm):
     name = StringField('Name', validators=[InputRequired()])
     supplier_id = IntegerField('Supplier ID', validators=[InputRequired()])
     submit = SubmitField('Add Item')

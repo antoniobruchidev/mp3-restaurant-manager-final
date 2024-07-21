@@ -2,17 +2,17 @@
 {% block content %}
 <h1>Supplier: {{ supplier.name }}</h1>
 <p>Email:  {{ supplier.email }}</p>
-{% for boughtitem in boughtitems  %}
+{% for ingredient in ingredients  %}
 <hr>
-<p>Item ID: {{ boughtitem.id }}</p>
-<p>Item Name:  {{ boughtitem.name  }}</p>
-<p>Desc: {{ boughtitem.description }}</p>
-<p>stock:  {{ boughtitem.stock }}</p>
+<p>Item ID: {{ ingredient.id }}</p>
+<p>Item Name:  {{ ingredient.name  }}</p>
+<p>Desc: {{ ingredient.description }}</p>
+<p>stock:  {{ ingredient.stock_in_weight }}</p>
 {% endfor %}
 <hr>
 <a href="{{ url_for('get_suppliers') }}">Suppliers</a>
 <br>
-<a href="{{ url_for('add_bought_item', supplier_id=supplier.id) }}">Add Item</a>
+<a href="{{ url_for('add_ingredient', supplier_id=supplier.id) }}">Add Item</a>
 <br>
 <a href="{{ url_for('messageboard') }}">Message Board</a>
 <br>

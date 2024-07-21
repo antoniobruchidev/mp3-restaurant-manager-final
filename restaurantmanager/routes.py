@@ -1,10 +1,37 @@
 import os
 import datetime
-from flask import redirect, render_template, url_for
+from flask import flash, redirect, render_template, url_for
 from restaurantmanager import app, db, argon2, mail
-from restaurantmanager.models import AccountType, Board, InternalMessage, User, Wallet, Supplier, BoughtItem, ManufactoredItem, Recipe, SellableItem, StockMovement, Order, Delivery
-from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
-from restaurantmanager.forms import AddBoughtItemForm, AddEmployeeForm, AddSupplierForm, CreateMessageForm, LoginForm, RegisterForm
+from restaurantmanager.models import (
+    AccountType,
+    Board,
+    BoardMessage,
+    User,
+    Wallet,
+    Supplier,
+    Ingredient,
+    ManufactoredIngredient,
+    Recipe,
+    StockMovement,
+    Order,
+    Delivery,
+)
+from flask_login import (
+    UserMixin,
+    login_user,
+    LoginManager,
+    login_required,
+    current_user,
+    logout_user,
+)
+from restaurantmanager.forms import (
+    AddIngredientForm,
+    AddEmployeeForm,
+    AddSupplierForm,
+    CreateMessageForm,
+    LoginForm,
+    RegisterForm,
+)
 from restaurantmanager.web3interface import w3, check_role, grant_role, role_hash
 from flask_mail import Message
 
@@ -19,307 +46,403 @@ def load_user(user_id):
     return User.query.get(user_id)
 
 
-@app.route('/')
+@app.route("/")
 def home():
-    return render_template('home.html')
+    return render_template("home.html")
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    g_client_id = os.environ.get('GOOGLE_CLIENT_ID')
+    g_client_id = os.environ.get("GOOGLE_CLIENT_ID")
     form = LoginForm()
     if form.validate_on_submit():
 
-        if form.account_type.data == '3':
-            user = db.session.query(User).filter_by(
-                google_id=form.google_id.data).first()
-            
+        if form.account_type.data == "3":
+            user = (
+                db.session.query(User).filter_by(google_id=form.google_id.data).first()
+            )
+
             if user:
-                logged_in = User.query.filter_by(
-                    google_id=form.google_id.data).first()
+                logged_in = User.query.filter_by(google_id=form.google_id.data).first()
                 login_user(logged_in)
-                return redirect(url_for('dashboard'))
+                return redirect(url_for("dashboard"))
             else:
-                return redirect(url_for('login'))
-        elif form.account_type.data == '2':
-            user = db.session.query(User).filter_by(
-                email=form.email.data).first()
+                return redirect(url_for("login"))
+        elif form.account_type.data == "2":
+            user = db.session.query(User).filter_by(email=form.email.data).first()
             if user:
                 if user.activated:
                     if argon2.check_password_hash(user.password, form.password.data):
-                        logged_in = User.query.filter_by(
-                            email=form.email.data).first()
+                        logged_in = User.query.filter_by(email=form.email.data).first()
                     login_user(logged_in)
-                    return redirect(url_for('dashboard'))
+                    return redirect(url_for("dashboard"))
                 else:
-                    return redirect(url_for('login'))
+                    return redirect(url_for("login"))
             else:
-                return redirect(url_for('login'))
-        elif form.account_type.data == '1':
-            user = db.session.query(User).filter_by(
-                web3_address=form.web3_address.data).first()
+                return redirect(url_for("login"))
+        elif form.account_type.data == "1":
+            user = (
+                db.session.query(User)
+                .filter_by(web3_address=form.web3_address.data)
+                .first()
+            )
             if user:
                 logged_in = User.query.filter_by(
-                    web3_address=form.web3_address.data).first()
+                    web3_address=form.web3_address.data
+                ).first()
                 login_user(logged_in)
-                return redirect(url_for('dashboard'))
+                return redirect(url_for("dashboard"))
             else:
-                return redirect(url_for('login'))
+                return redirect(url_for("login"))
 
-    return render_template('login.html', form=form, g_client_id=g_client_id)
+    return render_template("login.html", form=form, g_client_id=g_client_id)
 
 
-@app.route('/dashboard')
+@app.route("/dashboard")
 @login_required
 def dashboard():
-    is_owner = check_role(role_hash('owner'), current_user.web3_address)
-    is_manager = check_role(role_hash('manager'), current_user.web3_address)
-    is_chef = check_role(role_hash('chef'), current_user.web3_address)
-    is_waiter = check_role(role_hash('waiter'), current_user.web3_address)
+    is_owner = check_role(role_hash("owner"), current_user.web3_address)
+    is_manager = check_role(role_hash("manager"), current_user.web3_address)
+    is_chef = check_role(role_hash("chef"), current_user.web3_address)
+    is_waiter = check_role(role_hash("waiter"), current_user.web3_address)
     web3_address = current_user.web3_address
-    if current_user.f_name != 'EOA':
+    if current_user.f_name != "EOA":
         f_name = current_user.f_name
     else:
         f_name = ""
-    if current_user.l_name != 'EOA':
+    if current_user.l_name != "EOA":
         l_name = current_user.l_name
     else:
         l_name = ""
     email = current_user.email
-    my_messages = db.session.query(InternalMessage).filter_by(sender_id=current_user.id).all()
+    my_messages = (
+        db.session.query(BoardMessage).filter_by(sender_id=current_user.id).all()
+    )
 
-    return render_template('dashboard.html', is_owner=is_owner, is_manager=is_manager, is_chef=is_chef, is_waiter=is_waiter, web3_address=web3_address, f_name=f_name, l_name=l_name, email=email, messages=my_messages)
+    return render_template(
+        "dashboard.html",
+        is_owner=is_owner,
+        is_manager=is_manager,
+        is_chef=is_chef,
+        is_waiter=is_waiter,
+        web3_address=web3_address,
+        f_name=f_name,
+        l_name=l_name,
+        email=email,
+        messages=my_messages,
+    )
 
 
-@app.route('/logout')
+@app.route("/logout")
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('login'))
+    return redirect(url_for("login"))
 
 
-@app.route('/messageboard')
+@app.route("/messageboard")
 @login_required
 def messageboard():
-    is_owner = check_role(role_hash('owner'), current_user.web3_address)
-    is_manager = check_role(role_hash('manager'), current_user.web3_address)
-    is_chef = check_role(role_hash('chef'), current_user.web3_address)
-    is_waiter = check_role(role_hash('waiter'), current_user.web3_address)
+    is_owner = check_role(role_hash("owner"), current_user.web3_address)
+    is_manager = check_role(role_hash("manager"), current_user.web3_address)
+    is_chef = check_role(role_hash("chef"), current_user.web3_address)
+    is_waiter = check_role(role_hash("waiter"), current_user.web3_address)
     if is_owner:
-        owner_messages = db.session.query(InternalMessage).filter_by(board=Board.owner).all()
+        owner_messages = (
+            db.session.query(BoardMessage).filter_by(board=Board.owner).all()
+        )
     else:
         owner_messages = []
     if is_manager:
-        manager_messages = db.session.query(InternalMessage).filter_by(board=Board.manager).all()
+        manager_messages = (
+            db.session.query(BoardMessage).filter_by(board=Board.manager).all()
+        )
     else:
         manager_messages = []
     if is_chef:
-        chef_messages = db.session.query(InternalMessage).filter_by(board=Board.chef).all()
+        chef_messages = (
+            db.session.query(BoardMessage).filter_by(board=Board.chef).all()
+        )
     else:
         chef_messages = []
     if is_waiter:
-        waiter_messages = db.session.query(InternalMessage).filter_by(board=Board.waiter).all()
+        waiter_messages = (
+            db.session.query(BoardMessage).filter_by(board=Board.waiter).all()
+        )
     else:
         waiter_messages = []
-    public_messages = db.session.query(InternalMessage).filter_by(board=Board.public).all()
-    board_messages = owner_messages + manager_messages + chef_messages + waiter_messages + public_messages
+    public_messages = (
+        db.session.query(BoardMessage).filter_by(board=Board.public).all()
+    )
+    board_messages = (
+        owner_messages
+        + manager_messages
+        + chef_messages
+        + waiter_messages
+        + public_messages
+    )
 
-    return render_template('messageboard.html', board_messages=board_messages)
-    
+    return render_template("messageboard.html", board_messages=board_messages)
 
 
-@app.route('/messageboards/sendmessage', methods=['GET', 'POST'])
+@app.route("/messageboards/sendmessage", methods=["GET", "POST"])
 @login_required
 def sendmessage():
     date = datetime.datetime.now()
     print(date)
     form = CreateMessageForm()
     if form.validate_on_submit():
-        message = InternalMessage(
+        message = BoardMessage(
             sender_id=current_user.id,
+            subject=form.subject.data,
             board=Board(int(form.board_id.data)),
             message=form.message.data,
-            timestamp=date
+            timestamp=date,
         )
         db.session.add(message)
         db.session.commit()
-        return redirect(url_for('dashboard'))
-    return render_template('sendmessage.html', form=form)
+        return redirect(url_for("dashboard"))
+    return render_template("sendmessage.html", form=form)
 
 
-@app.route('/owner/staff')
+@app.route("/owner/staff")
 @login_required
 def get_employees():
-    is_owner = check_role(role_hash('owner'), current_user.web3_address)
+    is_owner = check_role(role_hash("owner"), current_user.web3_address)
     if is_owner:
-        employees = db.session.query(User).filter_by(roles = True).all()
+        employees = db.session.query(User).filter_by(roles=True).all()
         print(employees)
-        return render_template('staff.html', employees=employees)
+        return render_template("staff.html", employees=employees)
     else:
-        return redirect(url_for('dashboard'))
+        return redirect(url_for("dashboard"))
 
 
-@app.route('/owner/addemployee', methods=['GET', 'POST'])
+@app.route("/owner/addemployee", methods=["GET", "POST"])
 @login_required
 def add_employee():
-    is_owner = check_role(role_hash('owner'), current_user.web3_address)
-    is_manager = check_role(role_hash('manager'), current_user.web3_address)
+    is_owner = check_role(role_hash("owner"), current_user.web3_address)
+    is_manager = check_role(role_hash("manager"), current_user.web3_address)
     if is_owner or is_manager:
         form = AddEmployeeForm()
         if form.validate_on_submit():
-            if not is_owner and form.roles.data == '1':
-                return redirect(url_for('add_employee'), form=form, g_client_id=os.environ.get('GOOGLE_CLIENT_ID'))
+            if not is_owner and form.roles.data == "1":
+                return redirect(
+                    url_for("add_employee"),
+                    form=form,
+                    g_client_id=os.environ.get("GOOGLE_CLIENT_ID"),
+                )
             hashed_password = argon2.generate_password_hash(form.password.data)
             activated = False
-            if form.account_type.data != '2':
+            if form.account_type.data != "2":
                 activated = True
-            new_user = User(f_name=form.f_name.data, l_name=form.l_name.data, password=hashed_password, email=form.email.data, google_id=form.google_id.data, web3_address=form.web3_address.data, account_type=AccountType(
-                int(form.account_type.data)), activated=activated, roles=True)
+            new_user = User(
+                f_name=form.f_name.data,
+                l_name=form.l_name.data,
+                password=hashed_password,
+                email=form.email.data,
+                google_id=form.google_id.data,
+                web3_address=form.web3_address.data,
+                account_type=AccountType(int(form.account_type.data)),
+                activated=activated,
+                roles=True,
+            )
             db.session.add(new_user)
             db.session.commit()
-            user = db.session.query(User).filter_by(web3_address=form.web3_address.data).first()
-            msg = Message("Please activate your account",
-                          sender=os.environ.get('MAIL_USERNAME'),
-                          recipients=[form.email.data])
+            user = (
+                db.session.query(User)
+                .filter_by(web3_address=form.web3_address.data)
+                .first()
+            )
+            msg = Message(
+                "Please activate your account",
+                sender=os.environ.get("MAIL_USERNAME"),
+                recipients=[form.email.data],
+            )
             msg.body = f"Hello {user.f_name}, \n\nPlease click on the link below to activate your account.\n\nhttps://carpez-kitchen-manager-e9e93ef660cf.herokuapp.com/activate/{form.web3_address.data}\n\nThanks."
             mail.send(msg)
-            new_wallet = Wallet(user_id=user.id, mnemonic=form.mnemonic.data, priv=form.priv.data)
+            new_wallet = Wallet(
+                user_id=user.id, mnemonic=form.mnemonic.data, priv=form.priv.data
+            )
             db.session.add(new_wallet)
             db.session.commit()
-            if form.role.data == '1':
-                grant_role(role_hash('manager'), current_user.web3_address, user.web3_address)
-                grant_role(role_hash('waiter'), current_user.web3_address, user.web3_address)
-            elif form.role.data == '2':
-                grant_role(role_hash('chef'), current_user.web3_address, user.web3_address)
-            elif form.role.data ==  '3':
-                grant_role(role_hash('waiter'), current_user.web3_address, user.web3_address)
-            return redirect(url_for('staff'))
-        return render_template('addemployee.html', form=form, g_client_id=os.environ.get('GOOGLE_CLIENT_ID'))
+            if form.role.data == "1":
+                grant_role(
+                    role_hash("manager"), current_user.web3_address, user.web3_address
+                )
+                grant_role(
+                    role_hash("waiter"), current_user.web3_address, user.web3_address
+                )
+            elif form.role.data == "2":
+                grant_role(
+                    role_hash("chef"), current_user.web3_address, user.web3_address
+                )
+            elif form.role.data == "3":
+                grant_role(
+                    role_hash("waiter"), current_user.web3_address, user.web3_address
+                )
+            flash("success", "Account created successfully")
+            return redirect(url_for("get_employees"))
+        return render_template(
+            "addemployee.html",
+            form=form,
+            g_client_id=os.environ.get("GOOGLE_CLIENT_ID"),
+        )
     else:
-        return redirect(url_for('login'))
+        return redirect(url_for("login"))
 
 
-@app.route('/manager/suppliers')
+@app.route("/manager/suppliers")
 @login_required
 def get_suppliers():
-    is_manager = check_role(role_hash('manager'), current_user.web3_address)
+    is_manager = check_role(role_hash("manager"), current_user.web3_address)
     if is_manager:
         suppliers = db.session.query(Supplier).all()
-        return render_template('suppliers.html', suppliers=suppliers)
+        return render_template("suppliers.html", suppliers=suppliers)
     else:
-        return redirect(url_for('logout'))
+        return redirect(url_for("logout"))
 
 
-@app.route('/manager/suppliers/<int:supplier_id>')
+@app.route("/manager/suppliers/<int:supplier_id>")
 @login_required
 def get_supplier(supplier_id):
-    is_manager = check_role(role_hash('manager'), current_user.web3_address)
+    is_manager = check_role(role_hash("manager"), current_user.web3_address)
     if is_manager:
         supplier = db.session.query(Supplier).filter_by(id=supplier_id).first()
-        boughtitems = db.session.query(BoughtItem).filter_by(supplier_id=supplier_id).all()
-        return render_template('supplier.html', supplier=supplier, boughtitems=boughtitems)
+        ingredients = (
+            db.session.query(Ingredient).filter_by(supplier_id=supplier_id).all()
+        )
+        return render_template(
+            "supplier.html", supplier=supplier, ingredients=ingredients
+        )
     else:
-        return redirect(url_for('logout'))
+        return redirect(url_for("logout"))
 
 
-@app.route('/manager/addsupplier', methods=['GET', 'POST'])
+@app.route("/manager/addsupplier", methods=["GET", "POST"])
 @login_required
 def add_supplier():
-    is_manager = check_role(role_hash('manager'), current_user.web3_address)
+    is_manager = check_role(role_hash("manager"), current_user.web3_address)
     if is_manager:
         form = AddSupplierForm()
         if form.validate_on_submit():
-            supplier = Supplier(name=form.name.data, email=form.email.data, info=form.info.data)
+            supplier = Supplier(
+                name=form.name.data, email=form.email.data, info=form.info.data
+            )
             db.session.add(supplier)
             db.session.commit()
-            return redirect(url_for('get_suppliers'))
-        return render_template('addsupplier.html', form=form)
+            return redirect(url_for("get_suppliers"))
+        return render_template("addsupplier.html", form=form)
     else:
-        return redirect(url_for('logout'))
+        return redirect(url_for("logout"))
 
 
-@app.route('/manager/addboughtitem/<int:supplier_id>', methods=['GET',  'POST'])
+@app.route("/manager/suppliers/<int:supplier_id>/addingredient", methods=["GET", "POST"])
 @login_required
-def add_bought_item(supplier_id):
-    is_manager = check_role(role_hash('manager'), current_user.web3_address)
+def add_ingredient(supplier_id):
+    is_manager = check_role(role_hash("manager"), current_user.web3_address)
+    print(is_manager)
     if is_manager:
-        form = AddBoughtItemForm()
+        form = AddIngredientForm()
         form.supplier_id.data = supplier_id
-        print(type(form.supplier_id.data))
         if form.validate_on_submit():
-            print(type(form.supplier_id.data))
-            boughtitem = BoughtItem(name=form.name.data, supplier_id=form.supplier_id.data, stock=0)
-            db.session.add(boughtitem)
+            ingredients = Ingredient(
+                name=form.name.data, supplier_id=form.supplier_id.data
+            )
+            db.session.add(ingredients)
             db.session.commit()
-            print(form.errors)
-            return redirect(url_for('get_supplier', supplier_id = supplier_id))
-        return render_template('addboughtitem.html', form=form, supplier_id=supplier_id)
+            flash("{0} added successfully".format(form.name.data))
+            form.name.data = ""
+        return render_template(
+            "addingredient.html", form=form, supplier_id=supplier_id
+        )
     else:
-        return redirect(url_for('logout'))
+        return redirect(url_for("logout"))
 
 
-@app.route('/manager/boughtitems')
+@app.route("/manager/ingredients")
 @login_required
-def get_bought_items():
-    is_manager = check_role(role_hash('manager'), current_user.web3_address)
+def get_ingredients():
+    is_manager = check_role(role_hash("manager"), current_user.web3_address)
     if is_manager:
-        boughtitems = db.session.query(BoughtItem).all()
+        ingredients = db.session.query(Ingredient).all()
         suppliers = db.session.query(Supplier).all()
-        
-        return render_template('boughtitems.html', boughtitems=boughtitems, suppliers=suppliers)
+
+        return render_template(
+            "ingredients.html", ingredients=ingredients, suppliers=suppliers
+        )
     else:
-        return redirect(url_for('logout'))
+        return redirect(url_for("logout"))
 
 
-@app.route('/manager/boughtitem/<int:bought_item_id>')
+@app.route("/manager/ingredient/<int:ingredient_id>")
 @login_required
-def get_bought_item(bought_item_id):
-    is_manager = check_role(role_hash('manager'), current_user.web3_address)
+def get_ingredient(ingredient_id):
+    is_manager = check_role(role_hash("manager"), current_user.web3_address)
     if is_manager:
-        boughtitem = db.session.query(BoughtItem).filter_by(id=bought_item_id).first()
-        supplier = db.session.query(Supplier).filter_by(id=boughtitem.supplier_id).first()
-        return render_template('supplier.html', boughtitem=boughtitem, supplier=supplier)
+        ingredient = db.session.query(Ingredient).filter_by(id=ingredient_id).first()
+        supplier = (
+            db.session.query(Supplier).filter_by(id=ingredient.supplier_id).first()
+        )
+        return render_template(
+            "supplier.html", ingredient=ingredient, supplier=supplier
+        )
     else:
-        return redirect(url_for('logout'))
-    
+        return redirect(url_for("logout"))
 
-@app.route('/register', methods=['GET', 'POST'])
+
+@app.route("/register", methods=["GET", "POST"])
 def register():
-    g_client_id = os.environ.get('GOOGLE_CLIENT_ID')
+    g_client_id = os.environ.get("GOOGLE_CLIENT_ID")
     form = RegisterForm()
 
     if form.validate_on_submit():
-            hashed_password = argon2.generate_password_hash(form.password.data)
-            activated = False
-            if form.account_type.data != '2':
-                activated = True
-            new_user = User(f_name=form.f_name.data, l_name=form.l_name.data, password=hashed_password, email=form.email.data, google_id=form.google_id.data, web3_address=form.web3_address.data, account_type=AccountType(
-                int(form.account_type.data)), activated=activated)
-            db.session.add(new_user)
-            db.session.commit()
-            user = db.session.query(User).filter_by(web3_address=form.web3_address.data).first()
-            msg = Message("Please activate your account",
-                          sender=os.environ.get('MAIL_USERNAME'),
-                          recipients=[form.email.data])
-            msg.body = f"Hello {user.f_name}, \n\nPlease click on the link below to activate your account.\n\nhttps://carpez-kitchen-manager-e9e93ef660cf.herokuapp.com/activate/{form.web3_address.data}\n\nThanks."
-            mail.send(msg)
-            new_wallet = Wallet(user_id=user.id, mnemonic=form.mnemonic.data, priv=form.priv.data)
-            db.session.add(new_wallet)
-            db.session.commit()
-            return redirect(url_for('login'))
+        hashed_password = argon2.generate_password_hash(form.password.data)
+        activated = False
+        if form.account_type.data != "2":
+            activated = True
+        new_user = User(
+            f_name=form.f_name.data,
+            l_name=form.l_name.data,
+            password=hashed_password,
+            email=form.email.data,
+            google_id=form.google_id.data,
+            web3_address=form.web3_address.data,
+            account_type=AccountType(int(form.account_type.data)),
+            activated=activated,
+        )
+        db.session.add(new_user)
+        db.session.commit()
+        user = (
+            db.session.query(User)
+            .filter_by(web3_address=form.web3_address.data)
+            .first()
+        )
+        msg = Message(
+            "Please activate your account",
+            sender=os.environ.get("MAIL_USERNAME"),
+            recipients=[form.email.data],
+        )
+        msg.body = f"Hello {user.f_name}, \n\nPlease click on the link below to activate your account.\n\nhttps://carpez-kitchen-manager-e9e93ef660cf.herokuapp.com/activate/{form.web3_address.data}\n\nThanks."
+        mail.send(msg)
+        new_wallet = Wallet(
+            user_id=user.id, mnemonic=form.mnemonic.data, priv=form.priv.data
+        )
+        db.session.add(new_wallet)
+        db.session.commit()
+        return redirect(url_for("login"))
     print(form.errors)
 
-    return render_template('register.html', form=form, g_client_id=g_client_id)
+    return render_template("register.html", form=form, g_client_id=g_client_id)
 
 
-@app.route('/activate/<web3_address>')
+@app.route("/activate/<web3_address>")
 def activate(web3_address):
     print(web3_address)
     user = db.session.query(User).filter_by(web3_address=web3_address).first()
     print(user.activated)
     if user.activated:
-        return redirect(url_for('login'))
+        return redirect(url_for("login"))
     else:
         user.activated = True
         db.session.commit()
-        return redirect(url_for('login'))
+        return redirect(url_for("login"))
