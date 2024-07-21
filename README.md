@@ -104,3 +104,12 @@ restaurantmanager/forms.py (25-40)
 ```
 
 The above code ensure that user MUST select an account type and both web3 address and emails are uniques.
+
+### Bugs and fixes
+
+#### Many to many relationship, models refactoring and variables renaming - Commits: [1](https://github.com/antoniobruchidev/mp3-restaurant-manager/commit/2a6628f7f5289c6a698a865397ce08fbb29a44fd){:target="_blank"} - [2](https://github.com/antoniobruchidev/mp3-restaurant-manager/commit/7de505f8732f3821e17aff43255cfd0476d2bf0f){:target="_blank"} - [3](https://github.com/antoniobruchidev/mp3-restaurant-manager/commit/420544fbf48e273a405fa361fc595d376d1adcd1){:target="_blank"}
+
+Once I started coding the part relevant to the creation of a new recipes, I realized my many to many relationships were poorly designed to work with my models. I had the SellableItem model relating to both BoughtItem and ManufactoredItem models, while I was trying to relate the quantities of the ingredients in the recipes storing them in unrelated array of integers inside the Recipe model. Like I said, poorly designed... I also had to fix some minor issues around in the models so it looked like a good moment to do some refactoring.
+On top of it, looking around the web, I found [this](https://www.digitalocean.com/community/tutorials/how-to-use-many-to-many-database-relationships-with-flask-sqlalchemy){:target="_blank"}, compared the defined relationships in those models and mines and it looked like my relationships were completely different, I honestly don't remember where I read about the previous code, but anyway after testing the new code, it was working fine so I decided to keep it.
+Back to my models, I decided to create two new models, IngredientQuantity and ManufactoredIngredientQuantity, so I could relate them with every other table that require a quantity, from placed orders and deliveries and wastages of Ingredients to the sale, preparation or wastage of one or more ManufactoredIngredients (as long has they are flagged as sellable and their price is set).
+Once I was at it I decided to rename some variables in a more semantic way and to add two new columns in the BoardMessage model for the message's subject and its replies.
