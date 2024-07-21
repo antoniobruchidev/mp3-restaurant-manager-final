@@ -105,6 +105,10 @@ restaurantmanager/forms.py (25-40)
 
 The above code ensure that user MUST select an account type and both web3 address and emails are uniques.
 
+#### Create Recipe Form
+
+Since I didn't use wtforms like for the other endpoints, I decided to provide a reason. I had to create a form which inputs varies every time a new recipe is created. I honestly don't know if it is possible to define a dynamic form but it was not the time to look for it, honestly faster to create the form in html inside jinja templates and have javascript handle the form submission and redirection if successful.
+
 ### Bugs and fixes
 
 #### Many to many relationship, models refactoring and variables renaming - Commits: [1](https://github.com/antoniobruchidev/mp3-restaurant-manager/commit/2a6628f7f5289c6a698a865397ce08fbb29a44fd){:target="_blank"} - [2](https://github.com/antoniobruchidev/mp3-restaurant-manager/commit/7de505f8732f3821e17aff43255cfd0476d2bf0f){:target="_blank"} - [3](https://github.com/antoniobruchidev/mp3-restaurant-manager/commit/420544fbf48e273a405fa361fc595d376d1adcd1){:target="_blank"}

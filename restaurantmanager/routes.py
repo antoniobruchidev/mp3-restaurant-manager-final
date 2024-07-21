@@ -1,11 +1,14 @@
 import os
 import datetime
-from flask import flash, redirect, render_template, url_for
+from flask import flash, redirect, render_template, request, url_for
 from restaurantmanager import app, db, argon2, mail
 from restaurantmanager.models import (
     AccountType,
     Board,
     BoardMessage,
+    IngredientQuantity,
+    ItemKind,
+    ManufactoredIngredientQuantity,
     User,
     Wallet,
     Supplier,
@@ -385,6 +388,85 @@ def get_ingredient(ingredient_id):
         )
         return render_template(
             "supplier.html", ingredient=ingredient, supplier=supplier
+        )
+    else:
+        return redirect(url_for("logout"))
+
+
+@app.route("/chef/createrecipe", methods=["GET", "POST"])
+@login_required
+def create_recipe():
+    is_chef = check_role(role_hash("chef"), current_user.web3_address)
+    ingredients = db.session.query(Ingredient).all()
+    manufactored_ingredients = db.session.query(ManufactoredIngredient).all()
+    if is_chef:
+        if request.method == "POST":
+            kind = ItemKind(int(request.form["itemkind"]))
+            new_manufactored_ingredient = ManufactoredIngredient(
+                name=request.form["name"],
+                kind=kind,
+                description=request.form["description"],
+            )
+            db.session.add(new_manufactored_ingredient)
+            db.session.commit()
+            manufactored_ingredient = db.session.query(ManufactoredIngredient).all()
+            last_one = manufactored_ingredient[-1]
+            new_recipe = Recipe(
+                recipe_for=last_one.id,
+                portions=request.form["portions"],
+                created_by=current_user.id,
+            )
+            db.session.add(new_recipe)
+            keys = request.form.keys()
+            for key in keys:
+                if "ingredient_quantity" in key and "manufactored_ingredient_quantity" not in key:
+                    ingredient_id = int(key.split("_")[-1])
+                    if request.form[key] != "":
+                        quantity = int(request.form[key])
+                        item_quantity_query = (
+                            db.session.query(IngredientQuantity)
+                            .filter_by(ingredient_id = ingredient_id)
+                            .filter_by(quantity = quantity)
+                            .first()
+                        )
+                        if item_quantity_query:
+                            item_quantity = item_quantity_query
+                        else:
+                            item_quantity = IngredientQuantity(
+                                ingredient_id=ingredient_id, quantity=quantity
+                            )
+                        new_recipe.ingredient_quantities.append(item_quantity)
+                        db.session.add(item_quantity)
+                if "manufactored_ingredient_quantity" in key:
+                    manufactored_ingredient_id = int(key.split("_")[-1])
+                    if request.form[key] != "":
+                        quantity = int(request.form[key])
+                        item_quantity_query = (
+                            db.session.query(ManufactoredIngredientQuantity)
+                            .filter_by(
+                                manufactored_ingredient_id=manufactored_ingredient_id
+                            )
+                            .filter_by(quantity=quantity)
+                            .first()
+                        )
+                        if item_quantity_query:
+                            item_quantity = item_quantity_query
+                        else:
+                            item_quantity = ManufactoredIngredientQuantity(
+                                manufactored_ingredient_id=manufactored_ingredient_id,
+                                quantity=quantity,
+                            )
+                            db.session.add(item_quantity)
+                        new_recipe.manufactoredingredient_quantities.append(
+                            item_quantity
+                        )
+            db.session.commit()
+            flash("Recipe {0} created successfully".format(request.form['name']))
+            return {"success" : True}
+        return render_template(
+            "createrecipe.html",
+            ingredients=ingredients,
+            manufactored_ingredients=manufactored_ingredients,
         )
     else:
         return redirect(url_for("logout"))

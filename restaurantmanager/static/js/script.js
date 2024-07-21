@@ -119,8 +119,59 @@ const handleConnectionChoice = () => {
   } 
 }
 
+
+/**
+ * Function to submit a new recipe form
+ */
+const submitRecipeForm = async () => {
+  form = document.getElementById('create_recipe_form');
+  formData = new FormData(form);
+  const name = formData.get('name');
+  const description = formData.get('description');
+  const itemkind = formData.get('itemkind');
+  console.log(name, description, itemkind);
+  if ((itemkind != null) && (name != '') && (description != '')) {
+    try {
+      const response = await fetch("/chef/createrecipe", {
+        method: "POST",
+        // Set the FormData instance as the request body
+        body: formData,
+      })
+      const data = await response.json();
+      console.log(data);
+      if (data.success) {
+        window.location.href = "/chef/createrecipe";
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  } else {
+    alert('Make sure you selected a kind of item and give name and description');
+  }
+}
+
 $(document).ready(function(){
   $('.sidenav').sidenav();
   $('select').formSelect();
   $('#account_type').on('change', handleConnectionChoice);
+  if (window.location.pathname === '/chef/createrecipe') {
+    const inputFields = $('.view-toggle');
+    for (let inputField of inputFields) {
+      $(inputField).hide();
+    }
+    $('input[type=checkbox]').on('change', function(){
+      const id = $(this).attr('id');
+      if (id.includes("manufactored")){
+        itemId = '#manufactored_ingredient_quantity_' + id.split('_')[2];
+      } else {
+        itemId = '#ingredient_quantity_' + id.split('_')[1];
+      }
+      if ($(this).is(':checked')) {
+        $(itemId).parent().show();
+      } else {
+        $(itemId).parent().hide();
+      }
+    });
+    $('#submitform').on('click', submitRecipeForm)    
+  }
 });

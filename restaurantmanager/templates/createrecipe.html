@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="center-align">
+    create recipe Page
+</h1>
+
+{% with messages = get_flashed_messages() %}
+   {% if messages %}
+      {% for message in messages %}
+         {{ message }}
+      {% endfor %}
+   {% endif %}
+{% endwith %}
+<form action="" method="POST" id="create_recipe_form">
+    <div class="row">
+        <div class="input-field col s4">
+            <input type="text" id="name" name="name" placeholder="Recipe name">
+        </div>
+        <div class="input-field col s4 push-s1">
+            <select id="itemkind" name="itemkind">
+                <option value="" disabled selected>Choose your option</option>
+                <option value="1">Starter</option>
+                <option value="2">Pasta</option>
+                <option value="3">Pizza</option>
+                <option value="4">Main</option>
+                <option value="5">Dessert</option>
+                <option value="6">Pizza topping</option>
+                <option value="7">Water</option>
+                <option value="8">Juice</option>
+                <option value="9">Soft drink</option>
+                <option value="10">Wine</option>
+                <option value="11">Beer</option>
+                <option value="12">Distillates</option>
+                <option value="13">Other</option>
+              </select>
+              <label>Kind of item</label>
+            </select>
+        </div>
+        <div class="input-field col s2 push-s2">
+            <input type="number" id="portions" name="portions" placeholder="portions">
+        </div>
+    </div>
+    <div class="row">
+        <div class="input-field col s12">
+            <textarea id="description" name="description" class="materialize-textarea"></textarea>
+            <label for="description">Description</label>
+          </div>
+    </div>
+    <div class="row">
+        <div class="col s6">
+            <h5> Ingredients</h5>
+            {% for ingredient in ingredients %}
+                <div class="row">
+                    <p class="col s7"> 
+                        <label>
+                            <input type="checkbox" id="ingredient_{{ingredient.id}}" name="ingredient{{ingredient.id}}" class="myCheckbox"/>
+                            <span>{{ingredient.name}} </span>
+                        </label>
+                    </p>
+                    <div class="input-field col s3 push-s1 view-toggle">
+                        <input placeholder="0" id="ingredient_quantity_{{ingredient.id}}" name="ingredient_quantity_{{ingredient.id}}" type="number" class="validate">
+                        <label for="quantity{ingredient.id}">grams</label>
+                    </div>
+                </div>
+            {% endfor %}    
+        </div>
+        <div class="col s6">
+            <h5>Manufactored items</h5>
+            {% for manufactored_ingredient in manufactored_ingredients %}
+                <div class="row">
+                    <p class="col s7"> 
+                        <label>
+                            <input type="checkbox" id="manufactored_ingredient_{{manufactored_ingredient.id}}" name="manufactored_ingredient_{{manufactored_ingredient.id}}"/>
+                            <span>{{manufactored_ingredient.name}}</span>
+                        </label>
+                    </p>
+                    <div class="input-field col s3 push-s1 view-toggle">
+                        <input placeholder="0" id="manufactored_ingredient_quantity_{{manufactored_ingredient.id}}" name="manufactored_ingredient_quantity_{{manufactored_ingredient.id}}" type="number" class="validate">
+                        <label for="quantity{manufactored_ingredient.id}">portions</label>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</form>
+<button class="btn waves-effect waves-light" id="submitform">Submit</button>
+<hr>
+<a href="{{ url_for('add_ingredient', supplier_id=0)  }}">Add Ingredient</a>
+<br>
+<a href="{{ url_for('dashboard') }}">Dashboard</a>
+{% endblock %}
