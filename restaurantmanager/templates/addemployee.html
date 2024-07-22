@@ -1,15 +1,10 @@
+{% from 'macros.html' import  display_messages %}
 {% extends "base.html" %}
 {% block content %}
 <h1 class="center-align">
     Add employee Page
 </h1>
-{% with messages = get_flashed_messages() %}
-   {% if messages %}
-      {% for message in messages %}
-         {{ message }}
-      {% endfor %}
-   {% endif %}
-{% endwith %}
+{% macro display_messages(messages) %}
 <form method="POST" action="">
     {{ form.hidden_tag() }}
     <div class="row">

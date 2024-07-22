@@ -1,8 +1,10 @@
+{% from 'macros.html' import display_messages %}
 {% extends "base.html" %}
 {% block content %}
 <h1 class="center-align">
     Login Page
 </h1>
+{{ display_messages(messages) }}
 <form method="POST" action="">
     {{ form.hidden_tag() }}
     <div class="row">

@@ -1,11 +1,11 @@
+{% from 'macros.html' import display_messages %}
 {% extends "base.html" %}
-{% block headscripts %}
-
-{% endblock %}
 {% block content %}
 <h1 class="center-align">
     Staff Page
 </h1>
+{{ display_messages(messages) }}
+
 {% for employee in employees %}
 
 <div class="row">

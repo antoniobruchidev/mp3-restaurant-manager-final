@@ -1,16 +1,10 @@
+{% from 'macros.html' import display_reply, display_messages, display_ingredients, display_manufactored_ingredients %}
 {% extends "base.html" %}
 {% block content %}
 <h1 class="center-align">
     create recipe Page
 </h1>
-
-{% with messages = get_flashed_messages() %}
-   {% if messages %}
-      {% for message in messages %}
-         {{ message }}
-      {% endfor %}
-   {% endif %}
-{% endwith %}
+{{ display_messages(messages) }}
 <form action="" method="POST" id="create_recipe_form">
     <div class="row">
         <div class="input-field col s4">
@@ -49,37 +43,11 @@
     <div class="row">
         <div class="col s6">
             <h5> Ingredients</h5>
-            {% for ingredient in ingredients %}
-                <div class="row">
-                    <p class="col s7"> 
-                        <label>
-                            <input type="checkbox" id="ingredient_{{ingredient.id}}" name="ingredient{{ingredient.id}}" class="myCheckbox"/>
-                            <span>{{ingredient.name}} </span>
-                        </label>
-                    </p>
-                    <div class="input-field col s3 push-s1 view-toggle">
-                        <input placeholder="0" id="ingredient_quantity_{{ingredient.id}}" name="ingredient_quantity_{{ingredient.id}}" type="number" class="validate">
-                        <label for="quantity{ingredient.id}">grams</label>
-                    </div>
-                </div>
-            {% endfor %}    
+            {{ display_ingredients(ingredients) }}    
         </div>
         <div class="col s6">
             <h5>Manufactored items</h5>
-            {% for manufactored_ingredient in manufactored_ingredients %}
-                <div class="row">
-                    <p class="col s7"> 
-                        <label>
-                            <input type="checkbox" id="manufactored_ingredient_{{manufactored_ingredient.id}}" name="manufactored_ingredient_{{manufactored_ingredient.id}}"/>
-                            <span>{{manufactored_ingredient.name}}</span>
-                        </label>
-                    </p>
-                    <div class="input-field col s3 push-s1 view-toggle">
-                        <input placeholder="0" id="manufactored_ingredient_quantity_{{manufactored_ingredient.id}}" name="manufactored_ingredient_quantity_{{manufactored_ingredient.id}}" type="number" class="validate">
-                        <label for="quantity{manufactored_ingredient.id}">portions</label>
-                    </div>
-                </div>
-            {% endfor %}
+            {{ display_manufactored_ingredients(manufactored_ingredients) }}
         </div>
     </div>
 </form>
