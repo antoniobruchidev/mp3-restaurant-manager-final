@@ -6,6 +6,18 @@
 </h1>
 {{ display_messages(messages) }}
 <form action="" method="POST" id="add_delivery_form">
+    <div class="row">
+        <div class="input-field col s6">
+          <input placeholder="Supplier reference" id="supplier_reference" name="supplier_reference" type="text" class="validate">
+          <label for="supplier_reference">Supplier reference</label>
+        </div>
+    </div>
+    <div class="row">
+        <div class="input-field col s12">
+          <textarea id="info" class="materialize-textarea" name="info"></textarea>
+          <label for="info">Info</label>
+        </div>
+      </div>
 {{ display_ingredients(ingredients) }}
 </form>
 <button class="btn waves-effect waves-light" id="submitform">Submit</button>

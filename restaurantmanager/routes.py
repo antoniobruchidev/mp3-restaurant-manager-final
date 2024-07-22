@@ -522,6 +522,83 @@ def place_order(supplier_id):
     else:
         return redirect(url_for("logout"))
 
+@app.route("/manager/suppliers/<supplier_id>/deliveries")
+@login_required
+def get_deliveries(supplier_id):
+    is_manager = check_role(role_hash("manager"), current_user.web3_address)
+    if is_manager:
+        deliveries = (
+            db.session.query(Delivery)
+            .filter_by(supplier_id=supplier_id)
+            .all()
+        )
+        return render_template("deliveries.html", deliveries=deliveries)
+    else:
+        return redirect(url_for("logout"))
+
+
+@app.route("/manager/suppliers/<supplier_id>/deliveries/<delivery_id>")
+@login_required
+def get_delivery(supplier_id, delivery_id):
+    is_manager = check_role(role_hash("manager"), current_user.web3_address)
+    if is_manager:
+        delivery = (
+            db.session.query(Delivery)
+            .filter_by(supplier_id=supplier_id, id=delivery_id)
+            .first()
+        )
+        return render_template("delivery.html", supplier_id=delivery.supplier_id, delivery=delivery)
+    else:
+        return redirect(url_for("logout"))
+
+
+@app.route("/manager/suppliers/<supplier_id>/deliveries/adddelivery", methods=['GET','POST'])
+@login_required
+def add_delivery(supplier_id):
+    is_owner = check_role(role_hash("owner"), current_user.web3_address)
+    has_roles = current_user.roles
+    ingredients = db.session.query(Ingredient).filter_by(supplier_id=supplier_id).all()
+    if has_roles or is_owner:
+        if request.method == "POST":
+            delivery = Delivery(
+                supplier_id=supplier_id,
+                date = datetime.datetime.now(),
+                user_id=current_user.id,
+                info=request.form["info"],
+                supplier_reference=request.form["supplier_reference"]
+            )
+            db.session.add(delivery)
+            db.session.commit()
+            keys = request.form.keys()
+            for key in keys:
+                if "ingredient_quantity" in key:
+                    ingredient_id = int(key.split("_")[-1])
+                    if request.form[key] != "":
+                        quantity = int(request.form[key])
+                        item_quantity_query = (
+                            db.session.query(IngredientQuantity)
+                            .filter_by(ingredient_id = ingredient_id)
+                            .filter_by(quantity = quantity)
+                            .first()
+                        )
+                        if item_quantity_query:
+                            item_quantity = item_quantity_query
+                        else:
+                            item_quantity = IngredientQuantity(
+                                ingredient_id=ingredient_id, quantity=quantity
+                            )
+                        delivery.ingredient_quantities.append(item_quantity)
+                        ingredient = db.session.query(Ingredient).filter_by(id=ingredient_id).first()
+                        ingredient.stock_in_weight += quantity
+                        db.session.add(item_quantity)
+                        db.session.commit()
+            flash("Delivery placed successfully")
+            return {"success": True}
+        else:
+            return render_template("adddelivery.html", ingredients=ingredients)
+    else:
+        return redirect(url_for("logout"))
+
 
 @app.route("/chef/createrecipe", methods=["GET", "POST"])
 @login_required

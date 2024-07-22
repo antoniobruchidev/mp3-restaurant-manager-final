@@ -150,8 +150,8 @@ const submitRecipeForm = async () => {
 }
 
 const submitPlaceOrderForm = async () => {
-form = document.getElementById('place_order_form');
-formData = new FormData(form);
+const form = document.getElementById('place_order_form');
+const formData = new FormData(form);
   try {
     const response = await fetch(window.location.pathname, {
       method: "POST",
@@ -168,16 +168,17 @@ formData = new FormData(form);
 }
 
 const submitAddDeliveryForm = async () =>  {
-  form = document.getElementById('add_delivery_form');
-  formData = new FormData(form);
+  const form = document.getElementById('add_delivery_form');
+  console.log(form)
+  const formData = new FormData(form);
   try {
-    const response = await fetch("/manager/adddelivery",  {
+    const response = await fetch(window.location.pathname,  {
       method: "POST",
       body: formData,
     })
     const data = await response.json();
     if  (data.success)  {
-      window.location.href = "/manager/adddelivery";
+      window.location.href = window.location.pathname;
     }
   } catch (e) {
     console.error(e);
@@ -207,7 +208,7 @@ $(document).ready(function(){
       }
     });
     $('#submitform').on('click', submitRecipeForm)    
-  } else if (window.location.pathname.includes('/manager/adddelivery')) {
+  } else if (window.location.pathname.includes('/deliveries/adddelivery')) {
     const inputFields = $('.view-toggle');
     for  (let inputField of inputFields)  {
       $(inputField).hide();
