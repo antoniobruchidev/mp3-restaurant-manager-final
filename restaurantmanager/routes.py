@@ -156,49 +156,30 @@ def messageboard():
         owner_messages = (
             db.session.query(BoardMessage).filter_by(board=Board.owner).all()
         )
-        owner_messages_replies = []
-        for message in owner_messages:
-            owner_messages_replies.append(len(message.replies))
 
     else:
         owner_messages = []
-        owner_messages_replies = []
     if is_manager:
         manager_messages = (
             db.session.query(BoardMessage).filter_by(board=Board.manager).all()
         )
-        manager_messages_replies = []
-        for message in manager_messages:
-            manager_messages_replies.append(len(message.replies))
     else:
         manager_messages = []
-        manager_messages_replies = []
     if is_chef:
         chef_messages = (
             db.session.query(BoardMessage).filter_by(board=Board.chef).all()
         )
-        chef_messages_replies = []
-        for message in chef_messages:
-            chef_messages_replies.append(len(message.replies))
     else:
         chef_messages = []
-        chef_messages_replies = []
     if is_waiter:
         waiter_messages = (
             db.session.query(BoardMessage).filter_by(board=Board.waiter).all()
         )
-        waiter_messages_replies = []
-        for message in waiter_messages:
-            waiter_messages_replies.append(len(message.replies))
     else:
         waiter_messages = []
-        waiter_messages_replies = []
     public_messages = (
         db.session.query(BoardMessage).filter_by(board=Board.public).all()
     )
-    public_messages_replies = []
-    for message in public_messages:
-        public_messages_replies.append(len(message.replies))
     board_messages = (
         owner_messages
         + manager_messages
@@ -206,15 +187,8 @@ def messageboard():
         + waiter_messages
         + public_messages
     )
-    replies = (
-        owner_messages_replies
-        + manager_messages_replies
-        + chef_messages_replies
-        + waiter_messages_replies
-        + public_messages_replies
-    )
 
-    return render_template("messageboard.html", board_messages=board_messages, replies=replies)
+    return render_template("messageboard.html", board_messages=board_messages)
 
 
 @app.route("/messageboards/sendmessage", methods=["GET", "POST"])
