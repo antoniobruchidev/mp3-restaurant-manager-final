@@ -6,6 +6,7 @@ from restaurantmanager.models import (
     AccountType,
     Board,
     BoardMessage,
+    BoardMessageReply,
     IngredientQuantity,
     ItemKind,
     ManufactoredIngredientQuantity,
@@ -31,6 +32,7 @@ from restaurantmanager.forms import (
     AddIngredientForm,
     AddEmployeeForm,
     AddSupplierForm,
+    AnswerMessageForm,
     CreateMessageForm,
     LoginForm,
     RegisterForm,
@@ -132,7 +134,7 @@ def dashboard():
         f_name=f_name,
         l_name=l_name,
         email=email,
-        messages=my_messages,
+        my_messages=my_messages,
     )
 
 
@@ -154,29 +156,49 @@ def messageboard():
         owner_messages = (
             db.session.query(BoardMessage).filter_by(board=Board.owner).all()
         )
+        owner_messages_replies = []
+        for message in owner_messages:
+            owner_messages_replies.append(len(message.replies))
+
     else:
         owner_messages = []
+        owner_messages_replies = []
     if is_manager:
         manager_messages = (
             db.session.query(BoardMessage).filter_by(board=Board.manager).all()
         )
+        manager_messages_replies = []
+        for message in manager_messages:
+            manager_messages_replies.append(len(message.replies))
     else:
         manager_messages = []
+        manager_messages_replies = []
     if is_chef:
         chef_messages = (
             db.session.query(BoardMessage).filter_by(board=Board.chef).all()
         )
+        chef_messages_replies = []
+        for message in chef_messages:
+            chef_messages_replies.append(len(message.replies))
     else:
         chef_messages = []
+        chef_messages_replies = []
     if is_waiter:
         waiter_messages = (
             db.session.query(BoardMessage).filter_by(board=Board.waiter).all()
         )
+        waiter_messages_replies = []
+        for message in waiter_messages:
+            waiter_messages_replies.append(len(message.replies))
     else:
         waiter_messages = []
+        waiter_messages_replies = []
     public_messages = (
         db.session.query(BoardMessage).filter_by(board=Board.public).all()
     )
+    public_messages_replies = []
+    for message in public_messages:
+        public_messages_replies.append(len(message.replies))
     board_messages = (
         owner_messages
         + manager_messages
@@ -184,15 +206,21 @@ def messageboard():
         + waiter_messages
         + public_messages
     )
+    replies = (
+        owner_messages_replies
+        + manager_messages_replies
+        + chef_messages_replies
+        + waiter_messages_replies
+        + public_messages_replies
+    )
 
-    return render_template("messageboard.html", board_messages=board_messages)
+    return render_template("messageboard.html", board_messages=board_messages, replies=replies)
 
 
 @app.route("/messageboards/sendmessage", methods=["GET", "POST"])
 @login_required
 def sendmessage():
     date = datetime.datetime.now()
-    print(date)
     form = CreateMessageForm()
     if form.validate_on_submit():
         message = BoardMessage(
@@ -206,6 +234,47 @@ def sendmessage():
         db.session.commit()
         return redirect(url_for("dashboard"))
     return render_template("sendmessage.html", form=form)
+
+
+@app.route("/messageboards/<int:message_id>/answer", methods=['GET', 'POST'])
+@login_required
+def answer_message(message_id):
+    board_message = db.session.query(BoardMessage).filter_by(id=message_id).first()
+    if board_message:
+        date = datetime.datetime.now()
+        form = AnswerMessageForm()
+        if form.validate_on_submit():
+            answer_message = BoardMessageReply(reply=form.answer.data, message_id=board_message.id, timestamp=date)
+            db.session.add(answer_message)
+            db.session.commit()
+            board_message.replies.append(answer_message)
+            db.session.commit()
+            flash("Your reply has been sent")
+            return redirect(url_for("messageboard"))
+        return render_template("answermessage.html", form=form)
+    else:
+        flash("You cannot answer this message")
+        return redirect(url_for("messageboard"))
+
+
+@app.route("/messageboards/<int:message_id>/delete", methods=['GET', 'POST'])
+@login_required
+def delete_message(message_id):
+    board_message = db.session.query(BoardMessage).filter_by(id=message_id).first()
+    if board_message:
+        if board_message.sender_id == current_user.id:
+            for reply in board_message.replies:
+                db.session.delete(reply)
+            db.session.delete(board_message)
+            db.session.commit()
+            flash("Your message has been deleted")
+            return redirect(url_for("messageboard"))
+        else:
+            flash("You cannot delete this message")
+            return redirect(url_for("messageboard"))
+    else:
+        flash("You cannot delete this message")
+        return redirect(url_for("messageboard"))
 
 
 @app.route("/owner/staff")

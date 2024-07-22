@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="center-align">
+    Answer message Page
+</h1>
+<form method="POST" action="">
+    {{ form.hidden_tag() }}
+    {{ form.answer }}
+    {{ form.submit }}
+</form>
+<br>
+<a href="{{ url_for('dashboard') }}">Dashboard</a>
+{% endblock %}

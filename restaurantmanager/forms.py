@@ -64,7 +64,6 @@ class CreateMessageForm(FlaskForm):
 
 class AnswerMessageForm(FlaskForm):
     answer = TextAreaField('Answer', validators=[InputRequired()])
-    sender_id = IntegerField('Sender ID', validators=[InputRequired()])
     submit = SubmitField('Send')
     
 
