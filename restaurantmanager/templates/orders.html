@@ -1,0 +1,10 @@
+{% from 'macros.html' import display_placed_order, display_messages %}
+{% extends "base.html" %}
+{% block content %}
+<h1 class="center-align">
+    Orders Page
+</h1>
+{{ display_messages(messages) }}
+{{ display_placed_order(orders) }}
+<hr>
+{% endblock %}

@@ -10,6 +10,7 @@ from restaurantmanager.models import (
     IngredientQuantity,
     ItemKind,
     ManufactoredIngredientQuantity,
+    PlacedOrder,
     User,
     Wallet,
     Supplier,
@@ -420,7 +421,7 @@ def get_ingredients():
         return redirect(url_for("logout"))
 
 
-@app.route("/manager/ingredient/<int:ingredient_id>")
+@app.route("/manager/ingredients/<int:ingredient_id>")
 @login_required
 def get_ingredient(ingredient_id):
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
@@ -432,6 +433,92 @@ def get_ingredient(ingredient_id):
         return render_template(
             "supplier.html", ingredient=ingredient, supplier=supplier
         )
+    else:
+        return redirect(url_for("logout"))
+
+
+@app.route("/manager/suppliers/<supplier_id>/orders")
+@login_required
+def get_orders(supplier_id):
+    is_manager = check_role(role_hash("manager"), current_user.web3_address)
+    if is_manager:
+        orders = (
+            db.session.query(PlacedOrder)
+            .filter_by(supplier_id=supplier_id)
+            .all()
+        )
+        return render_template("orders.html", orders=orders)
+    else:
+        return redirect(url_for("logout"))
+
+
+@app.route("/manager/suppliers/<supplier_id>/orders/<order_id>")
+@login_required
+def get_order(supplier_id, order_id):
+    is_manager = check_role(role_hash("manager"), current_user.web3_address)
+    if is_manager:
+        order = (
+            db.session.query(PlacedOrder)
+            .filter_by(supplier_id=supplier_id, id=order_id)
+            .first()
+        )
+        return render_template("order.html", supplier_id=order.supplier_id, order=order)
+    else:
+        return redirect(url_for("logout"))
+    
+
+@app.route("/manager/suppliers/<supplier_id>/orders/<order_id>/send")
+@login_required
+def send_order(supplier_id, order_id):
+    is_manager = check_role(role_hash("manager"), current_user.web3_address)
+    if is_manager:
+        order = db.session.query(PlacedOrder).filter_by(id=order_id).first()
+        order.sent = True
+        # TODO: send order to supplier via email
+        db.session.commit()
+        flash("Order sent to supplier")
+        return redirect(url_for("get_orders", supplier_id=supplier_id))
+    else:
+        return redirect(url_for("logout"))
+
+
+@app.route("/manager/suppliers/<supplier_id>/orders/addorder", methods=['GET','POST'])
+@login_required
+def place_order(supplier_id):
+    is_manager = check_role(role_hash("manager"), current_user.web3_address)
+    ingredients = db.session.query(Ingredient).filter_by(supplier_id=supplier_id).all()
+    if is_manager:
+        if request.method == "POST":
+            placed_order = PlacedOrder(
+                supplier_id=supplier_id,
+                dateTime = datetime.datetime.now()
+            )
+            db.session.add(placed_order)
+            keys = request.form.keys()
+            for key in keys:
+                if "ingredient_quantity" in key:
+                    ingredient_id = int(key.split("_")[-1])
+                    if request.form[key] != "":
+                        quantity = int(request.form[key])
+                        item_quantity_query = (
+                            db.session.query(IngredientQuantity)
+                            .filter_by(ingredient_id = ingredient_id)
+                            .filter_by(quantity = quantity)
+                            .first()
+                        )
+                        if item_quantity_query:
+                            item_quantity = item_quantity_query
+                        else:
+                            item_quantity = IngredientQuantity(
+                                ingredient_id=ingredient_id, quantity=quantity
+                            )
+                        placed_order.ingredient_quantities.append(item_quantity)
+                        db.session.add(item_quantity)
+            db.session.commit()
+            flash("Order placed successfully")
+            return {"success": True}
+        else:
+            return render_template("placeorder.html", ingredients=ingredients)
     else:
         return redirect(url_for("logout"))
 

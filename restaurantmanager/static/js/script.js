@@ -138,7 +138,6 @@ const submitRecipeForm = async () => {
         body: formData,
       })
       const data = await response.json();
-      console.log(data);
       if (data.success) {
         window.location.href = "/chef/createrecipe";
       }
@@ -147,6 +146,41 @@ const submitRecipeForm = async () => {
     }
   } else {
     alert('Make sure you selected a kind of item and give name and description');
+  }
+}
+
+const submitPlaceOrderForm = async () => {
+form = document.getElementById('place_order_form');
+formData = new FormData(form);
+  try {
+    const response = await fetch(window.location.pathname, {
+      method: "POST",
+      // Set the FormData instance as the request body
+      body: formData,
+    })
+    const data = await response.json();
+    if (data.success) {
+      window.location.href = window.location.pathname;
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+const submitAddDeliveryForm = async () =>  {
+  form = document.getElementById('add_delivery_form');
+  formData = new FormData(form);
+  try {
+    const response = await fetch("/manager/adddelivery",  {
+      method: "POST",
+      body: formData,
+    })
+    const data = await response.json();
+    if  (data.success)  {
+      window.location.href = "/manager/adddelivery";
+    }
+  } catch (e) {
+    console.error(e);
   }
 }
 
@@ -173,5 +207,36 @@ $(document).ready(function(){
       }
     });
     $('#submitform').on('click', submitRecipeForm)    
+  } else if (window.location.pathname.includes('/manager/adddelivery')) {
+    const inputFields = $('.view-toggle');
+    for  (let inputField of inputFields)  {
+      $(inputField).hide();
+    }
+    $('input[type=checkbox]').on('change', function(){
+      const id = $(this).attr('id');
+      itemId = '#ingredient_quantity_'+ id.split('_')[1];
+      if ($(this).is(':checked')) {
+        $(itemId).parent().show();
+      } else {
+        $(itemId).parent().hide();
+      }
+    });
+    $('#submitform').on('click', submitAddDeliveryForm)
+  } else if (window.location.pathname.includes('/orders/addorder')) {
+    const inputFields = $('.view-toggle');
+    for (let inputField of inputFields) {
+      $(inputField).hide();
+    }
+    $('input[type=checkbox]').on('change', function(){
+      const id = $(this).attr('id');
+      itemId = '#ingredient_quantity_'+ id.split('_')[1];
+      if  ($(this).is(':checked')) {
+        $(itemId).parent().show();
+      } else  {
+        $(itemId).parent().hide();
+      }
+    });
+    $('#submitform').on('click', submitPlaceOrderForm)
   }
 });
+

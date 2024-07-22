@@ -1,0 +1,13 @@
+{% from 'macros.html' import display_messages, display_ingredients %}
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="center-align">
+    Add delivery Page
+</h1>
+{{ display_messages(messages) }}
+<form action="" method="POST" id="add_delivery_form">
+{{ display_ingredients(ingredients) }}
+</form>
+<button class="btn waves-effect waves-light" id="submitform">Submit</button>
+<hr>
+{% endblock %}

@@ -88,3 +88,28 @@
 <br>
 {% endfor %}
 {% endmacro %}
+
+{% macro display_placed_order(placed_orders)%}
+{% for placed_order in placed_orders %}
+<div class="row">
+  <div class="col s8 push-s3">
+    <div class="card blue-grey darken-1">
+      <div class="card-content white-text">
+        <span class="card-title">From supplier: {{ placed_order.supplier_id }}</span>
+        <p><em>{{placed_order.dateTime}}</em></p>
+      </div>
+      <div class="card-action">
+        <a href="#">Delete</a>
+      </div>
+      <div class="card-action">
+        <a href="{{ url_for('get_order', supplier_id=placed_order.supplier_id, order_id=placed_order.id)}}">view/Update</a>
+      </div>
+      <div class="card-action">
+        <a href="#">Send</a>
+      </div>
+    </div>
+  </div>
+</div>
+<br>
+{% endfor %}
+{% endmacro %}
