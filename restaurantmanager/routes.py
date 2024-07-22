@@ -40,6 +40,7 @@ from restaurantmanager.forms import (
 )
 from restaurantmanager.web3interface import w3, check_role, grant_role, role_hash
 from flask_mail import Message
+from restaurantmanager.middleware import append_ingredient_quantity, append_manufactored_ingredient_quantity, get_ingredient_quantity, get_manufactored_ingredient_quantity, increase_stock
 
 
 login_manager = LoginManager()
@@ -495,25 +496,8 @@ def place_order(supplier_id):
             )
             db.session.add(placed_order)
             keys = request.form.keys()
-            for key in keys:
-                if "ingredient_quantity" in key:
-                    ingredient_id = int(key.split("_")[-1])
-                    if request.form[key] != "":
-                        quantity = int(request.form[key])
-                        item_quantity_query = (
-                            db.session.query(IngredientQuantity)
-                            .filter_by(ingredient_id = ingredient_id)
-                            .filter_by(quantity = quantity)
-                            .first()
-                        )
-                        if item_quantity_query:
-                            item_quantity = item_quantity_query
-                        else:
-                            item_quantity = IngredientQuantity(
-                                ingredient_id=ingredient_id, quantity=quantity
-                            )
-                        placed_order.ingredient_quantities.append(item_quantity)
-                        db.session.add(item_quantity)
+            ingredient_quantity = get_ingredient_quantity(keys)
+            assert append_ingredient_quantity(ingredient_quantity, placed_order)
             db.session.commit()
             flash("Order placed successfully")
             return {"success": True}
@@ -570,28 +554,10 @@ def add_delivery(supplier_id):
             db.session.add(delivery)
             db.session.commit()
             keys = request.form.keys()
-            for key in keys:
-                if "ingredient_quantity" in key:
-                    ingredient_id = int(key.split("_")[-1])
-                    if request.form[key] != "":
-                        quantity = int(request.form[key])
-                        item_quantity_query = (
-                            db.session.query(IngredientQuantity)
-                            .filter_by(ingredient_id = ingredient_id)
-                            .filter_by(quantity = quantity)
-                            .first()
-                        )
-                        if item_quantity_query:
-                            item_quantity = item_quantity_query
-                        else:
-                            item_quantity = IngredientQuantity(
-                                ingredient_id=ingredient_id, quantity=quantity
-                            )
-                        delivery.ingredient_quantities.append(item_quantity)
-                        ingredient = db.session.query(Ingredient).filter_by(id=ingredient_id).first()
-                        ingredient.stock_in_weight += quantity
-                        db.session.add(item_quantity)
-                        db.session.commit()
+            ingredient_quantities = get_ingredient_quantity(keys, delivery)
+            assert append_ingredient_quantity(ingredient_quantities, delivery)
+            assert increase_stock(ingredient_quantities)
+            db.session.commit()
             flash("Delivery placed successfully")
             return {"success": True}
         else:
@@ -625,48 +591,10 @@ def create_recipe():
             )
             db.session.add(new_recipe)
             keys = request.form.keys()
-            for key in keys:
-                if "ingredient_quantity" in key and "manufactored_ingredient_quantity" not in key:
-                    ingredient_id = int(key.split("_")[-1])
-                    if request.form[key] != "":
-                        quantity = int(request.form[key])
-                        item_quantity_query = (
-                            db.session.query(IngredientQuantity)
-                            .filter_by(ingredient_id = ingredient_id)
-                            .filter_by(quantity = quantity)
-                            .first()
-                        )
-                        if item_quantity_query:
-                            item_quantity = item_quantity_query
-                        else:
-                            item_quantity = IngredientQuantity(
-                                ingredient_id=ingredient_id, quantity=quantity
-                            )
-                        new_recipe.ingredient_quantities.append(item_quantity)
-                        db.session.add(item_quantity)
-                if "manufactored_ingredient_quantity" in key:
-                    manufactored_ingredient_id = int(key.split("_")[-1])
-                    if request.form[key] != "":
-                        quantity = int(request.form[key])
-                        item_quantity_query = (
-                            db.session.query(ManufactoredIngredientQuantity)
-                            .filter_by(
-                                manufactored_ingredient_id=manufactored_ingredient_id
-                            )
-                            .filter_by(quantity=quantity)
-                            .first()
-                        )
-                        if item_quantity_query:
-                            item_quantity = item_quantity_query
-                        else:
-                            item_quantity = ManufactoredIngredientQuantity(
-                                manufactored_ingredient_id=manufactored_ingredient_id,
-                                quantity=quantity,
-                            )
-                            db.session.add(item_quantity)
-                        new_recipe.manufactoredingredient_quantities.append(
-                            item_quantity
-                        )
+            ingredient_quantities = get_ingredient_quantity(keys)
+            assert append_ingredient_quantity(ingredient_quantities, new_recipe)
+            manufactored_ingredient_quantity = get_manufactored_ingredient_quantity(keys)
+            assert append_manufactored_ingredient_quantity(manufactored_ingredient_quantity, new_recipe)
             db.session.commit()
             flash("Recipe {0} created successfully".format(request.form['name']))
             return {"success" : True}
