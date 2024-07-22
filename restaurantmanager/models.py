@@ -407,6 +407,8 @@ class PlacedOrder(db.Model):
         backref="placedorders",
         lazy=True,
     )
+    sent = db.Column(db.Boolean, default=False)
+    supplier_id = db.Column(db.Integer, db.ForeignKey("suppliers.id", ondelete="CASCADE"), nullable=False)
 
 
 class Delivery(db.Model):
