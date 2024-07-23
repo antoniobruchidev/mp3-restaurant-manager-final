@@ -24,7 +24,7 @@ const connectWithMetamask = async () => {
 
   const page = window.location.pathname;
   if (page === '/login') {
-    const form = document.getElementById('loginForm');
+    const form = document.getElementById('login_form');
     const formData = new FormData(form);
     formData.append('web3_address', address);
     formData.append('account_type', '1');

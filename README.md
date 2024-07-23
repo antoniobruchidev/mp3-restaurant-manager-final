@@ -61,7 +61,7 @@ The platform is designed to be a restaurant management system. It will be able t
 ### User Authentication
 
 Probably the trickiest part of this project given the owner's user stories.
-I created an authentication process that can login users and employees, they can regiter and login the platform using Metamask or compatible ethereum wallet. They can also register and login with Google or simply using their email and a password.
+I created an authentication process that can login users and employees, they can register and login the platform using Metamask or compatible ethereum wallet. They can also register and login with Google or simply using their email and a password.
 
 #### The user register with metamask or compatible ethereum wallet.
 
@@ -73,11 +73,11 @@ The platform will store the user google id, its email, given and family name. It
 
 #### The user register with email and password
 
-The platform will store the user email, given and family name (not required). It will create a new ethereum wallet which will be assigned to the user, storing also the mnemonic phrase and private key  (they should both be encrypted). It will also populate the password field with a password that the user won't be able to access the platform with until they change it after logging in with email and password.(To be implemented). The platform will send an email asking for the user to activate their account.
+The platform will store the user email, given and family name (not required). It will create a new ethereum wallet which will be assigned to the user, storing also the mnemonic phrase and private key  (they should both be encrypted). The platform will send an email asking for the user to activate their account. The user won't be able to access the platform until they activate the account.
 
 #### User login
 
-Selecting metamask, or selecting google and clicking on the login button and selecting the desired google account will log the user in, if registered, redirecting to the dashboard.
+Clicking on metamask picture google icon will log the user in, if registered, redirecting to the dashboard.
 Selecting email and password will log the user in, if registered and activated, redirecting to the dashboard.
 With bad credentials the user will be redirected to the login page in any case. (To be implemented error message).
 
@@ -117,3 +117,7 @@ Once I started coding the part relevant to the creation of a new recipes, I real
 On top of it, looking around the web, I found [this](https://www.digitalocean.com/community/tutorials/how-to-use-many-to-many-database-relationships-with-flask-sqlalchemy){:target="_blank"}, compared the defined relationships in those models and mines and it looked like my relationships were completely different, I honestly don't remember where I read about the previous code, but anyway after testing the new code, it was working fine so I decided to keep it.
 Back to my models, I decided to create two new models, IngredientQuantity and ManufactoredIngredientQuantity, so I could relate them with every other table that require a quantity, from placed orders and deliveries and wastages of Ingredients to the sale, preparation or wastage of one or more ManufactoredIngredients (as long has they are flagged as sellable and their price is set).
 Once I was at it I decided to rename some variables in a more semantic way and to add two new columns in the BoardMessage model for the message's subject and its replies.
+
+#### Bugs in development - Commit [1](https://github.com/antoniobruchidev/mp3-restaurant-manager/commit/6dcafa5633f49ba5f6c9f13584c14b9a3180b825){:target="_blank"}
+
+I started developing it using wtforms, but I had trouble changing the values of select fields with javascript, so at the beginning I tought of having the select field to be choosen manually and when the user would select an option have it populate the form accordingly, because I couldn't find a way to populate a hidden field, so the result was clearly not good for user experience. From there the decision to quit using wtforms and let javascript handle the rest.
