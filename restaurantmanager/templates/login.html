@@ -5,12 +5,8 @@
     Login Page
 </h1>
 {{ display_messages(messages) }}
-<form method="POST" action="">
-    {{ form.hidden_tag() }}
+<form method="POST" action="" id="login_form">
     <div class="row">
-        <div class="input-field col s6">
-            {{ form.account_type(placeholder="Select signin method")  }}
-        </div>
         <!-- Metamask -->
         <div class="col s2 push-s1">
             <img src="{{ url_for('static', filename='images/metamask.svg') }}" alt="Metamask sign in" id="metamask">
@@ -34,11 +30,19 @@
             </div>
         </div>
     </div>
-    {{ form.web3_address(placeholder="0x...") }}
-    {{ form.google_id(placeholder="Sign in with google") }}
-    {{ form.email(placeholder="Email Address") }}
-    {{ form.password(placeholder="Password")  }}
-    {{ form.submit }}
+    <div class="row">
+        <div class="row">
+          <div class="input-field col s12">
+            <input id="email" type="email" name="email" class="validate">
+            <label for="email">Email</label>
+          </div>
+        </div>
+        <div class="input-field col s12">
+          <input id="password" type="password" name="password" class="validate">
+          <label for="password">Password</label>
+        </div>
+      </div>
 </form>
+<button class="btn waves-effect waves-light" id="submitform">Login</button>
 <a href="{{ url_for('register') }}" class="orange-text text-darken-4">Register</a>
 {% endblock %}

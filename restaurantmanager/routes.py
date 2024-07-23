@@ -61,48 +61,49 @@ def home():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     g_client_id = os.environ.get("GOOGLE_CLIENT_ID")
-    form = LoginForm()
-    if form.validate_on_submit():
-
-        if form.account_type.data == "3":
+    if request.method == "POST":
+        if request.form['account_type'] == "3":
             user = (
-                db.session.query(User).filter_by(google_id=form.google_id.data).first()
+                db.session.query(User).filter_by(google_id=request.form['google_id']).first()
             )
 
             if user:
-                logged_in = User.query.filter_by(google_id=form.google_id.data).first()
+                logged_in = User.query.filter_by(google_id=request.form['google_id']).first()
                 login_user(logged_in)
+                return {"success": True}
                 return redirect(url_for("dashboard"))
             else:
                 return redirect(url_for("login"))
-        elif form.account_type.data == "2":
-            user = db.session.query(User).filter_by(email=form.email.data).first()
+        elif request.form['account_type'] == "2":
+            user = db.session.query(User).filter_by(email=request.form['email']).first()
             if user:
                 if user.activated:
-                    if argon2.check_password_hash(user.password, form.password.data):
-                        logged_in = User.query.filter_by(email=form.email.data).first()
+                    print(request.form['password'])
+                    if argon2.check_password_hash(user.password, request.form['password']):
+                        logged_in = User.query.filter_by(email=request.form['email']).first()
                     login_user(logged_in)
+                    return {"success": True}
                     return redirect(url_for("dashboard"))
                 else:
                     return redirect(url_for("login"))
             else:
                 return redirect(url_for("login"))
-        elif form.account_type.data == "1":
+        elif request.form['account_type'] == "1":
             user = (
                 db.session.query(User)
-                .filter_by(web3_address=form.web3_address.data)
+                .filter_by(web3_address=request.form['web3_address'])
                 .first()
             )
             if user:
                 logged_in = User.query.filter_by(
-                    web3_address=form.web3_address.data
+                    web3_address=request.form['web3_address']
                 ).first()
                 login_user(logged_in)
-                return redirect(url_for("dashboard"))
+                return {"success": True}
             else:
                 return redirect(url_for("login"))
 
-    return render_template("login.html", form=form, g_client_id=g_client_id)
+    return render_template("login.html", g_client_id=g_client_id)
 
 
 @app.route("/dashboard")
@@ -610,45 +611,43 @@ def create_recipe():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     g_client_id = os.environ.get("GOOGLE_CLIENT_ID")
-    form = RegisterForm()
-
-    if form.validate_on_submit():
-        hashed_password = argon2.generate_password_hash(form.password.data)
+    if request.method == "POST":
+        print(request.form)
+        hashed_password = argon2.generate_password_hash(request.form['password'])
         activated = False
-        if form.account_type.data != "2":
+        if request.form['account_type'] != "2":
             activated = True
         new_user = User(
-            f_name=form.f_name.data,
-            l_name=form.l_name.data,
+            f_name=request.form['f_name'],
+            l_name=request.form['l_name'],
             password=hashed_password,
-            email=form.email.data,
-            google_id=form.google_id.data,
-            web3_address=form.web3_address.data,
-            account_type=AccountType(int(form.account_type.data)),
+            email=request.form['email'],
+            google_id=request.form['google_id'],
+            web3_address=request.form['web3_address'],
+            account_type=AccountType(int(request.form['account_type'])),
             activated=activated,
         )
         db.session.add(new_user)
         db.session.commit()
         user = (
             db.session.query(User)
-            .filter_by(web3_address=form.web3_address.data)
+            .filter_by(web3_address=request.form['web3_address'])
             .first()
         )
         msg = Message(
             "Please activate your account",
             sender=os.environ.get("MAIL_USERNAME"),
-            recipients=[form.email.data],
+            recipients=[request.form['email']],
         )
-        msg.body = f"Hello {user.f_name}, \n\nPlease click on the link below to activate your account.\n\nhttps://carpez-kitchen-manager-e9e93ef660cf.herokuapp.com/activate/{form.web3_address.data}\n\nThanks."
+        msg.body = f"Hello {user.f_name}, \n\nPlease click on the link below to activate your account.\n\nhttps://carpez-kitchen-manager-e9e93ef660cf.herokuapp.com/activate/{request.form['web3_address']}\n\nThanks."
         mail.send(msg)
         new_wallet = Wallet(
-            user_id=user.id, mnemonic=form.mnemonic.data, priv=form.priv.data
+            user_id=user.id, mnemonic=request.form['mnemonic'], priv=request.form['priv']
         )
         db.session.add(new_wallet)
         db.session.commit()
-        return redirect(url_for("login"))
-    print(form.errors)
-
+        return {"success": True}
+    form=request.form
     return render_template("register.html", form=form, g_client_id=g_client_id)
 
 

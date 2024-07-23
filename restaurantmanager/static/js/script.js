@@ -1,4 +1,4 @@
-  /**function to check if metamask in installed */
+/**function to check if metamask in installed */
 const checkInstalled = () => {
   if (typeof window.ethereum == 'undefined') {
     return false;
@@ -15,7 +15,7 @@ const connectWithMetamask = async () => {
   window.provider = new ethers.providers.Web3Provider(window.ethereum);
   // MetaMask requires requesting permission to connect users accounts
   const accounts = await provider.send("eth_requestAccounts", []);
-  const address =  await accounts[0];
+  const address = await accounts[0];
 
   // The MetaMask plugin also allows signing transactions to
   // send ether and pay to change state within the blockchain.
@@ -24,65 +24,130 @@ const connectWithMetamask = async () => {
 
   const page = window.location.pathname;
   if (page === '/login') {
-    $('#web3_address').val(address);
-    $('#submit').click();
+    const form = document.getElementById('loginForm');
+    const formData = new FormData(form);
+    formData.append('web3_address', address);
+    formData.append('account_type', '1');
+    try {
+      const response = await fetch(window.location.pathname, {
+        method: "POST",
+        body: formData,
+      })
+      const data = await response.json();
+      if (data.success) {
+        window.location.href = window.location.pathname.replace('/login', '/dashboard');
+      }
+    } catch (e) {
+      console.error(e);
+    }
   } else if (page === '/register') {
-    $('#web3_address').val(address);
-    $('#email').val(`${address}@internal.kitchenmanager`);
-    $('#f_name').val('EOA')
-    $('#l_name').val('EOA')
-    $('#google_id').val('EOA')
-    $('#password').val(address);
-    $('#confirm_password').val(address);
-    $('#mnemonic').val("EOA");
-    $('#priv').val("EOA");
-    $('#submit').click();
-  } else if  (page === '/owner/addemployee') {
-    $('#web3_address').val(address);
-    $('#email').val(`${address}@internal.kitchenmanager`);
-    $('#google_id').val('EOA')
-    $('#password').val(address);
-    $('#confirm_password').val(address);
-    $('#mnemonic').val("EOA");
-    $('#priv').val("EOA");
+    const wallet = createWallet();
+    $('#f_name').val("EOA");
+    $('#l_name').val("EOA");
+    $('#email').val(address + "@internal.kitchenmanager");
+    $('#password').val("googleaccount");
+    $('#confirm_password').val("googleaccount");
+    const form = document.getElementById('register_form');
+    const formData = new FormData(form);
+    formData.append('google_id', "EOA");
+    formData.append('account_type', '1');
+    formData.append('mnemonic', "EOA");
+    formData.append('priv', "EOA");
+    formData.append('web3_address', "EOA");
+    try {
+      const response = await fetch(window.location.pathname, {
+        method: "POST",
+        body: formData,
+      })
+      const data = await response.json();
+      if (data.success) {
+        window.location.href = window.location.pathname.replace('/register', '/login');
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  } else if (page === '/owner/addemployee') {
+    const form = document.getElementById('register_form');
+    const formData = new FormData(form);
+    formData.append('web3_address', address);
+    formData.append('account_type', '1');
+    formData.append('email', `${address}@internal.kitchenmanager`)
+    formData.append('google_id', 'EOA')
+    formData.append('password', address);
+    formData.append('confirm_password', address);
+    formData.append('#mnemonic', "EOA");
+    formData.append('#priv', "EOA");
+
   }
 
 
   return true;
 }
 
-  /**
- * Function to handle Google Signin response
- * @param {*} response 
- */
-function handleCredentialResponse(response) {
+/**
+* Function to handle Google Signin response
+* @param {*} response 
+*/
+async function handleCredentialResponse(response) {
   const page = window.location.pathname;
   const userCredential = decodeJWT(response.credential);
   if (page === '/login') {
-    $('#google_id').val(userCredential.sub);
-    $('#submit').click();
+    const form = document.getElementById('loginForm');
+    const formData = new FormData(form);
+    formData.append('google_id', userCredential.sub);
+    formData.append('account_type', '3');
+    try {
+      const response = await fetch(window.location.pathname, {
+        method: "POST",
+        body: formData,
+      })
+      const data = await response.json();
+      if (data.success) {
+        window.location.href = window.location.pathname.replace('/login', '/dashboard');
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
   } else if (page === '/register') {
     const wallet = createWallet();
-    $('#web3_address').val(wallet.address);
-    $('#priv').val(wallet.privateKey);
-    $('#mnemonic').val(wallet.mnemonic.phrase);
     $('#f_name').val(userCredential.given_name);
     $('#l_name').val(userCredential.family_name);
-    $('#google_id').val(userCredential.sub);
     $('#email').val(userCredential.email);
     $('#password').val("googleaccount");
     $('#confirm_password').val("googleaccount");
-    $('#submit').click();
-  } else if  (page === '/owner/addemployee') {
+    const form = document.getElementById('register_form');
+    const formData = new FormData(form);
+    formData.append('google_id', userCredential.sub);
+    formData.append('account_type', '3');
+    formData.append('mnemonic', wallet.mnemonic.phrase);
+    formData.append('priv', wallet.privateKey);
+    formData.append('web3_address', wallet.address);
+    try {
+      const response = await fetch(window.location.pathname, {
+        method: "POST",
+        body: formData,
+      })
+      const data = await response.json();
+      if (data.success) {
+        window.location.href = window.location.pathname.replace('/register', '/login');
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  } else if (page === '/owner/addemployee') {
     const wallet = createWallet();
-    $('#web3_address').val(wallet.address);
-    $('#priv').val(wallet.privateKey);
-    $('#mnemonic').val(wallet.mnemonic.phrase);
-    $('#google_id').val(userCredential.sub);
-    $('#email').val(userCredential.email);
-    $('#password').val("googleaccount");
-    $('#confirm_password').val("googleaccount");
-  }    
+    const form = document.getElementById('register_form');
+    const formData = new FormData(form);
+    formData.append('google_id', userCredential.sub);
+    formData.append('account_type', '3');
+    formData.append('mnemonic', wallet.mnemonic.phrase);
+    formData.append('priv', wallet.privateKey);
+    formData.append('web3_address', wallet.address);
+    formData.append('email', userCredential.email);
+    formData.append('password', "googleaccount")
+    formData.append('password_confirm', "googleaccount")
+  }
 }
 
 /**
@@ -104,19 +169,53 @@ const createWallet = () => {
   return wallet;
 }
 
-/**
- * Event listener to handle the user's choice of account type
- */
-const handleConnectionChoice = () => {
-  const page = window.location.pathname;
-  if ($('#account_type').val() === '1') {
-    connectWithMetamask();
-  } else if ($('#account_type').val() === '2') {
-    const wallet = createWallet();
-    $('#web3_address').val(wallet.address);
-    $('#priv').val(wallet.privateKey);
-    $('#mnemonic').val(wallet.mnemonic.phrase);  
-  } 
+const submitRegisterForm = async () => {
+  const form = document.getElementById('register_form');
+  const formData = new FormData(form);
+  if (
+    formData.get('password') === formData.get('confirm_password')
+    && formData.get('email') !== ''
+    && formData.get('password') !== ''
+  ) {
+    try {
+      const wallet = createWallet();
+      formData.append('web3_address', wallet.address)
+      formData.append('mnemonic', wallet.mnemonic.phrase)
+      formData.append('priv', wallet.privateKey)
+      formData.append('account_type', '2')
+      formData.append('google_id', 'EOA')
+      const response = await fetch(window.location.pathname, {
+        method: "POST",
+        body: formData,
+      })
+      const data = await response.json();
+      if (data.success) {
+        window.location.href = window.location.pathname.replace('/register', '/login');
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+}
+
+const submitLoginForm = async () => {
+  const form = document.getElementById('login_form');
+  const formData = new FormData(form);
+  if  (formData.get('email') !== '' && formData.get('password') !== '')  {
+    try  {
+      formData.append('account_type', '2')
+      const response = await fetch(window.location.pathname,  {
+        method:  "POST",
+        body: formData,
+      })
+      const data = await response.json();
+      if  (data.success)  {
+        window.location.href = window.location.pathname.replace('/login', '/dashboard');
+      }
+    } catch  (e)  {
+      console.error(e);
+    }
+  }
 }
 
 
@@ -150,8 +249,8 @@ const submitRecipeForm = async () => {
 }
 
 const submitPlaceOrderForm = async () => {
-const form = document.getElementById('place_order_form');
-const formData = new FormData(form);
+  const form = document.getElementById('place_order_form');
+  const formData = new FormData(form);
   try {
     const response = await fetch(window.location.pathname, {
       method: "POST",
@@ -167,17 +266,17 @@ const formData = new FormData(form);
   }
 }
 
-const submitAddDeliveryForm = async () =>  {
+const submitAddDeliveryForm = async () => {
   const form = document.getElementById('add_delivery_form');
   console.log(form)
   const formData = new FormData(form);
   try {
-    const response = await fetch(window.location.pathname,  {
+    const response = await fetch(window.location.pathname, {
       method: "POST",
       body: formData,
     })
     const data = await response.json();
-    if  (data.success)  {
+    if (data.success) {
       window.location.href = window.location.pathname;
     }
   } catch (e) {
@@ -185,18 +284,17 @@ const submitAddDeliveryForm = async () =>  {
   }
 }
 
-$(document).ready(function(){
+$(document).ready(function () {
   $('.sidenav').sidenav();
   $('select').formSelect();
-  $('#account_type').on('change', handleConnectionChoice);
   if (window.location.pathname === '/chef/createrecipe') {
     const inputFields = $('.view-toggle');
     for (let inputField of inputFields) {
       $(inputField).hide();
     }
-    $('input[type=checkbox]').on('change', function(){
+    $('input[type=checkbox]').on('change', function () {
       const id = $(this).attr('id');
-      if (id.includes("manufactored")){
+      if (id.includes("manufactored")) {
         itemId = '#manufactored_ingredient_quantity_' + id.split('_')[2];
       } else {
         itemId = '#ingredient_quantity_' + id.split('_')[1];
@@ -207,15 +305,15 @@ $(document).ready(function(){
         $(itemId).parent().hide();
       }
     });
-    $('#submitform').on('click', submitRecipeForm)    
+    $('#submitform').on('click', submitRecipeForm)
   } else if (window.location.pathname.includes('/deliveries/adddelivery')) {
     const inputFields = $('.view-toggle');
-    for  (let inputField of inputFields)  {
+    for (let inputField of inputFields) {
       $(inputField).hide();
     }
-    $('input[type=checkbox]').on('change', function(){
+    $('input[type=checkbox]').on('change', function () {
       const id = $(this).attr('id');
-      itemId = '#ingredient_quantity_'+ id.split('_')[1];
+      itemId = '#ingredient_quantity_' + id.split('_')[1];
       if ($(this).is(':checked')) {
         $(itemId).parent().show();
       } else {
@@ -228,16 +326,22 @@ $(document).ready(function(){
     for (let inputField of inputFields) {
       $(inputField).hide();
     }
-    $('input[type=checkbox]').on('change', function(){
+    $('input[type=checkbox]').on('change', function () {
       const id = $(this).attr('id');
-      itemId = '#ingredient_quantity_'+ id.split('_')[1];
-      if  ($(this).is(':checked')) {
+      itemId = '#ingredient_quantity_' + id.split('_')[1];
+      if ($(this).is(':checked')) {
         $(itemId).parent().show();
-      } else  {
+      } else {
         $(itemId).parent().hide();
       }
     });
     $('#submitform').on('click', submitPlaceOrderForm)
+  } else if (window.location.pathname === '/login') {
+    $('#metamask').on('click', connectWithMetamask);
+    $('#submitform').on('click', submitLoginForm);
+  } else if (window.location.pathname === '/register') {
+    $('#metamask').on('click', connectWithMetamask);
+    $('#submitform').on('click', submitRegisterForm);
   }
 });
 

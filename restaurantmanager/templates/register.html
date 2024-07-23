@@ -3,11 +3,9 @@
 <h1 class="center-align">
     Register Page
 </h1>
-<form method="POST" action="">
-    {{ form.hidden_tag() }}
+<form method="POST" action="" id="register_form">
     <div class="row">
         <div class="input-field col s6">
-            {{ form.account_type(placeholder="Select signin method") }}
         </div>
         <!-- Metamask -->
         <div class="col s2 push-s1">
@@ -33,17 +31,34 @@
             <p id="googleResponse" class="center-align"></p>
         </div>
     </div>
-    {{ form.web3_address(placeholder="0x...") }}
-    {{ form.f_name }}
-    {{ form.l_name }}
-    {{ form.google_id(placeholder="Sign in with google") }}
-    {{ form.email(placeholder="Email address")}}
-    {{ form.password(placeholder="Password")}}
-    {{ form.confirm_password(placeholder="Confirm password")}}
-    {{ form.mnemonic }}
-    {{ form.priv }}
-    {{ form.submit }}
+    <div class="row">
+        <div class="input-field col s6">
+          <input placeholder="Placeholder" id="f_name" name="f_name" type="text" class="validate">
+          <label for="f_name">First Name</label>
+        </div>
+        <div class="input-field col s6">
+          <input id="l_name" type="text" name="l_name" class="validate">
+          <label for="l_name">Last Name</label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-field col s12">
+          <input id="email" type="email" name="email" class="validate">
+          <label for="email">Email</label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-field col s6">
+            <input id="password" type="password" name="password" class="validate">
+            <label for="password">Password</label>
+          </div>
+          <div class="input-field col s6">
+            <input id="confirm_password" name="confirm_password" type="password" class="validate">
+            <label for="confirm_password">Password</label>
+          </div>
+      </div>
 </form>
+<button class="btn waves-effect waves-light" id="submitform">Register</button>
 <br>
 <a href="{{ url_for('login') }}" class="brown-text text-darken-3">Login</a>
 {% endblock %}
