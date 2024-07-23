@@ -92,7 +92,7 @@ async function handleCredentialResponse(response) {
   const page = window.location.pathname;
   const userCredential = decodeJWT(response.credential);
   if (page === '/login') {
-    const form = document.getElementById('loginForm');
+    const form = document.getElementById('login_form');
     const formData = new FormData(form);
     formData.append('google_id', userCredential.sub);
     formData.append('account_type', '3');
