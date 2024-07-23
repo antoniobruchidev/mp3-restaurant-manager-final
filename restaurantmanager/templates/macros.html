@@ -20,7 +20,7 @@
   <div class="input-field col s3 push-s1 view-toggle">
     <input placeholder="0" id="ingredient_quantity_{{ingredient.id}}" name="ingredient_quantity_{{ingredient.id}}"
       type="number" class="validate">
-    <label for="quantity{ingredient.id}">grams</label>
+    <label for="ingredient_quantity_{{ingredient.id}}">grams</label>
   </div>
 </div>
 {% endfor %}
@@ -39,7 +39,7 @@
   <div class="input-field col s3 push-s1 view-toggle">
     <input placeholder="0" id="manufactored_ingredient_quantity_{{manufactored_ingredient.id}}"
       name="manufactored_ingredient_quantity_{{manufactored_ingredient.id}}" type="number" class="validate">
-    <label for="quantity{manufactored_ingredient.id}">portions</label>
+    <label for="manufactored_ingredient_quantity_{{manufactored_ingredient.id}}">portions</label>
   </div>
 </div>
 {% endfor %}
@@ -89,6 +89,7 @@
 {% endfor %}
 {% endmacro %}
 
+
 {% macro display_placed_order(placed_orders)%}
 {% for placed_order in placed_orders %}
 <div class="row">
@@ -102,7 +103,7 @@
         <a href="#">Delete</a>
       </div>
       <div class="card-action">
-        <a href="{{ url_for('get_order', supplier_id=placed_order.supplier_id, order_id=placed_order.id)}}">view/Update</a>
+        <a href="{{ url_for('get_placedorder', supplier_id=placed_order.supplier_id, order_id=placed_order.id)}}">view/Update</a>
       </div>
       <div class="card-action">
         <a href="#">Send</a>

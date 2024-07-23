@@ -439,9 +439,20 @@ def get_ingredient(ingredient_id):
         return redirect(url_for("logout"))
 
 
-@app.route("/manager/suppliers/<supplier_id>/orders")
+@app.route("/manager/placedorders")
 @login_required
-def get_orders(supplier_id):
+def get_all_placedorders():
+    is_manager = check_role(role_hash("manager"), current_user.web3_address)
+    if is_manager:
+        orders = db.session.query(PlacedOrder).all()
+        return render_template("placedorders.html", orders=orders)
+    else:
+        return redirect(url_for("logout"))
+
+
+@app.route("/manager/suppliers/<supplier_id>/placedorders")
+@login_required
+def get_placedorders(supplier_id):
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
     if is_manager:
         orders = (
@@ -449,14 +460,14 @@ def get_orders(supplier_id):
             .filter_by(supplier_id=supplier_id)
             .all()
         )
-        return render_template("orders.html", orders=orders)
+        return render_template("placedorders.html", orders=orders)
     else:
         return redirect(url_for("logout"))
 
 
-@app.route("/manager/suppliers/<supplier_id>/orders/<order_id>")
+@app.route("/manager/suppliers/<supplier_id>/placedorders/<order_id>")
 @login_required
-def get_order(supplier_id, order_id):
+def get_placedorder(supplier_id, order_id):
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
     if is_manager:
         order = (
@@ -464,12 +475,12 @@ def get_order(supplier_id, order_id):
             .filter_by(supplier_id=supplier_id, id=order_id)
             .first()
         )
-        return render_template("order.html", supplier_id=order.supplier_id, order=order)
+        return render_template("placedorder.html", supplier_id=order.supplier_id, order=order)
     else:
         return redirect(url_for("logout"))
     
 
-@app.route("/manager/suppliers/<supplier_id>/orders/<order_id>/send")
+@app.route("/manager/suppliers/<supplier_id>/placedorders/<order_id>/send")
 @login_required
 def send_order(supplier_id, order_id):
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
@@ -479,12 +490,12 @@ def send_order(supplier_id, order_id):
         # TODO: send order to supplier via email
         db.session.commit()
         flash("Order sent to supplier")
-        return redirect(url_for("get_orders", supplier_id=supplier_id))
+        return redirect(url_for("get_placedorders", supplier_id=supplier_id))
     else:
         return redirect(url_for("logout"))
 
 
-@app.route("/manager/suppliers/<supplier_id>/orders/addorder", methods=['GET','POST'])
+@app.route("/manager/suppliers/<supplier_id>/placedorders/addorder", methods=['GET','POST'])
 @login_required
 def place_order(supplier_id):
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
@@ -506,6 +517,20 @@ def place_order(supplier_id):
             return render_template("placeorder.html", ingredients=ingredients)
     else:
         return redirect(url_for("logout"))
+
+
+@app.route("/manager/deliveries")
+@login_required
+def get_all_deliveries():
+    is_manager = check_role(role_hash("manager"), current_user.web3_address)
+    if is_manager:
+        deliveries = (
+            db.session.query(Delivery).all()
+        )
+        return render_template("deliveries.html", deliveries=deliveries)
+    else:
+        return redirect(url_for("logout"))
+    
 
 @app.route("/manager/suppliers/<supplier_id>/deliveries")
 @login_required
