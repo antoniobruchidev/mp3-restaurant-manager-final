@@ -1,0 +1,10 @@
+{% from 'macros.html' import display_recipes, display_messages %}
+{% extends "base.html" %}
+{% block content %}
+<h1 class="center-align">
+    recipes Page
+</h1>
+{{ display_messages(messages) }}
+{{ display_recipes(recipes,recipes_for) }}
+<hr>
+{% endblock %}

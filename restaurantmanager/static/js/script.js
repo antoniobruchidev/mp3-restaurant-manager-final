@@ -284,6 +284,47 @@ const submitAddDeliveryForm = async () => {
   }
 }
 
+const submitEditRecipeForm = async () =>  {
+  const form = document.getElementById('edit-recipe-form');
+  const formData = new FormData(form);
+  if (formData.get('sellable_item_checkbox') == 'on') {
+    formData.append('sellable_item', true);
+  } else {
+    formData.append('sellable_item', false);
+  }
+  try  {
+    const response = await fetch(window.location.pathname + '/edit', {
+      method:  "POST",
+      body: formData,
+    })
+    const data = await response.json();
+    if  (data.success)  {
+    window.location.href = window.location.pathname;
+    }
+  } catch  (e)  {
+    console.error(e);
+  }
+}
+
+const editRecipe = () => {
+  if (is_chef == "True") {
+    const ingredients = $('.myCheckbox')
+    for (let ingredient of ingredients) {
+      $(ingredient).prop('disabled', false)
+      children = $(ingredient).parent().parent().next().children()
+      $(children[0]).prop('disabled', false)
+      $('#portions').prop('disabled', false)
+    }
+  } else if (is_manager == "True") {
+    $('#name').prop('disabled', false)
+    $('#description').prop('disabled', false)
+    $('#sellable_item_checkbox').prop('disabled', false)
+    $('#price').prop('disabled', false)
+  }
+  $('#submitform').prop('disabled', false)
+  $('#submitform').on('click', submitEditRecipeForm)
+}
+
 $(document).ready(function () {
   $('.sidenav').sidenav();
   $('select').formSelect();
@@ -342,6 +383,8 @@ $(document).ready(function () {
   } else if (window.location.pathname === '/register') {
     $('#metamask').on('click', connectWithMetamask);
     $('#submitform').on('click', submitRegisterForm);
+  } else if (window.location.pathname.includes('/manager/recipe')) {
+    $('#edit').on('click', editRecipe);
   }
 });
 

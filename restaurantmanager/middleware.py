@@ -1,7 +1,7 @@
 from flask import request
 from restaurantmanager import db
 
-from restaurantmanager.models import Ingredient, IngredientQuantity, ManufactoredIngredientQuantity
+from restaurantmanager.models import Ingredient, IngredientQuantity, ManufactoredIngredientQuantity, Recipe
 
 
 def get_ingredient_quantity(keys):
@@ -61,6 +61,13 @@ def append_manufactored_ingredient_quantity(ingredient_quantities, table):
     for ingredient_quantity in ingredient_quantities:
         db.session.add(ingredient_quantity)
         table.manufactoredingredient_quantities.append(ingredient_quantity)
+    return True
+
+def update_ingredient_quantity(ingredient_quantities, table):
+    table = db.session.query(Recipe).filter_by(id=table.id).first()       
+    table.ingredient_quantities.clear()
+    assert append_ingredient_quantity(ingredient_quantities, table)
+    db.session.commit()
     return True
 
 

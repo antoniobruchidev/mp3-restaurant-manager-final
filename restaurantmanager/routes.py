@@ -40,7 +40,7 @@ from restaurantmanager.forms import (
 )
 from restaurantmanager.web3interface import w3, check_role, grant_role, role_hash
 from flask_mail import Message
-from restaurantmanager.middleware import append_ingredient_quantity, append_manufactored_ingredient_quantity, get_ingredient_quantity, get_manufactored_ingredient_quantity, increase_stock
+from restaurantmanager.middleware import append_ingredient_quantity, append_manufactored_ingredient_quantity, get_ingredient_quantity, get_manufactored_ingredient_quantity, increase_stock, update_ingredient_quantity
 
 
 login_manager = LoginManager()
@@ -588,6 +588,79 @@ def add_delivery(supplier_id):
             return {"success": True}
         else:
             return render_template("adddelivery.html", ingredients=ingredients)
+    else:
+        return redirect(url_for("logout"))
+
+@app.route("/manager/recipes")
+@login_required
+def get_all_recipes():
+    is_manager = check_role(role_hash("manager"), current_user.web3_address)
+    is_chef = check_role(role_hash("chef"), current_user.web3_address)
+    if is_manager or is_chef:
+        recipes = db.session.query(Recipe).all()
+        recipes_for = []
+        for recipe in recipes:
+            recipe_for = db.session.query(ManufactoredIngredient).filter_by(id=recipe.recipe_for).first()
+            recipes_for.append(recipe_for)
+        return render_template("recipes.html", recipes=recipes, recipes_for=recipes_for)
+    else:
+        return redirect(url_for("logout"))
+
+
+@app.route("/manager/recipes/<recipe_id>")
+@login_required
+def get_recipe(recipe_id):
+    is_manager = check_role(role_hash("manager"), current_user.web3_address)
+    is_chef = check_role(role_hash("chef"), current_user.web3_address)
+    if is_manager or is_chef:
+        recipe = db.session.query(Recipe).filter_by(id=recipe_id).first()
+        item = db.session.query(ManufactoredIngredient).filter_by(id=recipe.recipe_for).first()
+        ingredients = []
+        manufactored_ingredients = []
+        for ingredient_quantity in recipe.ingredient_quantities:
+            ingredient = db.session.query(Ingredient).filter_by(id=ingredient_quantity.ingredient_id).first()
+            ingredients.append(ingredient)
+            print(ingredient)
+        for manufactored_ingredient_quantity in recipe.manufactoredingredient_quantities:
+            manufactored_ingredient = db.session.query(ManufactoredIngredient).filter_by(id=manufactored_ingredient_quantity.manufactored_ingredient_id).first()
+            manufactored_ingredients.append(manufactored_ingredient)
+        return render_template("recipe.html", recipe=recipe, ingredients=ingredients, manufactored_ingredients=manufactored_ingredients, item=item, is_manager=is_manager, is_chef=is_chef)
+    else:
+        return redirect(url_for("logout"))
+    
+
+@app.route("/manager/recipes/<recipe_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_recipe(recipe_id):
+    is_manager = check_role(role_hash("manager"), current_user.web3_address)
+    is_chef = check_role(role_hash("chef"), current_user.web3_address)
+    if is_manager or is_chef:
+        recipe = db.session.query(Recipe).filter_by(id=recipe_id).first()
+        manufactored_ingredient = db.session.query(ManufactoredIngredient).filter_by(id=recipe.recipe_for).first()
+        print(request.form)
+        if request.method == "POST" and is_manager:
+            if request.form["name"]:
+                manufactored_ingredient.name = request.form["name"]
+            if request.form["description"]:
+               manufactored_ingredient.description = request.form["description"]
+            if request.form["sellable_item"] == "true":
+                manufactored_ingredient.sellable_item = True
+            else:
+                manufactored_ingredient.sellable_item = False
+            db.session.commit()
+            flash("Recipe updated successfully")
+            return {"success": True}
+        if request.method == "POST" and is_chef:
+            if request.form["portions"]:
+                recipe.portions = request.form['portions']
+            keys = request.form.keys()
+            ingredient_quantities = get_ingredient_quantity(keys)
+            assert update_ingredient_quantity(ingredient_quantities, recipe)
+            db.session.commit()
+            flash("Recipe updated successfully")
+            return  {"success": True}
+        else:
+            return render_template("edit_recipe.html", recipe=recipe, is_manager=is_manager, is_chef=is_chef)
     else:
         return redirect(url_for("logout"))
 

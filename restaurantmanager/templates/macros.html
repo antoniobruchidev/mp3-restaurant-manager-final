@@ -133,3 +133,61 @@
 <br>
 {% endfor %}
 {% endmacro %}
+
+{% macro display_recipes(recipes, recipes_for)%}
+{% for recipe in recipes %}
+{% set recipe_for = recipes_for[recipes.index(recipe)] %}
+<div class="row">
+  <div class="col s8 push-s3">
+    <div class="card blue-grey darken-1">
+      <div class="card-content white-text">
+        <span class="card-title">{{ recipe_for.name }}</span>
+        <p><em>{{recipe_for.description}}</em></p>
+      </div>
+      <div class="card-action">
+        <a href="{{ url_for('get_recipe', recipe_id=recipe.id)}}">View</a>
+      </div>
+    </div>
+  </div>
+</div>
+<br>
+{% endfor  %}
+{% endmacro  %}
+
+{% macro display_recipe_ingredient_quantities(ingredients, ingredient_quantities) %}
+{% for ingredient_quantity in ingredient_quantities %}
+<div class="row">
+  <p class="col s7">
+    <label>
+      {% set ingredient = ingredients[ingredient_quantities.index(ingredient_quantity)] %}
+      <input type="checkbox" id="ingredient_{{ingredient.id}}" name="ingredient_{{ingredient.id}}" class="myCheckbox" checked disabled />
+      <span>{{ingredient.name}}</span>
+    </label>
+  </p>
+  <div class="input-field col s3 push-s1">
+    <input value="{{ingredient_quantity.quantity}}" id="ingredient_quantity_{{ingredient.id}}" name="ingredient_quantity_{{ingredient.id}}"
+      type="number" class="validate" disabled>
+    <label for="ingredient_quantity_{{ingredient.id}}">grams</label>
+  </div>
+</div>
+{% endfor %}
+{% endmacro %}
+
+{% macro display_recipe_manufactored_ingredient_quantities(manufactored_ingredients, manufactored_ingredient_quantities) %}
+{% for manufactored_ingredient_quantity in manufactored_ingredient_quantities %}
+<div class="row">
+  <p class="col s7">
+    <label>
+      {% set manufactored_ingredient = manufactored_ingredients[manufactored_ingredient_quantities.index(manufactored_ingredient_quantity)] %}
+      <input type="checkbox" id="manufactored_ingredient_{{manufactored_ingredient.id}}" name="manufactored_ingredient_{{manufactored_ingredient.id}}" class="myCheckbox" checked disabled />
+      <span>{{manufactored_ingredient.name}}</span>
+    </label>
+  </p>
+  <div class="input-field col s3 push-s1">
+    <input value="{{manufactored_ingredient_quantity.quantity}}" id="manufactored_ingredient_quantity_{{manufactored_ingredient.id}}" name="manufactored_ingredient_quantity_{{manufactored_ingredient.id}}"
+      type="number" class="validate" disabled>
+    <label for="ingredient_quantity_{{manufactored_ingredient.id}}">portions</label>
+  </div>
+</div>
+{% endfor %}
+{% endmacro %}
