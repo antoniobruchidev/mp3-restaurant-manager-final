@@ -45,15 +45,15 @@ const connectWithMetamask = async () => {
     $('#f_name').val("EOA");
     $('#l_name').val("EOA");
     $('#email').val(address + "@internal.kitchenmanager");
-    $('#password').val("googleaccount");
-    $('#confirm_password').val("googleaccount");
+    $('#password').val("metamask");
+    $('#confirm_password').val("metamask");
     const form = document.getElementById('register_form');
     const formData = new FormData(form);
     formData.append('google_id', "EOA");
     formData.append('account_type', '1');
     formData.append('mnemonic', "EOA");
     formData.append('priv', "EOA");
-    formData.append('web3_address', "EOA");
+    formData.append('web3_address', address);
     try {
       const response = await fetch(window.location.pathname, {
         method: "POST",
@@ -315,14 +315,199 @@ const editRecipe = () => {
       $(children[0]).prop('disabled', false)
       $('#portions').prop('disabled', false)
     }
-  } else if (is_manager == "True") {
+  }
+  if (is_manager == "True") {
     $('#name').prop('disabled', false)
     $('#description').prop('disabled', false)
     $('#sellable_item_checkbox').prop('disabled', false)
     $('#price').prop('disabled', false)
   }
-  $('#submitform').prop('disabled', false)
+  $('#submitform').prop('disabled', false);
+    const inputFields = $('.view-toggle');
+    for (let inputField of inputFields) {
+      $(inputField).hide();
+    }
+    $('input[type=checkbox]').on('change', function () {
+      const id = $(this).attr('id');
+      if (id.includes("manufactored")) {
+        itemId = '#manufactored_ingredient_quantity_' + id.split('_')[2];
+      } else {
+        itemId = '#ingredient_quantity_' + id.split('_')[1];
+      }
+      if ($(this).is(':checked')) {
+        $(itemId).parent().show();
+      } else {
+        $(itemId).prop('value', 0)
+        $(itemId).parent().hide();
+      }
+    });
   $('#submitform').on('click', submitEditRecipeForm)
+}
+
+let recipes;
+let placedorders;
+let deliveries;
+
+var tabsInstance;
+const getIngredientData = async (val) => {
+  const ingredient_id = val.split(' ')[0]
+  console.log(ingredient_id)
+  try {
+    const response = await fetch(`/api/ingredients/${ingredient_id}/get_ingredient_data`, {
+      method:  "GET",
+    })
+    const data = await response.json();
+    console.log(data, "DATA")
+    recipes = createRelatedRecipeRecords(await data['recipes'])
+    placedorders = createRelatedPlacedOrderRecords(await data['placedorders'])
+    deliveries = createRelatedDeliveryRecords(await data['deliveries'])
+    console.log(recipes, placedorders, deliveries)
+  } catch (error) {
+    
+  }
+}
+
+const showTabData = (tabId) => {
+  if (tabId == 0) {
+    tab = document.getElementById('recipes')
+    tab.innerHTML = '<h5 class="center-align">Related recipes</h5>'
+    tab.appendChild(recipes)
+    console.log(recipes)
+  } else if  (tabId == 1)  {
+    tab = document.getElementById('placedorders')
+    tab.innerHTML = '<h5 class="center-align">Related placed orders</h5>'
+    tab.appendChild(placedorders)
+    console.log(placedorders)
+  } else if  (tabId == 2)  {
+    tab = document.getElementById('deliveries')
+    tab.innerHTML = '<h5 class="center-align">Related deliveries</h5>'
+    tab.appendChild(deliveries)
+    console.log(deliveries)
+  }
+}
+
+const createRelatedRecipeRecords = (data) => {
+  console.log(data)
+  let row = document.createElement('div')
+  row.classList.add('row')
+  for (let recipe of data) {
+  let col = document.createElement('div')
+  col.classList.add('col', 's3', 'push-s1')
+  let card = document.createElement('div')
+  card.classList.add('card',  'blue-grey',  'darken-1')
+  let cardContent = document.createElement('div')
+  cardContent.classList.add('card-content',  'white-text')
+  let cardTitle = document.createElement('span')
+  cardTitle.classList.add('card-title')
+  cardTitle.innerHTML = recipe.name + ' ID: ' + recipe.id
+  let cardText = document.createElement('p')
+  cardText.innerHTML = recipe.description
+  let cardActions = document.createElement('div')
+  cardActions.classList.add('card-action')
+  let anchor = document.createElement('a.')
+  cardActions.appendChild(anchor)
+  cardContent.appendChild(cardTitle)
+  cardContent.appendChild(cardText)
+  card.appendChild(cardContent)
+  card.appendChild(cardActions)
+  col.appendChild(card)
+  row.appendChild(col)
+  }
+  console.log(row)
+  return row
+}
+
+const createRelatedPlacedOrderRecords = (data) => {
+  console.log(data)
+  let row = document.createElement('div')
+  row.classList.add('row')
+  for (let placedorder of data) {
+  let col = document.createElement('div')
+  col.classList.add('col', 's3', 'push-s1')
+  let card = document.createElement('div')
+  card.classList.add('card',  'blue-grey',  'darken-1')
+  let cardContent = document.createElement('div')
+  cardContent.classList.add('card-content',  'white-text')
+  let cardTitle = document.createElement('span')
+  cardTitle.classList.add('card-title')
+  cardTitle.innerHTML = placedorder.date + ' ID: ' + placedorder.id
+  let cardText = document.createElement('p')
+  cardText.innerHTML = placedorder.quantity
+  let cardActions = document.createElement('div')
+  cardActions.classList.add('card-action')
+  let anchor = document.createElement('a.')
+  cardActions.appendChild(anchor)
+  cardContent.appendChild(cardTitle)
+  cardContent.appendChild(cardText)
+  card.appendChild(cardContent)
+  card.appendChild(cardActions)
+  col.appendChild(card)
+  row.appendChild(col)
+  }
+  console.log(row)
+  return row
+}
+
+const createRelatedDeliveryRecords = (data) => {
+  console.log(data)
+  let row = document.createElement('div')
+  row.classList.add('row')
+  for (let delivery of data) {
+  let col = document.createElement('div')
+  col.classList.add('col', 's3', 'push-s1')
+  let card = document.createElement('div')
+  card.classList.add('card',  'blue-grey',  'darken-1')
+  let cardContent = document.createElement('div')
+  cardContent.classList.add('card-content',  'white-text')
+  let cardTitle = document.createElement('span')
+  cardTitle.classList.add('card-title')
+  cardTitle.innerHTML = delivery.date + ' ID: ' + dealivery.id
+  let cardText = document.createElement('p')
+  cardText.innerHTML = delivery.quantity
+  let cardActions = document.createElement('div')
+  cardActions.classList.add('card-action')
+  let anchor = document.createElement('a.')
+  cardActions.appendChild(anchor)
+  cardContent.appendChild(cardTitle)
+  cardContent.appendChild(cardText)
+  card.appendChild(cardContent)
+  card.appendChild(cardActions)
+  col.appendChild(card)
+  row.appendChild(col)
+  }
+  console.log(row)
+  return row
+}
+
+const getIngredients = async () => {
+  try  {
+    const response = await fetch('/api/get_all_ingredients', {
+      method:  "GET",
+    })
+    const data = await response.json();
+    console.log(data)
+    const ingredients_data = {}
+    for (let ingredient in data) {
+      console.log(data[ingredient])
+      const ingredient_in_searchbar = `${[data[ingredient]['id']]} - ${data[ingredient]['name']}`
+      console.log(ingredient_in_searchbar)
+      ingredients_data[ingredient_in_searchbar] = null;
+    }
+    $(function() {
+      $('input.autocomplete').autocomplete({
+        data: ingredients_data,
+        limit: 7, // The max amount of results that can be shown at once. Default: Infinity.
+        onAutocomplete: function (val) {
+          getIngredientData(val)
+        },
+        minLength: 1, // The minimum length of the input for the autocomplete to start. Default: 1.
+        });
+    }, ingredients_data);
+    return ingredients_data;
+  } catch  (e)  {
+    console.error(e);
+  }
+
 }
 
 $(document).ready(function () {
@@ -362,7 +547,7 @@ $(document).ready(function () {
       }
     });
     $('#submitform').on('click', submitAddDeliveryForm)
-  } else if (window.location.pathname.includes('/orders/addorder')) {
+  } else if (window.location.pathname.includes('/placedorders/addorder')) {
     const inputFields = $('.view-toggle');
     for (let inputField of inputFields) {
       $(inputField).hide();
@@ -385,6 +570,18 @@ $(document).ready(function () {
     $('#submitform').on('click', submitRegisterForm);
   } else if (window.location.pathname.includes('/manager/recipe')) {
     $('#edit').on('click', editRecipe);
+  } else if (window.location.pathname.includes('/manager/stockmanagement')){
+    $('.view-toggle').hide()
+    getIngredients();
+    $(function() {
+      tabsInstance = M.Tabs.init(tabs,{
+        duration: 1000,
+        onShow: function () {
+          tab = tabsInstance.index
+          showTabData(tab)
+        },
+      });
+    });
   }
 });
 

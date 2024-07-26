@@ -821,3 +821,49 @@ def activate(web3_address):
         user.activated = True
         db.session.commit()
         return redirect(url_for("login"))
+
+
+
+@app.route("/api/get_all_ingredients")
+def get_all_ingredients():
+    ingredients = db.session.query(Ingredient).all()
+    ingredients_data = []
+    for ingredient in ingredients:
+        ingredients_data.append({"name": ingredient.name, "id": ingredient.id})
+    return jsonify(ingredients_data)
+
+
+@app.route("/api/ingredients/<int:id>/get_ingredient_data")
+def get_ingredient_data(id):
+    related_ingredientquantities = db.session.query(IngredientQuantity).filter_by(ingredient_id=id).all()
+    recipe_ids = []
+    for related_ingredientquantity in related_ingredientquantities:
+        recipe = db.session.query(recipe_ingredientquantity).filter_by(ingredient_quantity_id=related_ingredientquantity.id).first()
+        if recipe != None:
+            print(recipe, 1)
+            recipe_ids.append(recipe.recipe_id)
+    placedorder_ids = []
+    for related_ingredientquantity in related_ingredientquantities:
+        placedorder = db.session.query(placedorder_ingredientquantity).filter_by(ingredient_quantity_id=related_ingredientquantity.id).first()
+        if placedorder != None:
+            print(placedorder, 2)
+            placedorder_ids.append(placedorder.placedorder_id)
+    delivery_ids = []
+    for related_ingredientquantity in related_ingredientquantities:
+        delivery = db.session.query(delivery_ingredientquantity).filter_by(ingredient_quantity_id=related_ingredientquantity.id).first()
+        if delivery != None:
+            print(delivery, 3)
+            delivery_ids.append(delivery.delivery_id)
+    ingredient_related_recipes_data = get_ingredient_related_recipes(recipe_ids)
+    ingredient_related_placeorders_data = get_ingredient_related_placedorders(placedorder_ids)
+    ingredient_related_delivery = get_ingredient_related_deliveries(delivery_ids)
+    return {
+        "recipes": ingredient_related_recipes_data,
+        "placedorders": ingredient_related_placeorders_data,
+        "deliveries": ingredient_related_delivery,
+    }
+
+
+@app.route("/manager/stockmanagement")
+def stockmanagement():
+    return render_template("stockmanagement.html")
