@@ -157,8 +157,8 @@ def get_ingredient_related_deliveries(related_delivery_ids):
         .first()
         )
         supplier = db.session.query(Supplier).filter_by(id=related_delivery.supplier_id).first()
-        related_ingredient_quantity = db.session.query(placedorder_ingredientquantity).filter_by(placedorder_id=related_delivery.id).first()
-        ingredient_quantity = db.session.query(IngredientQuantity).filter_by(id=related_ingredient_quantity.ingredient_id).first()
+        related_ingredient_quantity = db.session.query(delivery_ingredientquantity).filter_by(delivery_id=related_delivery.id).first()
+        ingredient_quantity = db.session.query(IngredientQuantity).filter_by(id=related_ingredient_quantity.ingredient_quantity_id).first()
         related_delivery_data.append(
             {
                 "id": related_delivery.id,

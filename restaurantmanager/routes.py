@@ -840,19 +840,16 @@ def get_ingredient_data(id):
     for related_ingredientquantity in related_ingredientquantities:
         recipe = db.session.query(recipe_ingredientquantity).filter_by(ingredient_quantity_id=related_ingredientquantity.id).first()
         if recipe != None:
-            print(recipe, 1)
             recipe_ids.append(recipe.recipe_id)
     placedorder_ids = []
     for related_ingredientquantity in related_ingredientquantities:
         placedorder = db.session.query(placedorder_ingredientquantity).filter_by(ingredient_quantity_id=related_ingredientquantity.id).first()
         if placedorder != None:
-            print(placedorder, 2)
             placedorder_ids.append(placedorder.placedorder_id)
     delivery_ids = []
     for related_ingredientquantity in related_ingredientquantities:
         delivery = db.session.query(delivery_ingredientquantity).filter_by(ingredient_quantity_id=related_ingredientquantity.id).first()
         if delivery != None:
-            print(delivery, 3)
             delivery_ids.append(delivery.delivery_id)
     ingredient_related_recipes_data = get_ingredient_related_recipes(recipe_ids)
     ingredient_related_placeorders_data = get_ingredient_related_placedorders(placedorder_ids)

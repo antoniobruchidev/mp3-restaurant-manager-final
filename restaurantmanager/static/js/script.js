@@ -351,43 +351,40 @@ let deliveries;
 var tabsInstance;
 const getIngredientData = async (val) => {
   const ingredient_id = val.split(' ')[0]
-  console.log(ingredient_id)
   try {
     const response = await fetch(`/api/ingredients/${ingredient_id}/get_ingredient_data`, {
       method:  "GET",
     })
     const data = await response.json();
-    console.log(data, "DATA")
     recipes = createRelatedRecipeRecords(await data['recipes'])
     placedorders = createRelatedPlacedOrderRecords(await data['placedorders'])
     deliveries = createRelatedDeliveryRecords(await data['deliveries'])
-    console.log(recipes, placedorders, deliveries)
+    const tabs = document.getElementById('tabs')
+    var instance = M.Tabs.getInstance(tabs)
+    instance.select("recipes")
   } catch (error) {
     
   }
 }
 
 const showTabData = (tabId) => {
-  if (tabId == 0) {
+  if (tabId == 0 && recipes != []) {
     tab = document.getElementById('recipes')
     tab.innerHTML = '<h5 class="center-align">Related recipes</h5>'
     tab.appendChild(recipes)
-    console.log(recipes)
-  } else if  (tabId == 1)  {
+  } else if  (tabId == 1 && placedorders != [])  {
     tab = document.getElementById('placedorders')
     tab.innerHTML = '<h5 class="center-align">Related placed orders</h5>'
     tab.appendChild(placedorders)
     console.log(placedorders)
-  } else if  (tabId == 2)  {
+  } else if  (tabId == 2 && deliveries != [])  {
     tab = document.getElementById('deliveries')
     tab.innerHTML = '<h5 class="center-align">Related deliveries</h5>'
     tab.appendChild(deliveries)
-    console.log(deliveries)
   }
 }
 
 const createRelatedRecipeRecords = (data) => {
-  console.log(data)
   let row = document.createElement('div')
   row.classList.add('row')
   for (let recipe of data) {
@@ -413,12 +410,10 @@ const createRelatedRecipeRecords = (data) => {
   col.appendChild(card)
   row.appendChild(col)
   }
-  console.log(row)
   return row
 }
 
 const createRelatedPlacedOrderRecords = (data) => {
-  console.log(data)
   let row = document.createElement('div')
   row.classList.add('row')
   for (let placedorder of data) {
@@ -444,12 +439,10 @@ const createRelatedPlacedOrderRecords = (data) => {
   col.appendChild(card)
   row.appendChild(col)
   }
-  console.log(row)
   return row
 }
 
 const createRelatedDeliveryRecords = (data) => {
-  console.log(data)
   let row = document.createElement('div')
   row.classList.add('row')
   for (let delivery of data) {
@@ -461,7 +454,7 @@ const createRelatedDeliveryRecords = (data) => {
   cardContent.classList.add('card-content',  'white-text')
   let cardTitle = document.createElement('span')
   cardTitle.classList.add('card-title')
-  cardTitle.innerHTML = delivery.date + ' ID: ' + dealivery.id
+  cardTitle.innerHTML = delivery.date + ' ID: ' + delivery.id
   let cardText = document.createElement('p')
   cardText.innerHTML = delivery.quantity
   let cardActions = document.createElement('div')
