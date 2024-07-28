@@ -1,3 +1,4 @@
+import math
 from flask import request
 from restaurantmanager import db
 
@@ -5,10 +6,13 @@ from restaurantmanager.models import (
     Delivery,
     Ingredient,
     ManufactoredIngredient,
+    Order,
     PlacedOrder,
     Recipe,
     IngredientQuantity,
     ManufactoredIngredientQuantity,
+    StockManagement,
+    StockMovement,
     Supplier,
     recipe_ingredientquantity,
     recipe_manufactoredingredientquantity,
@@ -64,8 +68,8 @@ def append_ingredient_quantity(ingredient_quantities, table):
 def append_manufactored_ingredient_quantity(ingredient_quantities, table):
     for ingredient_quantity in ingredient_quantities:
         if ingredient_quantity['quantity'] != 0:
-            new_manufactored_ingredient_quantity = ManufactoredIngredientQuantity(ingredient_id=ingredient_quantity['ingredient_id'], quantity=ingredient_quantity['quantity'])
-            table.ingredient_quantities.append(new_manufactored_ingredient_quantity)
+            new_manufactored_ingredient_quantity = ManufactoredIngredientQuantity(manufactored_ingredient_id=ingredient_quantity['manufactored_ingredient_id'], quantity=ingredient_quantity['quantity'])
+            table.manufactoredingredient_quantities.append(new_manufactored_ingredient_quantity)
     db.session.add(table)
     return True
 
@@ -101,6 +105,30 @@ def decrease_stock(ingredient_quantities):
     return True
 
 
+def increase_stock_manufactored(ingredient_quantities):
+    for ingredient_quantity in ingredient_quantities:
+        ingredient = (
+            db.session.query(ManufactoredIngredient)
+            .filter_by(id=ingredient_quantity['manufactored_ingredient_id'])
+            .first()
+        )
+        ingredient.stock_in_portions += ingredient_quantity['quantity']
+        db.session.add(ingredient)
+    return True
+
+
+def decrease_stock_manufactored(ingredient_quantities):
+    for ingredient_quantity in ingredient_quantities:
+        ingredient = (
+            db.session.query(ManufactoredIngredient)
+            .filter_by(id=ingredient_quantity['manufactored_ingredient_id'])
+            .first()
+        )
+        ingredient.stock_in_portions -= ingredient_quantity['quantity']
+        db.session.add(ingredient)
+    return True
+
+
 def get_ingredient_related_recipes(related_recipe_ids):
     related_recipes_data = []
     for related_recipe_id in related_recipe_ids:
@@ -121,6 +149,7 @@ def get_ingredient_related_recipes(related_recipe_ids):
                     "id": recipe.id,
                     "name": item.name,
                     "description": item.description,
+                    "sellable": item.sellable_item,
                 }
             )
     return related_recipes_data
@@ -142,6 +171,7 @@ def get_ingredient_related_placedorders(related_placedorder_ids):
                 "id": related_placedorder.id,
                 "date": related_placedorder.dateTime,
                 "supplier": supplier.name,
+                "supplier_id": supplier.id,
                 "quantity": ingredient_quantity.quantity,   
             }
         )
@@ -165,7 +195,105 @@ def get_ingredient_related_deliveries(related_delivery_ids):
                 "date": related_delivery.date,
                 "delivery_info": related_delivery.info,
                 "supplier": supplier.name,
+                "supplier_id": supplier.id,
                 "quantity": ingredient_quantity.quantity,
             }
         )
     return related_delivery_data
+
+
+def get_ingredient_related_stockmovements(related_stockmovement_ids):
+    wastages = []
+    preparations = []
+    for related_stockmovement_id in related_stockmovement_ids:
+        related_stockmovement = (
+        db.session.query(StockMovement)
+        .filter_by(id=related_stockmovement_id)
+        .first()
+        )
+        related_ingredient_quantity = db.session.query(stockmovement_ingredientquantity).filter_by(stockmovement_id=related_stockmovement.id).first()
+        ingredient_quantity = db.session.query(IngredientQuantity).filter_by(id=related_ingredient_quantity.ingredient_quantity_id).first()
+        if related_stockmovement.preparation_kind == StockManagement(2):
+            wastages.append(
+                {
+                    "id": related_stockmovement.id,
+                    "date": related_stockmovement.date,
+                    "stockmovement_info": related_stockmovement.info,
+                    "quantity": ingredient_quantity.quantity,
+                }
+            )
+        else:
+            preparations.append(
+                {
+                    "id": related_stockmovement.id,
+                    "date": related_stockmovement.date,
+                    "quantity": ingredient_quantity.quantity,
+                }
+            )
+    return wastages, preparations
+
+
+def get_manufactored_ingredient_related_stockmovements(related_stockmovement_ids):
+    related_stockmovement_data = {
+        "wastages":[],
+        "preparations":[],
+    }
+    for related_stockmovement_id in related_stockmovement_ids:
+        related_stockmovement = (
+        db.session.query(StockMovement)
+        .filter_by(id=related_stockmovement_id)
+        .first()
+        )
+        related_ingredient_quantity = db.session.query(stockmovement_manufactoredingredientquantity).filter_by(stockmovement_id=related_stockmovement.id).first()
+        ingredient_quantity = db.session.query(ManufactoredIngredientQuantity).filter_by(id=related_ingredient_quantity.ingredient_quantity_id).first()
+        if related_stockmovement.preparation_kind == StockManagement(2):
+            related_stockmovement_data["wastages"].append(
+                {
+                    "id": related_stockmovement.id,
+                    "date": related_stockmovement.date,
+                    "stockmovement_info": related_stockmovement.info,
+                    "quantity": ingredient_quantity.quantity,
+                }
+            )
+        else:
+            related_stockmovement_data["preparations"].append(
+                {
+                    "id": related_stockmovement.id,
+                    "date": related_stockmovement.date,
+                    "quantity": ingredient_quantity.quantity,
+                }
+            )
+    return related_stockmovement_data
+
+
+def get_manufactored_ingredient_related_orders(related_order_ids):
+    related_order_data = []
+    for related_order_id in related_order_ids:
+        related_order = (
+        db.session.query(Order)
+        .filter_by(id=related_order_id)
+        .first()
+        )
+        related_ingredient_quantity = db.session.query(stockmovement_manufactoredingredientquantity).filter_by(stockmovement_id=related_order.id).first()
+        ingredient_quantity = db.session.query(ManufactoredIngredientQuantity).filter_by(id=related_ingredient_quantity.ingredient_quantity_id).first()
+        related_order_data.append(
+            {
+                "id": related_order.id,
+                "date": related_order.dateTime,
+                "table": related_order.table,
+                "quantity": ingredient_quantity.quantity,
+            }
+        )
+    return related_order_data
+
+
+def calculate_preparation_quantities(recipe, portions):
+    ingredient_quantities = []
+    manufactored_ingredient_quantities = []
+    for ingredient_quantity in recipe.ingredient_quantities:
+        quantity_used = math.floor(portions * ingredient_quantity.quantity / recipe.portions)
+        ingredient_quantities.append({"ingredient_id": ingredient_quantity.ingredient_id, "quantity": quantity_used})
+    for manufactored_ingredient_quantity in recipe.manufactoredingredient_quantities:
+        quantity_used = math.floor(portions * manufactored_ingredient_quantity.quantity / recipe.portions)
+        manufactored_ingredient_quantities.append({"ingredient_id": manufactored_ingredient_quantity.ingredient_id, "quantity": quantity_used})
+    return ingredient_quantities, manufactored_ingredient_quantities
