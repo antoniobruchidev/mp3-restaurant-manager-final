@@ -365,61 +365,106 @@ const submitWastageForm = async () => {
     alert('Make sure you add some info');
   }
 }
-
 let recipes;
 let placedorders;
 let deliveries;
 let orders;
-let waste;
+let wastages;
+let stockTakes
 let preparations;
 var tabsInstance;
 let ingredientData;
 
-
-const getIngredientData = async (val) => {
-  const ingredient_id = val.split(' ')[0]
+const getIngredientData = async (ingredient_id) => {
   try {
     const response = await fetch(`/api/ingredients/${ingredient_id}/get_ingredient_data`, {
       method:  "GET",
     })
     const data = await response.json();
     ingredientData = await data;
-    recipes = createRelatedRecipeRecords(ingredientData['recipes'])
-    placedorders = createRelatedPlacedOrderRecords(ingredientData['placedorders'])
-    deliveries = createRelatedDeliveryRecords(ingredientData['deliveries'])
-    orders = createRelatedOrderRecords(ingredientData['orders'])
-    waste = createRelatedWastageRecords(ingredientData['wastages'])
-    preparations = createRelatedPreparationRecords(ingredientData['preparations'])
+    recipes = createRelatedRecipeRecords(await ingredientData['recipes'])
+    placedorders = createRelatedPlacedOrderRecords(await ingredientData['placedorders'])
+    deliveries = createRelatedDeliveryRecords(await ingredientData['deliveries'])
+    wastages = createRelatedWastageRecords(await ingredientData['wastages'])
+    stockTakes = createRelatedStockTakeRecords(await ingredientData['stock_takes'])
+    preparations = undefined
+    orders = undefined
     const tabs = document.getElementById('tabs')
     var instance = M.Tabs.getInstance(tabs)
     instance.select("recipes")
+    displayIngredientData()
   } catch (error) {
     
   }
 }
 
+const getManufactoredIngredientData = async (ingredient_id) => {
+  try {
+    const response = await fetch(`/api/manufactoredingredients/${ingredient_id}/get_ingredient_data`, {
+      method:  "GET",
+    })
+    const data = await response.json();
+    ingredientData = await data;
+    recipes = createRelatedRecipeRecords(await ingredientData['recipes'])
+    orders = createRelatedOrderRecords(await ingredientData['orders'])
+    wastages = createRelatedWastageRecords(await ingredientData['wastages'])
+    preparations = createRelatedPreparationRecords(await ingredientData['preparations'])
+    stockTakes = createRelatedStockTakeRecords(await ingredientData['stock_takes'])
+    displayIngredientData()
+    deliveries = undefined
+    placedorders = undefined
+    const tabs = document.getElementById('tabs')
+    var instance = M.Tabs.getInstance(tabs)
+    instance.select("recipes")
+    displayIngredientData()
+  } catch (error) {
+    
+  }
+}
+
+const switchGetIngredientData = (val) => {
+  const is_manufactored = val.split('.')[0]
+  const ingredient_id = val.split('.')[1].split(' ')[0]
+  if (is_manufactored == "I")  {
+    getIngredientData(ingredient_id)
+    $('.ingredient-only').show()
+    $('.manufactored-only').hide() 
+  } else  {
+    getManufactoredIngredientData(ingredient_id)
+    $('.manufactored-only').show() 
+    $('.ingredient-only').hide()
+  }  
+}
+
 const showTabData = (tabId) => {
-  if (tabId == 0 && recipes != []) {
+  console.log(tabId,placedorders)
+  if (tabId == 0 && recipes != undefined) {
     tab = document.getElementById('recipes')
     tab.innerHTML = ''
     tab.appendChild(recipes)
-  } else if  (tabId == 1 && placedorders != [])  {
+  } else if  (tabId == 1 && placedorders != undefined)  {
+    console.log(placedorders)
     tab = document.getElementById('placedorders')
     tab.innerHTML = ''
     tab.appendChild(placedorders)
-  } else if  (tabId == 2 && deliveries != [])  {
+  } else if  (tabId == 2 && deliveries != undefined)  {
     tab = document.getElementById('deliveries')
     tab.innerHTML = ''
     tab.appendChild(deliveries)
-  } else if (tabId == 3 && preparations != []) {
+  } else if (tabId == 3 && preparations != undefined) {
     tab = document.getElementById('preparations')
     tab.innerHTML = ''
     tab.appendChild(preparations)
-  } else if (tabId == 4  && wastages != []) {
+  } else if (tabId == 4  && wastages != undefined) {
     tab = document.getElementById('wastages')
     tab.innerHTML = ''
-    tab.appendChild(waste)
-  } else if  (tabId == 5  && orders  != [])  {
+    console.log(wastages)
+    tab.appendChild(wastages)
+  } else if  (tabId == 5  && stockTakes  != undefined)  {
+    tab = document.getElementById('stocktakes')
+    tab.innerHTML = ''
+    tab.appendChild(stockTakes)
+  } else if  (tabId == 6  && orders  != undefined)  {
     tab = document.getElementById('orders')
     tab.innerHTML = ''
     tab.appendChild(orders)
@@ -433,17 +478,17 @@ const createRelatedOrderRecords = (data) => {
   h5.classList.add('center-align')
   h5.innerHTML = 'Releated sales'
   div.appendChild(h5)
-  let dataDiv = document.createElement('div')
-  dataDiv.classList.add('collection')
-  if(data != undefined){
+  let ul = document.createElement('ul')
+  ul.classList.add('collection')
+  if(data != [] && data != undefined){
     for (let sale of data) {
     let li = document.createElement('li')
     li.classList.add('collection-item')
     li.innerHTML = 'Date: ' + sale.date + ' -  Table: ' + sale.table + ' - Quantity: ' + sale.quantity
-    dataDiv.appendChild(li)
+    ul.appendChild(li)
   }
 }
-  div.appendChild(dataDiv)
+  div.appendChild(ul)
   return div
 }
 
@@ -456,8 +501,9 @@ const createRelatedWastageRecords = (data) => {
   div.appendChild(h5)
   let dataDiv = document.createElement('div')
   dataDiv.classList.add('collection')
-  if(data != undefined){
+  if(data != [] && data != undefined){
     for (let wastage of data) {
+      console.log(wastage)
     let anchor = document.createElement('a')
     anchor.classList.add('collection-item')
     anchor.href = "/manager/wastages/" + wastage.id
@@ -476,16 +522,38 @@ const createRelatedPreparationRecords = (data) => {
   h5.classList.add('center-align')
   h5.innerHTML = 'Releated preparations'
   div.appendChild(h5)
-  let dataDiv = document.createElement('div')
-  dataDiv.classList.add('collection')
-  if(data != undefined){
+  let ul = document.createElement('ul')
+  ul.classList.add('collection')
+  if(data != [] && data != undefined){
     for (let preparation of data) {
       let li = document.createElement('li')
-      li.classList.add('collection-item')
+      li.classList.add('collection-item', "brown-text", "text-darken-3")
       li.innerHTML = 'Date: ' + preparation.date + ' - Quantity: ' + preparation.quantity
-      dataDiv.appendChild(li)
+      ul.appendChild(li)
     }
   }
+  div.appendChild(ul)
+  return div
+}
+
+const createRelatedStockTakeRecords = (data) => {
+  let div = document.createElement('div')
+  div.classList.add('col', 's12')
+  let h5 = document.createElement('h5')
+  h5.classList.add('center-align')
+  h5.innerHTML = 'Releated preparations'
+  div.appendChild(h5)
+  let ul = document.createElement('ul')
+  ul.classList.add('collection')
+  if(data != [] && data != undefined){
+    for (let stockTake of data) {
+      let li = document.createElement('li')
+      li.classList.add('collection-item', "brown-text", "text-darken-3")
+      li.innerHTML = 'Date: ' + stockTake.date + ' - Quantity: ' + stockTake.quantity
+      ul.appendChild(li)
+    }
+  }
+  div.appendChild(ul)
   return div
 }
 
@@ -498,7 +566,7 @@ const createRelatedRecipeRecords = (data) => {
   div.appendChild(h5)
   let dataDiv = document.createElement('div')
   dataDiv.classList.add('collection')
-  if(data != undefined){
+  if(data != [] && data != undefined){
     for (let recipe of data) {
     let anchor = document.createElement('a')
     anchor.classList.add('collection-item')
@@ -520,7 +588,7 @@ const createRelatedPlacedOrderRecords = (data) => {
   div.appendChild(h5)
   let dataDiv = document.createElement('div')
   dataDiv.classList.add('collection')
-  if(data != undefined){
+  if(data != [] && data != undefined){
     for (let placedorder of data) {
     let anchor = document.createElement('a')
     anchor.classList.add('collection-item')
@@ -542,7 +610,7 @@ const createRelatedDeliveryRecords = (data) => {
   div.appendChild(h5)
   let dataDiv = document.createElement('div')
   dataDiv.classList.add('collection')
-  if(data != undefined){
+  if(data != [] && data != undefined){
     for (let delivery of data) {
     let anchor = document.createElement('a')
     anchor.classList.add('collection-item')
@@ -564,22 +632,24 @@ const getIngredients = async () => {
     console.log(data)
     const ingredients_data = {}
     for (let ingredient in data) {
-      console.log(data[ingredient])
-      const ingredient_in_searchbar = `${[data[ingredient]['id']]} - ${data[ingredient]['name']}`
-      console.log(ingredient_in_searchbar)
-      ingredients_data[ingredient_in_searchbar] = null;
+      if (!data[ingredient]['manufactored']){
+        const ingredient_in_searchbar = `I.${data[ingredient]['id']} - ${data[ingredient]['name']}`
+        ingredients_data[ingredient_in_searchbar] = null;
+      } else {
+        const ingredient_in_searchbar = `M.${data[ingredient]['id']} - ${data[ingredient]['name']}`
+        ingredients_data[ingredient_in_searchbar] = null;
+      }
     }
     $(function() {
       $('input.autocomplete').autocomplete({
         data: ingredients_data,
         limit: 7, // The max amount of results that can be shown at once. Default: Infinity.
         onAutocomplete: function (val) {
-          getIngredientData(val)
+          switchGetIngredientData(val)
         },
         minLength: 1, // The minimum length of the input for the autocomplete to start. Default: 1.
         });
     }, ingredients_data);
-    return ingredients_data;
   } catch  (e)  {
     console.error(e);
   }
@@ -645,6 +715,7 @@ $(document).ready(function () {
     $('#submitform').on('click', submitRegisterForm);
   } else if (window.location.pathname.includes('/manager/recipe')) {
     $('#edit').on('click', editRecipe);
+    $('#prepare').on('click', submitPrepareRecipeForm);
   } else if (window.location.pathname.includes('/manager/stockmanagement')){
     $('.view-toggle').hide()
     getIngredients();
@@ -677,5 +748,5 @@ $(document).ready(function () {
       }
     });
     $('#submitform').on('click', submitWastageForm);
-  }
+  } 
 });

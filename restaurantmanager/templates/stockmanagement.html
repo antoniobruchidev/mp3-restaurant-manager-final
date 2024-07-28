@@ -17,15 +17,30 @@
         </div>
     </div>
 </div>
-<div class="row" id="ingredient"></div>
+<div class="row" id="ingredient">
+  <div class="col s12">
+    <h5 class="center-align" id="name"></h5>
+    <p id="description"></p>
+    <p id="stock_level"></p>
+  </div>
+  <button class="col s3 waves-effect waves-light" id="update_stock">MANUALLY UPDATE STOCK</button>
+  <form id="stock_take_form">
+    <div class="input-field col s3 push-s1">
+      <input id="stock" name="stock" type="number" class="validate" disabled>
+      <label for="stock">stock</label>
+    </div>
+  </form>
+  <button class="col s3 waves-effect waves-light push-s2" id="stock_take" disabled>STOCK TAKE</button>
+</div>
 <div class="row">
   <div class="col s12">
     <ul class="tabs" id="tabs">
       <li class="tab col s2"><a class="active" href="#recipes">RECIPES</a></li>
-      <li class="tab col s2"><a href="#placedorders">PLACED ORDERS</a></li>
-      <li class="tab col s2"><a href="#deliveries">DELIVERIES</a></li>
-      <li class="tab col s2"><a href="#preparations">PREPARATIONS</a></li>
+      <li class="tab col s2 ingredient-only"><a href="#placedorders">PLACED ORDERS</a></li>
+      <li class="tab col s2 ingredient-only"><a href="#deliveries">DELIVERIES</a></li>
+      <li class="tab col s2 manufactored-only"><a href="#preparations">PREPARATIONS</a></li>
       <li class="tab col s2"><a href="#wastages">WASTAGES</a></li>
+      <li class="tab col s2"><a href="#stocktakes">STOCK TAKES</a></li>
       <li class="tab col s2"><a href="#orders">SALES</a></li>
     </ul>
   </div>
@@ -34,6 +49,7 @@
   <div class="row view-toggle" id="deliveries"></div>
   <div class="row view-toggle" id="preparations"></div>
   <div class="row view-toggle" id="wastages"></div>
+  <div class="row view-toggle" id="stocktakes"></div>
   <div class="row view-toggle" id="orders"></div>
 </div>
 
