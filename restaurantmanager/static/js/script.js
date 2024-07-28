@@ -228,7 +228,6 @@ const submitRecipeForm = async () => {
   const name = formData.get('name');
   const description = formData.get('description');
   const itemkind = formData.get('itemkind');
-  console.log(name, description, itemkind);
   if ((itemkind != null) && (name != '') && (description != '')) {
     try {
       const response = await fetch("/chef/createrecipe", {
@@ -347,8 +346,13 @@ const editRecipe = () => {
 let recipes;
 let placedorders;
 let deliveries;
-
+let orders;
+let waste;
+let preparations;
 var tabsInstance;
+let ingredientData;
+
+
 const getIngredientData = async (val) => {
   const ingredient_id = val.split(' ')[0]
   try {
@@ -356,9 +360,13 @@ const getIngredientData = async (val) => {
       method:  "GET",
     })
     const data = await response.json();
-    recipes = createRelatedRecipeRecords(await data['recipes'])
-    placedorders = createRelatedPlacedOrderRecords(await data['placedorders'])
-    deliveries = createRelatedDeliveryRecords(await data['deliveries'])
+    ingredientData = await data;
+    recipes = createRelatedRecipeRecords(ingredientData['recipes'])
+    placedorders = createRelatedPlacedOrderRecords(ingredientData['placedorders'])
+    deliveries = createRelatedDeliveryRecords(ingredientData['deliveries'])
+    orders = createRelatedOrderRecords(ingredientData['orders'])
+    waste = createRelatedWastageRecords(ingredientData['wastages'])
+    preparations = createRelatedPreparationRecords(ingredientData['preparations'])
     const tabs = document.getElementById('tabs')
     var instance = M.Tabs.getInstance(tabs)
     instance.select("recipes")
@@ -370,106 +378,158 @@ const getIngredientData = async (val) => {
 const showTabData = (tabId) => {
   if (tabId == 0 && recipes != []) {
     tab = document.getElementById('recipes')
-    tab.innerHTML = '<h5 class="center-align">Related recipes</h5>'
+    tab.innerHTML = ''
     tab.appendChild(recipes)
   } else if  (tabId == 1 && placedorders != [])  {
     tab = document.getElementById('placedorders')
-    tab.innerHTML = '<h5 class="center-align">Related placed orders</h5>'
+    tab.innerHTML = ''
     tab.appendChild(placedorders)
-    console.log(placedorders)
   } else if  (tabId == 2 && deliveries != [])  {
     tab = document.getElementById('deliveries')
-    tab.innerHTML = '<h5 class="center-align">Related deliveries</h5>'
+    tab.innerHTML = ''
     tab.appendChild(deliveries)
+  } else if (tabId == 3 && preparations != []) {
+    tab = document.getElementById('preparations')
+    tab.innerHTML = ''
+    tab.appendChild(preparations)
+  } else if (tabId == 4  && wastages != []) {
+    tab = document.getElementById('wastages')
+    tab.innerHTML = ''
+    tab.appendChild(waste)
+  } else if  (tabId == 5  && orders  != [])  {
+    tab = document.getElementById('orders')
+    tab.innerHTML = ''
+    tab.appendChild(orders)
+   }
+}
+
+const createRelatedOrderRecords = (data) => {
+  let div = document.createElement('div')
+  div.classList.add('col', 's12')
+  let h5 = document.createElement('h5')
+  h5.classList.add('center-align')
+  h5.innerHTML = 'Releated sales'
+  div.appendChild(h5)
+  let dataDiv = document.createElement('div')
+  dataDiv.classList.add('collection')
+  if(data != undefined){
+    for (let sale of data) {
+    let li = document.createElement('li')
+    li.classList.add('collection-item')
+    li.innerHTML = 'Date: ' + sale.date + ' -  Table: ' + sale.table + ' - Quantity: ' + sale.quantity
+    dataDiv.appendChild(li)
   }
+}
+  div.appendChild(dataDiv)
+  return div
+}
+
+const createRelatedWastageRecords = (data) => {
+  let div = document.createElement('div')
+  div.classList.add('col', 's12')
+  let h5 = document.createElement('h5')
+  h5.classList.add('center-align')
+  h5.innerHTML = 'Releated wastages'
+  div.appendChild(h5)
+  let dataDiv = document.createElement('div')
+  dataDiv.classList.add('collection')
+  if(data != undefined){
+    for (let wastage of data) {
+    let anchor = document.createElement('a')
+    anchor.classList.add('collection-item')
+    anchor.href = "/manager/wastages/" + wastage.id
+    anchor.innerHTML = 'Date: ' + wastage.date + ' - Info: ' + wastage.stockmovement_info + ' - Quantity: ' + wastage.quantity
+    dataDiv.appendChild(anchor)
+    }
+  }
+  div.appendChild(dataDiv)
+  return div
+}
+
+const createRelatedPreparationRecords = (data) => {
+  let div = document.createElement('div')
+  div.classList.add('col', 's12')
+  let h5 = document.createElement('h5')
+  h5.classList.add('center-align')
+  h5.innerHTML = 'Releated preparations'
+  div.appendChild(h5)
+  let dataDiv = document.createElement('div')
+  dataDiv.classList.add('collection')
+  if(data != undefined){
+    for (let preparation of data) {
+      let li = document.createElement('li')
+      li.classList.add('collection-item')
+      li.innerHTML = 'Date: ' + preparation.date + ' - Quantity: ' + preparation.quantity
+      dataDiv.appendChild(li)
+    }
+  }
+  return div
 }
 
 const createRelatedRecipeRecords = (data) => {
-  let row = document.createElement('div')
-  row.classList.add('row')
-  for (let recipe of data) {
-  let col = document.createElement('div')
-  col.classList.add('col', 's3', 'push-s1')
-  let card = document.createElement('div')
-  card.classList.add('card',  'blue-grey',  'darken-1')
-  let cardContent = document.createElement('div')
-  cardContent.classList.add('card-content',  'white-text')
-  let cardTitle = document.createElement('span')
-  cardTitle.classList.add('card-title')
-  cardTitle.innerHTML = recipe.name + ' ID: ' + recipe.id
-  let cardText = document.createElement('p')
-  cardText.innerHTML = recipe.description
-  let cardActions = document.createElement('div')
-  cardActions.classList.add('card-action')
-  let anchor = document.createElement('a.')
-  cardActions.appendChild(anchor)
-  cardContent.appendChild(cardTitle)
-  cardContent.appendChild(cardText)
-  card.appendChild(cardContent)
-  card.appendChild(cardActions)
-  col.appendChild(card)
-  row.appendChild(col)
+  let div = document.createElement('div')
+  div.classList.add('col', 's12')
+  let h5 = document.createElement('h5')
+  h5.classList.add('center-align')
+  h5.innerHTML = 'Releated recipes'
+  div.appendChild(h5)
+  let dataDiv = document.createElement('div')
+  dataDiv.classList.add('collection')
+  if(data != undefined){
+    for (let recipe of data) {
+    let anchor = document.createElement('a')
+    anchor.classList.add('collection-item')
+    anchor.href = '/manager/recipes/' + recipe.id
+    anchor.innerHTML = 'Id: ' + recipe.id + ' -  Manufactored ingredient: ' + recipe.name + ' - Sellable: ' + recipe.sellable
+    dataDiv.appendChild(anchor)
   }
-  return row
+}
+  div.appendChild(dataDiv)
+  return div
 }
 
 const createRelatedPlacedOrderRecords = (data) => {
-  let row = document.createElement('div')
-  row.classList.add('row')
-  for (let placedorder of data) {
-  let col = document.createElement('div')
-  col.classList.add('col', 's3', 'push-s1')
-  let card = document.createElement('div')
-  card.classList.add('card',  'blue-grey',  'darken-1')
-  let cardContent = document.createElement('div')
-  cardContent.classList.add('card-content',  'white-text')
-  let cardTitle = document.createElement('span')
-  cardTitle.classList.add('card-title')
-  cardTitle.innerHTML = placedorder.date + ' ID: ' + placedorder.id
-  let cardText = document.createElement('p')
-  cardText.innerHTML = placedorder.quantity
-  let cardActions = document.createElement('div')
-  cardActions.classList.add('card-action')
-  let anchor = document.createElement('a.')
-  cardActions.appendChild(anchor)
-  cardContent.appendChild(cardTitle)
-  cardContent.appendChild(cardText)
-  card.appendChild(cardContent)
-  card.appendChild(cardActions)
-  col.appendChild(card)
-  row.appendChild(col)
+  let div = document.createElement('div')
+  div.classList.add('col', 's12')
+  let h5 = document.createElement('h5')
+  h5.classList.add('center-align')
+  h5.innerHTML = 'Releated placed orders'
+  div.appendChild(h5)
+  let dataDiv = document.createElement('div')
+  dataDiv.classList.add('collection')
+  if(data != undefined){
+    for (let placedorder of data) {
+    let anchor = document.createElement('a')
+    anchor.classList.add('collection-item')
+    anchor.href = '/manager/suppliers/' + placedorder.supplier_id + "/placedorders/" + placedorder.id
+    anchor.innerHTML = 'Id: ' + placedorder.id + ' -  Date: ' + placedorder.date + '  -  Quantity: ' + placedorder.quantity
+    dataDiv.appendChild(anchor)
   }
-  return row
+}
+  div.appendChild(dataDiv)
+  return div
 }
 
 const createRelatedDeliveryRecords = (data) => {
-  let row = document.createElement('div')
-  row.classList.add('row')
-  for (let delivery of data) {
-  let col = document.createElement('div')
-  col.classList.add('col', 's3', 'push-s1')
-  let card = document.createElement('div')
-  card.classList.add('card',  'blue-grey',  'darken-1')
-  let cardContent = document.createElement('div')
-  cardContent.classList.add('card-content',  'white-text')
-  let cardTitle = document.createElement('span')
-  cardTitle.classList.add('card-title')
-  cardTitle.innerHTML = delivery.date + ' ID: ' + delivery.id
-  let cardText = document.createElement('p')
-  cardText.innerHTML = delivery.quantity
-  let cardActions = document.createElement('div')
-  cardActions.classList.add('card-action')
-  let anchor = document.createElement('a.')
-  cardActions.appendChild(anchor)
-  cardContent.appendChild(cardTitle)
-  cardContent.appendChild(cardText)
-  card.appendChild(cardContent)
-  card.appendChild(cardActions)
-  col.appendChild(card)
-  row.appendChild(col)
+  let div = document.createElement('div')
+  div.classList.add('col', 's12')
+  let h5 = document.createElement('h5')
+  h5.classList.add('center-align')
+  h5.innerHTML = 'Related deliveries'
+  div.appendChild(h5)
+  let dataDiv = document.createElement('div')
+  dataDiv.classList.add('collection')
+  if(data != undefined){
+    for (let delivery of data) {
+    let anchor = document.createElement('a')
+    anchor.classList.add('collection-item')
+    anchor.href = '/manager/suppliers/' + delivery.supplier_id + "/deliveries/" + delivery.id
+    anchor.innerHTML = 'Id: ' + delivery.id + ' -  Date: ' + delivery.date + '  -  Quantity: ' + delivery.quantity
+    dataDiv.appendChild(anchor)
   }
-  console.log(row)
-  return row
+}
+  div.appendChild(dataDiv)
+  return div
 }
 
 const getIngredients = async () => {
@@ -566,6 +626,7 @@ $(document).ready(function () {
   } else if (window.location.pathname.includes('/manager/stockmanagement')){
     $('.view-toggle').hide()
     getIngredients();
+    if (tabsInstance === undefined)
     $(function() {
       tabsInstance = M.Tabs.init(tabs,{
         duration: 1000,
@@ -577,4 +638,3 @@ $(document).ready(function () {
     });
   }
 });
-

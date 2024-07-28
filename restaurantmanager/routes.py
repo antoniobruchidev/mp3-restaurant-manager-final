@@ -9,6 +9,7 @@ from restaurantmanager.models import (
     BoardMessageReply,
     ItemKind,
     PlacedOrder,
+    StockManagement,
     User,
     Wallet,
     Supplier,
@@ -26,18 +27,25 @@ from restaurantmanager.models import (
     placedorder_ingredientquantity,
     delivery_ingredientquantity,
     stockmovement_ingredientquantity,
-    stockmovement_manufactoredingredientquantity
-
+    stockmovement_manufactoredingredientquantity,
+    order_manufactoredingredientquantity,
 )
 from restaurantmanager.middleware import (
     append_ingredient_quantity,
     append_manufactored_ingredient_quantity,
+    calculate_preparation_quantities,
+    decrease_stock,
+    decrease_stock_manufactored,
     get_ingredient_quantity_from_form,
     get_ingredient_related_deliveries,
     get_ingredient_related_placedorders,
     get_ingredient_related_recipes,
+    get_ingredient_related_stockmovements,
     get_manufactored_ingredient_quantity_from_form,
+    get_manufactored_ingredient_related_orders,
+    get_manufactored_ingredient_related_stockmovements,
     increase_stock,
+    increase_stock_manufactored,
     update_ingredient_quantity,
 )
 from flask_login import (
@@ -532,7 +540,7 @@ def place_order(supplier_id):
             )
             db.session.add(placed_order)
             keys = request.form.keys()
-            ingredient_quantity = get_ingredient_quantity_from_form(keys,request.form)
+            ingredient_quantity = get_ingredient_quantity_from_form(keys, request.form)
             assert append_ingredient_quantity(ingredient_quantity, placed_order)
             db.session.commit()
             flash("Order placed successfully")
@@ -602,7 +610,9 @@ def add_delivery(supplier_id):
             db.session.add(delivery)
             db.session.commit()
             keys = request.form.keys()
-            ingredient_quantities = get_ingredient_quantity_from_form(keys, request.form)
+            ingredient_quantities = get_ingredient_quantity_from_form(
+                keys, request.form
+            )
             assert append_ingredient_quantity(ingredient_quantities, delivery)
             assert increase_stock(ingredient_quantities)
             db.session.commit()
@@ -710,13 +720,24 @@ def edit_recipe(recipe_id):
             if request.form["portions"]:
                 recipe.portions = request.form["portions"]
             keys = request.form.keys()
-            ingredient_quantities = get_ingredient_quantity_from_form(keys, request.form)
+            ingredient_quantities = get_ingredient_quantity_from_form(
+                keys, request.form
+            )
             assert update_ingredient_quantity(ingredient_quantities, recipe)
             db.session.commit()
             flash("Recipe updated successfully")
             return {"success": True}
         else:
             return redirect(url_for("get_recipe", recipe_id=recipe_id))
+    else:
+        return redirect(url_for("logout"))
+
+
+@app.route("/manager/stockmanagement")
+def stockmanagement():
+    is_manager = check_role(role_hash("manager"), current_user.web3_address)
+    if is_manager:
+        return render_template("stockmanagement.html")
     else:
         return redirect(url_for("logout"))
 
@@ -745,10 +766,12 @@ def create_recipe():
             )
             db.session.add(new_recipe)
             keys = request.form.keys()
-            ingredient_quantities = get_ingredient_quantity_from_form(keys, request.form)
+            ingredient_quantities = get_ingredient_quantity_from_form(
+                keys, request.form
+            )
             assert append_ingredient_quantity(ingredient_quantities, new_recipe)
             manufactored_ingredient_quantity = (
-                get_manufactored_ingredient_quantity_from_form(keys,request.form)
+                get_manufactored_ingredient_quantity_from_form(keys, request.form)
             )
             assert append_manufactored_ingredient_quantity(
                 manufactored_ingredient_quantity, new_recipe
@@ -823,7 +846,6 @@ def activate(web3_address):
         return redirect(url_for("login"))
 
 
-
 @app.route("/api/get_all_ingredients")
 def get_all_ingredients():
     ingredients = db.session.query(Ingredient).all()
@@ -835,32 +857,120 @@ def get_all_ingredients():
 
 @app.route("/api/ingredients/<int:id>/get_ingredient_data")
 def get_ingredient_data(id):
-    related_ingredientquantities = db.session.query(IngredientQuantity).filter_by(ingredient_id=id).all()
+    ingredient = db.session.query(Ingredient).filter_by(id=id).first()
+    ingredient_data = {
+        "name": ingredient.name,
+        "ingredient_id": ingredient.id,
+        "stock": ingredient.stock_in_weight,
+    }
+    related_ingredientquantities = (
+        db.session.query(IngredientQuantity).filter_by(ingredient_id=id).all()
+    )
     recipe_ids = []
     for related_ingredientquantity in related_ingredientquantities:
-        recipe = db.session.query(recipe_ingredientquantity).filter_by(ingredient_quantity_id=related_ingredientquantity.id).first()
+        recipe = (
+            db.session.query(recipe_ingredientquantity)
+            .filter_by(ingredient_quantity_id=related_ingredientquantity.id)
+            .first()
+        )
         if recipe != None:
             recipe_ids.append(recipe.recipe_id)
     placedorder_ids = []
     for related_ingredientquantity in related_ingredientquantities:
-        placedorder = db.session.query(placedorder_ingredientquantity).filter_by(ingredient_quantity_id=related_ingredientquantity.id).first()
+        placedorder = (
+            db.session.query(placedorder_ingredientquantity)
+            .filter_by(ingredient_quantity_id=related_ingredientquantity.id)
+            .first()
+        )
         if placedorder != None:
             placedorder_ids.append(placedorder.placedorder_id)
     delivery_ids = []
     for related_ingredientquantity in related_ingredientquantities:
-        delivery = db.session.query(delivery_ingredientquantity).filter_by(ingredient_quantity_id=related_ingredientquantity.id).first()
+        delivery = (
+            db.session.query(delivery_ingredientquantity)
+            .filter_by(ingredient_quantity_id=related_ingredientquantity.id)
+            .first()
+        )
         if delivery != None:
             delivery_ids.append(delivery.delivery_id)
+    stockmovement_ids = []
+    for related_ingredientquantity in related_ingredientquantities:
+        stockmovement = (
+            db.session.query(stockmovement_ingredientquantity)
+            .filter_by(ingredient_quantity_id=related_ingredientquantity.id)
+            .first()
+        )
+        if stockmovement != None:
+            stockmovement_ids.append(stockmovement.stockmovement_id)
     ingredient_related_recipes_data = get_ingredient_related_recipes(recipe_ids)
-    ingredient_related_placeorders_data = get_ingredient_related_placedorders(placedorder_ids)
-    ingredient_related_delivery = get_ingredient_related_deliveries(delivery_ids)
+    ingredient_related_placeorders_data = get_ingredient_related_placedorders(
+        placedorder_ids
+    )
+    ingredient_related_deliveries_data = get_ingredient_related_deliveries(delivery_ids)
+    ingredient_related_wastages_data, ingredient_related_preparations_data = (
+        get_ingredient_related_stockmovements(stockmovement_ids)
+    )
     return {
+        "ingredient": ingredient_data,
         "recipes": ingredient_related_recipes_data,
         "placedorders": ingredient_related_placeorders_data,
-        "deliveries": ingredient_related_delivery,
+        "deliveries": ingredient_related_deliveries_data,
+        "preparations": ingredient_related_preparations_data,
+        "wastages": ingredient_related_wastages_data,
     }
 
 
-@app.route("/manager/stockmanagement")
-def stockmanagement():
-    return render_template("stockmanagement.html")
+@app.route("/api/manufactoredingredients/<int:id>/get_ingredient_data")
+def get_manufactored_ingredient_data(id):
+    ingredient = db.session.query(ManufactoredIngredient).filter_by(id=id).first()
+    ingredient_data = {
+        "name": ingredient.name,
+        "manufactored_ingredient_id": ingredient.id,
+        "stock": ingredient.stock_in_portions,
+    }
+    related_ingredientquantities = (
+        db.session.query(ManufactoredIngredientQuantity)
+        .filter_by(ingredient_id=id)
+        .all()
+    )
+    recipe_ids = []
+    for related_ingredientquantity in related_ingredientquantities:
+        recipe = (
+            db.session.query(recipe_manufactoredingredientquantity)
+            .filter_by(ingredient_quantity_id=related_ingredientquantity.id)
+            .first()
+        )
+        if recipe != None:
+            recipe_ids.append(recipe.recipe_id)
+    order_ids = []
+    for related_ingredientquantity in related_ingredientquantities:
+        order = (
+            db.session.query(order_manufactoredingredientquantity)
+            .filter_by(ingredient_quantity_id=related_ingredientquantity.id)
+            .first()
+        )
+        if order != None:
+            order_ids.append(order.order_id)
+    stockmovement_ids = []
+    for related_ingredientquantity in related_ingredientquantities:
+        stockmovement = (
+            db.session.query(stockmovement_manufactoredingredientquantity)
+            .filter_by(ingredient_quantity_id=related_ingredientquantity.id)
+            .first()
+        )
+        if stockmovement != None:
+            stockmovement_ids.append(stockmovement.stockmovement_id)
+    ingredient_related_recipes_data = get_ingredient_related_recipes(recipe_ids)
+    ingredient_related_orders_data = get_manufactored_ingredient_related_orders(
+        order_ids
+    )
+    ingredient_related_wastages_data, ingredient_related_preparations_data = (
+        get_manufactored_ingredient_related_stockmovements(stockmovement_ids)
+    )
+    return {
+        "ingredient": ingredient_data,
+        "recipes": ingredient_related_recipes_data,
+        "orders": ingredient_related_orders_data,
+        "wastages": ingredient_related_wastages_data,
+        "preparations": ingredient_related_preparations_data,
+    }
