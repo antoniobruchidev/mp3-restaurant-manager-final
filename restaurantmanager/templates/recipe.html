@@ -75,6 +75,13 @@
     </div>
 </form>
 <button class="btn waves-effect waves-light" id="submitform" disabled>Update</button>
+<button class="btn waves-effect waves-light" id="prepare">Prepare</button>
+<form id="add_preparation_form">
+    <div class="input-field inline">
+        <input id="portions" name="portions" type="number" class="validate">
+        <label for="portions">Portions</label>
+    </div>
+</form>
 <hr>
 <a href="{{ url_for('add_ingredient', supplier_id=0)  }}">Add Ingredient</a>
 <br>

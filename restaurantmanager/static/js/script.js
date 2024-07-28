@@ -365,6 +365,26 @@ const submitWastageForm = async () => {
     alert('Make sure you add some info');
   }
 }
+
+const submitPrepareRecipeForm = async () =>  {
+  const url = window.location.pathname.replace('manager', 'chef') + '/prepare'
+  form = document.getElementById('add_preparation_form');
+  formData = new FormData(form);
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      // Set the FormData instance as the request body
+      body: formData,
+    })
+    const data = await response.json();
+    if (data.success) {
+      window.location.href = "/manager/recipes";
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
+
 let recipes;
 let placedorders;
 let deliveries;
@@ -373,7 +393,6 @@ let wastages;
 let stockTakes
 let preparations;
 var tabsInstance;
-let ingredientData;
 
 const getIngredientData = async (ingredient_id) => {
   try {
@@ -381,12 +400,11 @@ const getIngredientData = async (ingredient_id) => {
       method:  "GET",
     })
     const data = await response.json();
-    ingredientData = await data;
-    recipes = createRelatedRecipeRecords(await ingredientData['recipes'])
-    placedorders = createRelatedPlacedOrderRecords(await ingredientData['placedorders'])
-    deliveries = createRelatedDeliveryRecords(await ingredientData['deliveries'])
-    wastages = createRelatedWastageRecords(await ingredientData['wastages'])
-    stockTakes = createRelatedStockTakeRecords(await ingredientData['stock_takes'])
+    recipes = createRelatedRecipeRecords(await data['recipes'])
+    placedorders = createRelatedPlacedOrderRecords(await data['placedorders'])
+    deliveries = createRelatedDeliveryRecords(await data['deliveries'])
+    wastages = createRelatedWastageRecords(await data['wastages'])
+    stockTakes = createRelatedStockTakeRecords(await data['stock_takes'])
     preparations = undefined
     orders = undefined
     const tabs = document.getElementById('tabs')
@@ -404,13 +422,11 @@ const getManufactoredIngredientData = async (ingredient_id) => {
       method:  "GET",
     })
     const data = await response.json();
-    ingredientData = await data;
-    recipes = createRelatedRecipeRecords(await ingredientData['recipes'])
-    orders = createRelatedOrderRecords(await ingredientData['orders'])
-    wastages = createRelatedWastageRecords(await ingredientData['wastages'])
-    preparations = createRelatedPreparationRecords(await ingredientData['preparations'])
-    stockTakes = createRelatedStockTakeRecords(await ingredientData['stock_takes'])
-    displayIngredientData()
+    recipes = createRelatedRecipeRecords(await data['recipes'])
+    orders = createRelatedOrderRecords(await data['orders'])
+    wastages = createRelatedWastageRecords(await data['wastages'])
+    preparations = createRelatedPreparationRecords(await data['preparations'])
+    stockTakes = createRelatedStockTakeRecords(await data['stock_takes'])
     deliveries = undefined
     placedorders = undefined
     const tabs = document.getElementById('tabs')
@@ -420,6 +436,23 @@ const getManufactoredIngredientData = async (ingredient_id) => {
   } catch (error) {
     
   }
+}
+
+const displayIngredientData = () => {
+  $('#name').html(ingredientData['ingredient'].name)
+  $('#description').html(ingredientData['ingredient'].description)
+  $('#stock').attr('disabled', false)
+  $('#stock').parent().find("label").addClass('active')
+  $('#stock').attr('disabled', true)
+  $('#stock').val(Number(ingredientData['ingredient'].stock))
+  $('#update_stock').on('click', () => {
+    $('#stock').attr('disabled', false)
+    $('#stock_take').attr('disabled', false)
+    $('#update_stock').attr('disabled', true)
+    $('#stock_take').on('click',  () => {
+      // function to update stock
+    })
+  })
 }
 
 const switchGetIngredientData = (val) => {
@@ -750,3 +783,50 @@ $(document).ready(function () {
     $('#submitform').on('click', submitWastageForm);
   } 
 });
+
+const stockTakeIngredient = async () => {
+  const id = ingredientData['ingredient'].ingredient_id
+  const form = document.getElementById('stock_take_form')
+  const formData = new FormData(form)
+  console.log(formData)
+  try {
+    const response = await fetch(`/manager/ingredients/${id}/setstock`,{
+      method: 'POST',
+      body: formData
+    })
+    console.log(formData)
+    const data = await response.json()
+    if(data.success) {
+      window.location.reload()
+    }
+  } catch (error) {
+    
+  }
+}
+
+const stockTakeManufactoredIngredient = async () => {
+  const id = ingredientData['ingredient'].manufactored_ingredient_id
+  const form = document.getElementById('stock_take_form')
+  const formData = new FormData(form)
+  console.log(formData)
+  try {
+    const response = await fetch(`/manager/manufactoredingredients/${id}/setstock`,{
+      method: 'POST',
+      body: formData
+    })
+    const data = await response.json()
+    if(data.success) {
+      window.location.reload()
+    }
+  } catch (error) {
+    
+  }
+}
+
+const switchSetStock = () => {
+  if(ingredientData['ingredient'].manufactored == false) {
+    stockTakeIngredient()
+  } else {
+    stockTakeManufactoredIngredient()
+  }
+}

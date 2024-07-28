@@ -1050,3 +1050,124 @@ def add_wastages():
             )
     else:
         return redirect(url_for("logout"))
+
+
+@app.route("/chef/recipes/<int:recipe_id>/prepare", methods=["GET", "POST"])
+@login_required
+def add_preparation(recipe_id):
+    is_chef = check_role(role_hash("chef"), current_user.web3_address)
+    recipe = db.session.query(Recipe).filter_by(id=recipe_id).first()
+    if is_chef:
+        recipe = db.session.query(Recipe).filter_by(id=recipe_id).first()
+        if request.method == "POST":
+            new_preparation = StockMovement(
+                preparation_kind=StockManagement(1),
+                date=datetime.datetime.now(),
+                info="Automated record",
+                employee_id=current_user.id,
+            )
+            ingredient_quantity_used, manufactored_ingredient_quantity_used = (
+                calculate_preparation_quantities(recipe, request.form["portions"])
+            )
+            print(recipe, request.form["portions"])
+            assert decrease_stock(ingredient_quantity_used)
+            assert decrease_stock_manufactored(manufactored_ingredient_quantity_used)
+            ingredient_quantity_produced = ManufactoredIngredientQuantity(
+                manufactored_ingredient_id=recipe.recipe_for,
+                quantity=request.form["portions"],
+            )
+            assert increase_stock_manufactored(
+                [
+                    {
+                        "manufactored_ingredient_id": recipe.recipe_for,
+                        "quantity": ingredient_quantity_produced.quantity,
+                    }
+                ]
+            )
+            new_preparation.manufactoredingredient_quantities.append(
+                ingredient_quantity_produced
+            )
+            db.session.add(new_preparation)
+            db.session.commit()
+            flash("Preparation added successfully")
+            return {"success": True}
+        else:
+            return redirect(url_for("get_recipe", recipe_id=recipe_id))
+    else:
+        return redirect(url_for("logout"))
+
+
+@app.route("/manager/ingredients/<int:ingredient_id>/setstock", methods=["POST"])
+@login_required
+def set_ingredient_stock(ingredient_id):
+    is_manager = check_role(role_hash("manager"), current_user.web3_address)
+    print(request)
+    if is_manager:
+        ingredient = db.session.query(Ingredient).filter_by(id=ingredient_id).first()
+        ingredient.stock_in_weight = int(request.form["stock"])
+        db.session.add(ingredient)
+        stockmovement = StockMovement(
+            info="Manual stock take",
+            employee_id=current_user.id,
+            date=datetime.datetime.now(),
+            preparation_kind=StockManagement(3),
+        )
+        db.session.add(stockmovement)
+        db.session.commit()
+        stock_movement = (
+            db.session.query(StockMovement)
+            .filter_by(info="Manual stock take")
+            .all()[-1]
+        )
+        ingredient_quantities = [
+            {
+                "manufactored_ingredient_id": ingredient_id,
+                "quantity": int(request.form["stock"]),
+            }
+        ]
+        assert append_ingredient_quantity(ingredient_quantities, stock_movement)
+        return {"success": True}
+    else:
+        return redirect(url_for("logout"))
+
+
+@app.route(
+    "/manager/manufactoredingredients/<int:ingredient_id>/setstock", methods=["POST"]
+)
+@login_required
+def set_manufactoredingredient_stock(ingredient_id):
+    is_manager = check_role(role_hash("manager"), current_user.web3_address)
+    print(ingredient_id)
+    print(request.form)
+    if is_manager:
+        ingredient = (
+            db.session.query(ManufactoredIngredient).filter_by(id=ingredient_id).first()
+        )
+        ingredient.stock_in_portions = int(request.form["stock"])
+        db.session.add(ingredient)
+        stockmovement = StockMovement(
+            info="Manual stock take",
+            employee_id=current_user.id,
+            date=datetime.datetime.now(),
+            preparation_kind=StockManagement(3),
+        )
+        db.session.add(stockmovement)
+        db.session.commit()
+        stock_movement = (
+            db.session.query(StockMovement)
+            .filter_by(info="Manual stock take")
+            .all()[-1]
+        )
+        ingredient_quantities = [
+            {
+                "manufactored_ingredient_id": ingredient_id,
+                "quantity": int(request.form["stock"]),
+            }
+        ]
+        assert append_manufactored_ingredient_quantity(
+            ingredient_quantities, stock_movement
+        )
+        flash("Stock updated")
+        return {"success": True}
+    else:
+        return redirect(url_for("logout"))
