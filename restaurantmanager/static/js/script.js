@@ -343,6 +343,29 @@ const editRecipe = () => {
   $('#submitform').on('click', submitEditRecipeForm)
 }
 
+const submitWastageForm = async () => {
+  form = document.getElementById('add_wastages_form');
+  formData = new FormData(form);
+  const info = document.getElementById('info')
+  if (info != null) {
+    try {
+      const response = await fetch("/manager/addwastages", {
+        method: "POST",
+        // Set the FormData instance as the request body
+        body: formData,
+      })
+      const data = await response.json();
+      if (data.success) {
+        window.location.href = "/manager/addwastages";
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  } else {
+    alert('Make sure you add some info');
+  }
+}
+
 let recipes;
 let placedorders;
 let deliveries;
@@ -560,7 +583,6 @@ const getIngredients = async () => {
   } catch  (e)  {
     console.error(e);
   }
-
 }
 
 $(document).ready(function () {
@@ -636,5 +658,24 @@ $(document).ready(function () {
         },
       });
     });
+  } else if (window.location.pathname === '/manager/addwastages') {
+    const inputFields = $('.view-toggle');
+    for (let inputField of inputFields) {
+      $(inputField).hide();
+    }
+    $('input[type=checkbox]').on('change', function () {
+      const id = $(this).attr('id');
+      if (id.includes("manufactored")) {
+        itemId = '#manufactored_ingredient_quantity_' + id.split('_')[2];
+      } else {
+        itemId = '#ingredient_quantity_' + id.split('_')[1];
+      }
+      if ($(this).is(':checked')) {
+        $(itemId).parent().show();
+      } else {
+        $(itemId).parent().hide();
+      }
+    });
+    $('#submitform').on('click', submitWastageForm);
   }
 });

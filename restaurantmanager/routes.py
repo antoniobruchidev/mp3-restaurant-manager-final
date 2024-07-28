@@ -974,3 +974,45 @@ def get_manufactored_ingredient_data(id):
         "wastages": ingredient_related_wastages_data,
         "preparations": ingredient_related_preparations_data,
     }
+
+
+@app.route("/manager/addwastages", methods=["GET", "POST"])
+@login_required
+def add_wastages():
+    is_manager = check_role(role_hash("manager"), current_user.web3_address)
+    is_chef = check_role(role_hash("chef"), current_user.web3_address)
+    is_waiter = check_role(role_hash("waiter"), current_user.web3_address)
+    ingredients = db.session.query(Ingredient).all()
+    manufactored_ingredients = db.session.query(ManufactoredIngredient).all()
+    if is_manager or is_chef or is_waiter:
+        if request.method == "POST":
+            new_wastage = StockMovement(
+                preparation_kind=StockManagement(2),
+                date=datetime.datetime.now(),
+                info=request.form["info"],
+                employee_id=current_user.id,
+            )
+            keys = request.form.keys()
+            ingredient_quantities = get_ingredient_quantity_from_form(
+                keys, request.form
+            )
+            assert append_ingredient_quantity(ingredient_quantities, new_wastage)
+            assert decrease_stock(ingredient_quantities)
+            manufactored_ingredient_quantity = (
+                get_manufactored_ingredient_quantity_from_form(keys, request.form)
+            )
+            assert append_manufactored_ingredient_quantity(
+                manufactored_ingredient_quantity, new_wastage
+            )
+            assert decrease_stock_manufactored(manufactored_ingredient_quantity)
+            db.session.commit()
+            flash("Wastage added successfully")
+            return {"success": True}
+        else:
+            return render_template(
+                "addwastages.html",
+                ingredients=ingredients,
+                manufactored_ingredients=manufactored_ingredients,
+            )
+    else:
+        return redirect(url_for("logout"))

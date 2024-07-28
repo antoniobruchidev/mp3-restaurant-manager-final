@@ -1,0 +1,32 @@
+{% from "macros.html" import display_messages, display_ingredients, display_manufactored_ingredients %}
+{% extends "base.html" %}
+{% block headscripts %}
+{% endblock %}
+{% block content %}
+<h1 class="center-align">
+    Add wastages Page
+</h1>
+{{ display_messages(messages) }}
+<form action="" method="POST" id="add_wastages_form">
+    <div class="row">
+        <div class="col s12 inputfield">
+            <textarea id="info" name="info" class="materialize-textarea"></textarea>
+            <label for="info">Info</label>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col s6">
+            <h5> Ingredients</h5>
+            {{ display_ingredients(ingredients) }}
+        </div>
+        <div class="col s6">
+            <h5>Manufactored items</h5>
+            {{ display_manufactored_ingredients(manufactored_ingredients) }}
+        </div>
+    </div>
+</form>
+<button class="btn waves-effect waves-light" id="submitform">Submit</button>
+
+<hr>
+<a href="{{ url_for('dashboard') }}">Dashboard</a>
+{% endblock %}
