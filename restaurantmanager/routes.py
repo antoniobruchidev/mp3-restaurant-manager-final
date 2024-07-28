@@ -47,6 +47,7 @@ from restaurantmanager.middleware import (
     increase_stock,
     increase_stock_manufactored,
     update_ingredient_quantity,
+    update_manufactored_ingredient_quantity,
 )
 from flask_login import (
     UserMixin,
@@ -702,6 +703,7 @@ def edit_recipe(recipe_id):
             .filter_by(id=recipe.recipe_for)
             .first()
         )
+
         if request.method == "POST" and is_manager:
             if request.form["name"]:
                 manufactored_ingredient.name = request.form["name"]
@@ -714,8 +716,6 @@ def edit_recipe(recipe_id):
             if request.form["price"]:
                 manufactored_ingredient.price = request.form["price"]
             db.session.commit()
-            flash("Recipe updated successfully")
-            return {"success": True}
         if request.method == "POST" and is_chef:
             if request.form["portions"]:
                 recipe.portions = request.form["portions"]
@@ -724,11 +724,16 @@ def edit_recipe(recipe_id):
                 keys, request.form
             )
             assert update_ingredient_quantity(ingredient_quantities, recipe)
-            db.session.commit()
-            flash("Recipe updated successfully")
-            return {"success": True}
-        else:
+            manufactored_ingredient_quantity = (
+                get_manufactored_ingredient_quantity_from_form(keys, request.form)
+            )
+            assert update_manufactored_ingredient_quantity(
+                manufactored_ingredient_quantity, recipe
+            )
+        if request.method == "GET":
             return redirect(url_for("get_recipe", recipe_id=recipe_id))
+        flash("Recipe updated successfully")
+        return {"success": True}
     else:
         return redirect(url_for("logout"))
 
@@ -765,18 +770,20 @@ def create_recipe():
                 created_by=current_user.id,
             )
             db.session.add(new_recipe)
+            db.session.commit()
+            recipe = db.session.query(Recipe).all()[-1]
             keys = request.form.keys()
+
             ingredient_quantities = get_ingredient_quantity_from_form(
                 keys, request.form
             )
-            assert append_ingredient_quantity(ingredient_quantities, new_recipe)
+            assert update_ingredient_quantity(ingredient_quantities, recipe)
             manufactored_ingredient_quantity = (
                 get_manufactored_ingredient_quantity_from_form(keys, request.form)
             )
-            assert append_manufactored_ingredient_quantity(
-                manufactored_ingredient_quantity, new_recipe
+            assert update_manufactored_ingredient_quantity(
+                manufactored_ingredient_quantity, recipe
             )
-            db.session.commit()
             flash("Recipe {0} created successfully".format(request.form["name"]))
             return {"success": True}
         return render_template(
@@ -792,7 +799,6 @@ def create_recipe():
 def register():
     g_client_id = os.environ.get("GOOGLE_CLIENT_ID")
     if request.method == "POST":
-        print(request.form)
         hashed_password = argon2.generate_password_hash(request.form["password"])
         activated = False
         if request.form["account_type"] != "2":
@@ -850,8 +856,19 @@ def activate(web3_address):
 def get_all_ingredients():
     ingredients = db.session.query(Ingredient).all()
     ingredients_data = []
+    manufactored_ingredients = db.session.query(ManufactoredIngredient).all()
     for ingredient in ingredients:
-        ingredients_data.append({"name": ingredient.name, "id": ingredient.id})
+        ingredients_data.append(
+            {"name": ingredient.name, "id": ingredient.id, "manufactored": False}
+        )
+    for manufactored_ingredient in manufactored_ingredients:
+        ingredients_data.append(
+            {
+                "name": manufactored_ingredient.name,
+                "id": manufactored_ingredient.id,
+                "manufactored": True,
+            }
+        )
     return jsonify(ingredients_data)
 
 
@@ -861,6 +878,7 @@ def get_ingredient_data(id):
     ingredient_data = {
         "name": ingredient.name,
         "ingredient_id": ingredient.id,
+        "description": ingredient.description,
         "stock": ingredient.stock_in_weight,
     }
     related_ingredientquantities = (
@@ -868,55 +886,61 @@ def get_ingredient_data(id):
     )
     recipe_ids = []
     for related_ingredientquantity in related_ingredientquantities:
-        recipe = (
+        related_recipes = (
             db.session.query(recipe_ingredientquantity)
             .filter_by(ingredient_quantity_id=related_ingredientquantity.id)
-            .first()
+            .all()
         )
-        if recipe != None:
-            recipe_ids.append(recipe.recipe_id)
+        for recipe in related_recipes:
+            if recipe != None:
+                recipe_ids.append(recipe.recipe_id)
     placedorder_ids = []
     for related_ingredientquantity in related_ingredientquantities:
-        placedorder = (
+        related_placedorders = (
             db.session.query(placedorder_ingredientquantity)
             .filter_by(ingredient_quantity_id=related_ingredientquantity.id)
-            .first()
+            .all()
         )
-        if placedorder != None:
-            placedorder_ids.append(placedorder.placedorder_id)
+        for placedorder in related_placedorders:
+            if placedorder != None:
+                placedorder_ids.append(placedorder.placedorder_id)
     delivery_ids = []
     for related_ingredientquantity in related_ingredientquantities:
-        delivery = (
+        related_deliveries = (
             db.session.query(delivery_ingredientquantity)
             .filter_by(ingredient_quantity_id=related_ingredientquantity.id)
-            .first()
+            .all()
         )
-        if delivery != None:
-            delivery_ids.append(delivery.delivery_id)
+        for related_delivery in related_deliveries:
+            if related_delivery != None:
+                delivery_ids.append(related_delivery.delivery_id)
     stockmovement_ids = []
     for related_ingredientquantity in related_ingredientquantities:
-        stockmovement = (
+        related_stockmovements = (
             db.session.query(stockmovement_ingredientquantity)
             .filter_by(ingredient_quantity_id=related_ingredientquantity.id)
-            .first()
+            .all()
         )
-        if stockmovement != None:
-            stockmovement_ids.append(stockmovement.stockmovement_id)
+        for related_stockmovement in related_stockmovements:
+            if related_stockmovement != None:
+                stockmovement_ids.append(related_stockmovement.stockmovement_id)
     ingredient_related_recipes_data = get_ingredient_related_recipes(recipe_ids)
     ingredient_related_placeorders_data = get_ingredient_related_placedorders(
         placedorder_ids
     )
     ingredient_related_deliveries_data = get_ingredient_related_deliveries(delivery_ids)
-    ingredient_related_wastages_data, ingredient_related_preparations_data = (
-        get_ingredient_related_stockmovements(stockmovement_ids)
-    )
+    (
+        ingredient_related_wastages_data,
+        ingredient_related_preparations_data,
+        ingredient_related_stock_takes_data,
+    ) = get_ingredient_related_stockmovements(stockmovement_ids)
     return {
         "ingredient": ingredient_data,
         "recipes": ingredient_related_recipes_data,
         "placedorders": ingredient_related_placeorders_data,
         "deliveries": ingredient_related_deliveries_data,
-        "preparations": ingredient_related_preparations_data,
         "wastages": ingredient_related_wastages_data,
+        "stock_takes": ingredient_related_stock_takes_data,
     }
 
 
@@ -926,53 +950,63 @@ def get_manufactored_ingredient_data(id):
     ingredient_data = {
         "name": ingredient.name,
         "manufactored_ingredient_id": ingredient.id,
+        "description": ingredient.description,
         "stock": ingredient.stock_in_portions,
     }
     related_ingredientquantities = (
         db.session.query(ManufactoredIngredientQuantity)
-        .filter_by(ingredient_id=id)
+        .filter_by(manufactored_ingredient_id=id)
         .all()
     )
+
     recipe_ids = []
     for related_ingredientquantity in related_ingredientquantities:
-        recipe = (
+        related_recipes = (
             db.session.query(recipe_manufactoredingredientquantity)
-            .filter_by(ingredient_quantity_id=related_ingredientquantity.id)
-            .first()
+            .filter_by(manufactoredingredient_quantity_id=related_ingredientquantity.id)
+            .all()
         )
-        if recipe != None:
-            recipe_ids.append(recipe.recipe_id)
+        for related_recipe in related_recipes:
+            if related_recipe != None:
+                recipe_ids.append(related_recipe.recipe_id)
     order_ids = []
     for related_ingredientquantity in related_ingredientquantities:
-        order = (
+        related_orders = (
             db.session.query(order_manufactoredingredientquantity)
-            .filter_by(ingredient_quantity_id=related_ingredientquantity.id)
-            .first()
+            .filter_by(manufactoredingredient_quantity_id=related_ingredientquantity.id)
+            .all()
         )
-        if order != None:
-            order_ids.append(order.order_id)
+        for related_order in related_orders:
+            if related_order != None:
+                order_ids.append(related_order.order_id)
     stockmovement_ids = []
     for related_ingredientquantity in related_ingredientquantities:
-        stockmovement = (
+        related_stockmovements = (
             db.session.query(stockmovement_manufactoredingredientquantity)
-            .filter_by(ingredient_quantity_id=related_ingredientquantity.id)
-            .first()
+            .filter_by(manufactoredingredient_quantity_id=related_ingredientquantity.id)
+            .all()
         )
-        if stockmovement != None:
-            stockmovement_ids.append(stockmovement.stockmovement_id)
+        for related_stockmovement in related_stockmovements:
+            if related_stockmovement != None:
+                stockmovement_ids.append(related_stockmovement.stockmovement_id)
+            print(recipe_ids, order_ids, stockmovement_ids)
     ingredient_related_recipes_data = get_ingredient_related_recipes(recipe_ids)
     ingredient_related_orders_data = get_manufactored_ingredient_related_orders(
         order_ids
     )
-    ingredient_related_wastages_data, ingredient_related_preparations_data = (
-        get_manufactored_ingredient_related_stockmovements(stockmovement_ids)
-    )
+    (
+        ingredient_related_wastages_data,
+        ingredient_related_preparations_data,
+        ingredient_related_stock_takes_data,
+    ) = get_manufactored_ingredient_related_stockmovements(stockmovement_ids)
+    print(ingredient_related_preparations_data)
     return {
         "ingredient": ingredient_data,
         "recipes": ingredient_related_recipes_data,
         "orders": ingredient_related_orders_data,
         "wastages": ingredient_related_wastages_data,
         "preparations": ingredient_related_preparations_data,
+        "stock_takes": ingredient_related_stock_takes_data,
     }
 
 
