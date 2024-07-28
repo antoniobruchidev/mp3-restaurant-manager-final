@@ -40,6 +40,7 @@ class StockManagement(enum.Enum):
     # enum for the stock type
     preparation = 1
     wastage = 2
+    stock_take = 3
 
 
 class OrderStatus(enum.Enum):
@@ -365,7 +366,7 @@ class StockMovement(db.Model):
     )
 
     def __repr__(self):
-        return "#{0} | Preparation: {1} | Date: {2} | Quantity: {3}".format(
+        return "#{0} | Preparation: {1} | Date: {2}".format(
             self.id, self.date, self.preparation_kind
         )
 
