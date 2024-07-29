@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row">
+    <div class="col s12">
+        <h1 class="center-align">Menu</h1>
+    </div>
+    <div class="col s12" id="starters">
+        <h3 class="center-align">Starters</h3>
+        <ul class="collection">
+            {% for starter in starters %}
+            <li class="collection-item">{{starter}}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="col s12" id="pastas">
+        <h3 class="center-align">Pastas</h3>
+        <ul class="collection">
+            {% for pasta in pastas  %}
+            <li class="collection-item">{{pasta}}</li>
+            {% endfor  %}
+        </ul>
+    </div>
+    <div class="col s12" id="mains">
+        <h3 class="center-align">Mains</h3>
+        <ul class="collection">
+            {% for main in mains  %}
+            <li class="collection-item">{{main}}</li>
+            {% endfor  %}
+        </ul>
+    </div>
+    <div class="col s12" id="pizzas">
+        <h3 class="center-align">Pizzas</h3>
+        <ul class="collection">
+            {% for pizza in pizzas   %}
+            <li class="collection-item">{{pizza}}</li>
+            {% endfor   %}
+        </ul>
+    </div>
+    <div class="col s12" id="drinks">
+        <h3 class="center-align">Drinks</h3>
+        <ul class="collection">
+            {% for water in waters   %}
+            <li class="collection-item">{{water}}</li>
+            {% endfor   %}
+            {% for juice in juices   %}
+            <li class="collection-item">{{juice}}</li>
+            {% endfor   %}
+            {% for soft_drink in soft_drinks   %}
+            <li class="collection-item">{{soft_drink}}</li>
+            {% endfor   %}
+            {% for wine in wines   %}
+            <li class="collection-item">{{wine}}</li>
+            {% endfor   %}
+            {% for beer in beer   %}
+            <li class="collection-item">{{beer}}</li>
+            {% endfor   %}
+            {% for distillate in distillates %}
+            <li class="collection-item">{{distillate}}</li>
+            {% endfor   %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

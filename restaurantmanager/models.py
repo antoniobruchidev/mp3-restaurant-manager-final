@@ -43,14 +43,6 @@ class StockManagement(enum.Enum):
     stock_take = 3
 
 
-class OrderStatus(enum.Enum):
-    # enum for the order status
-    pending = 1
-    accepted = 2
-    delivered = 3
-    cancelled = 4
-
-
 recipe_ingredientquantity = db.Table(
     # table for the many to many relationship between recipes and manufactored ingredients
     "recipe_ingredientquantities",
@@ -376,24 +368,19 @@ class Order(db.Model):
     __tablename__ = "orders"
 
     id = db.Column(db.Integer, primary_key=True)
-    user = db.Column(
-        db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False
-    )
     dateTime = db.Column(db.DateTime, nullable=False)
-    status = db.Column(db.Enum(OrderStatus), nullable=False)
     manufactoredimgredient_quantities = db.relationship(
         "ManufactoredIngredientQuantity",
         secondary=order_manufactoredingredientquantity,
         backref="orders",
         lazy=True,
     )
-    supplier_reference = db.Column(db.String, nullable=False)
     table = db.Column(db.Integer, nullable=False)
     paid = db.Column(db.Boolean, nullable=False)
 
     def __repr__(self):
         return "#{0} | Date: {1} | Status: {2}".format(
-            self.id, self.dateTime, self.status
+            self.id, self.dateTime
         )
 
 

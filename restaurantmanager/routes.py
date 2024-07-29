@@ -442,21 +442,6 @@ def add_ingredient(supplier_id):
         return redirect(url_for("logout"))
 
 
-@app.route("/manager/ingredients")
-@login_required
-def get_ingredients():
-    is_manager = check_role(role_hash("manager"), current_user.web3_address)
-    if is_manager:
-        ingredients = db.session.query(Ingredient).all()
-        suppliers = db.session.query(Supplier).all()
-
-        return render_template(
-            "ingredients.html", ingredients=ingredients, suppliers=suppliers
-        )
-    else:
-        return redirect(url_for("logout"))
-
-
 @app.route("/manager/ingredients/<int:ingredient_id>")
 @login_required
 def get_ingredient(ingredient_id):
@@ -1171,3 +1156,89 @@ def set_manufactoredingredient_stock(ingredient_id):
         return {"success": True}
     else:
         return redirect(url_for("logout"))
+
+
+@app.route("/menu")
+def menu():
+    starters = (
+        db.session.query(ManufactoredIngredient)
+        .filter(
+            ManufactoredIngredient.sellable_item == True,
+            ManufactoredIngredient.kind == ItemKind(1),
+        )
+        .all()
+    )
+    mains = (
+        db.session.query(ManufactoredIngredient)
+        .filter_by(sellable_item=True)
+        .filter_by(kind=ItemKind.main)
+        .all()
+    )
+    desserts = (
+        db.session.query(ManufactoredIngredient)
+        .filter_by(sellable_item=True)
+        .filter_by(kind=ItemKind.dessert)
+        .all()
+    )
+    pizzas = (
+        db.session.query(ManufactoredIngredient)
+        .filter_by(sellable_item=True)
+        .filter_by(kind=ItemKind.pizza)
+        .all()
+    )
+    pastas = (
+        db.session.query(ManufactoredIngredient)
+        .filter_by(sellable_item=True)
+        .filter_by(kind=ItemKind.pasta)
+        .all()
+    )
+    water = (
+        db.session.query(ManufactoredIngredient)
+        .filter_by(sellable_item=True)
+        .filter_by(kind=ItemKind.water)
+        .all()
+    )
+    soft_drinks = (
+        db.session.query(ManufactoredIngredient)
+        .filter_by(sellable_item=True)
+        .filter_by(kind=ItemKind.soft_drinks)
+        .all()
+    )
+    juices = (
+        db.session.query(ManufactoredIngredient)
+        .filter_by(sellable_item=True)
+        .filter_by(kind=ItemKind.juice)
+        .all()
+    )
+    wines = (
+        db.session.query(ManufactoredIngredient)
+        .filter_by(sellable_item=True)
+        .filter_by(kind=ItemKind.wine)
+        .all()
+    )
+    beers = (
+        db.session.query(ManufactoredIngredient)
+        .filter_by(sellable_item=True)
+        .filter_by(kind=ItemKind.beer)
+        .all()
+    )
+    distillates = (
+        db.session.query(ManufactoredIngredient)
+        .filter_by(sellable_item=True)
+        .filter_by(kind=ItemKind.distillates)
+        .all()
+    )
+    return render_template(
+        "menu.html",
+        starters=starters,
+        mains=mains,
+        desserts=desserts,
+        pizzas=pizzas,
+        pastas=pastas,
+        water=water,
+        soft_drinks=soft_drinks,
+        juices=juices,
+        wines=wines,
+        beers=beers,
+        distillates=distillates,
+    )
