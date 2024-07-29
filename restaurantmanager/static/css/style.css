@@ -19,3 +19,7 @@ em {
 #update_stock, #stock_take {
   min-height: 50px;
 }
+
+#addingredient {
+  top: 30px;
+}

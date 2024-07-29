@@ -16,7 +16,8 @@
       <div class="card-action">
         <a href="#">Delete</a>
         <a href="{{ url_for('get_supplier', supplier_id=supplier.id) }}">Go to</a>
-        <a href="#">Send email</a>
+        <a href="{{ url_for('place_order', supplier_id=supplier.id) }}">Add order</a>
+        <a href="{{ url_for('add_delivery', supplier_id=supplier.id) }}">Add delivery</a>
       </div>
     </div>
   </div>

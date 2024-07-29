@@ -6,8 +6,8 @@
 <form method="POST" action="">
     {{ form.hidden_tag() }}
     {{ form.board_id }}
-    {{ form.subject }}
-    {{ form.message }}
+    {{ form.subject(placeholder="Subject:") }}
+    {{ form.message(placeholder="Yuor message") }}
     {{ form.submit }}
 </form>
 <br>

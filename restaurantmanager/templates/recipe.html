@@ -64,11 +64,20 @@
         </div>
     </div>
     <div class="row">
-        <div class="col s6">
+        <div class="col s12">
+            <div class="row">
+                <div class="input-field col s10">
+                    <i class="fa-solid fa-comment-dots"></i>
+                    <input type="text" id="autocomplete-input" class="autocomplete" disabled>
+                    <label class="active" for="autocomplete-input">Search ingredients</label> 
+                </div>
+            </div>
+        </div>
+        <div class="col s6" id="ingredients">
             <h5> Ingredients</h5>
             {{ display_recipe_ingredient_quantities(ingredients, recipe.ingredient_quantities) }}    
         </div>
-        <div class="col s6">
+        <div class="col s6" id="manufactoredIngredients">
             <h5>Manufactored ingredients</h5>
             {{ display_recipe_manufactored_ingredient_quantities(manufactored_ingredients, recipe.manufactoredingredient_quantities) }}
         </div>

@@ -66,22 +66,7 @@ const connectWithMetamask = async () => {
     } catch (e) {
       console.error(e);
     }
-  } else if (page === '/owner/addemployee') {
-    const form = document.getElementById('register_form');
-    const formData = new FormData(form);
-    formData.append('web3_address', address);
-    formData.append('account_type', '1');
-    formData.append('email', `${address}@internal.kitchenmanager`)
-    formData.append('google_id', 'EOA')
-    formData.append('password', address);
-    formData.append('confirm_password', address);
-    formData.append('#mnemonic', "EOA");
-    formData.append('#priv', "EOA");
-
-  }
-
-
-  return true;
+  } 
 }
 
 /**
@@ -135,18 +120,6 @@ async function handleCredentialResponse(response) {
     } catch (e) {
       console.error(e);
     }
-  } else if (page === '/owner/addemployee') {
-    const wallet = createWallet();
-    const form = document.getElementById('register_form');
-    const formData = new FormData(form);
-    formData.append('google_id', userCredential.sub);
-    formData.append('account_type', '3');
-    formData.append('mnemonic', wallet.mnemonic.phrase);
-    formData.append('priv', wallet.privateKey);
-    formData.append('web3_address', wallet.address);
-    formData.append('email', userCredential.email);
-    formData.append('password', "googleaccount")
-    formData.append('password_confirm', "googleaccount")
   }
 }
 
@@ -306,6 +279,9 @@ const submitEditRecipeForm = async () =>  {
 }
 
 const editRecipe = () => {
+  $('#autocomplete-input').attr('disabled', false)
+  $('#addingredient').attr('disabled', false)
+  getIngredients();
   if (is_chef == "True") {
     const ingredients = $('.myCheckbox')
     for (let ingredient of ingredients) {
@@ -321,6 +297,7 @@ const editRecipe = () => {
     $('#sellable_item_checkbox').prop('disabled', false)
     $('#price').prop('disabled', false)
   }
+  $('label').addClass('brown-text',"text-darken-4")
   $('#submitform').prop('disabled', false);
     const inputFields = $('.view-toggle');
     for (let inputField of inputFields) {
@@ -385,6 +362,30 @@ const submitPrepareRecipeForm = async () =>  {
   }
 }
 
+const submitHireForm = async () =>  {
+  const form = document.getElementById('hire-form');
+  const formData = new FormData(form);
+  const id = $('#user-id').html()
+  const elem = document.getElementById('role')
+  formData.append('id', id)
+  formData.get('role')
+  
+  try {
+    const response = await fetch(window.location.pathname, {
+      method: "POST",
+      // Set the FormData instance as the request body
+      body: formData,
+    })
+    const data = await response.json();
+    if (data.success) {
+      window.location.href = "/manager/staff";
+    }
+  } catch (e) {
+    console.error(e);
+  }
+
+}
+
 let recipes;
 let placedorders;
 let deliveries;
@@ -392,6 +393,7 @@ let orders;
 let wastages;
 let stockTakes
 let preparations;
+let ingredient;
 var tabsInstance;
 
 const getIngredientData = async (ingredient_id) => {
@@ -405,6 +407,7 @@ const getIngredientData = async (ingredient_id) => {
     deliveries = createRelatedDeliveryRecords(await data['deliveries'])
     wastages = createRelatedWastageRecords(await data['wastages'])
     stockTakes = createRelatedStockTakeRecords(await data['stock_takes'])
+    ingredient = await data['ingredient']
     preparations = undefined
     orders = undefined
     const tabs = document.getElementById('tabs')
@@ -427,6 +430,7 @@ const getManufactoredIngredientData = async (ingredient_id) => {
     wastages = createRelatedWastageRecords(await data['wastages'])
     preparations = createRelatedPreparationRecords(await data['preparations'])
     stockTakes = createRelatedStockTakeRecords(await data['stock_takes'])
+    ingredient = await data['ingredient']
     deliveries = undefined
     placedorders = undefined
     const tabs = document.getElementById('tabs')
@@ -439,12 +443,12 @@ const getManufactoredIngredientData = async (ingredient_id) => {
 }
 
 const displayIngredientData = () => {
-  $('#name').html(ingredientData['ingredient'].name)
-  $('#description').html(ingredientData['ingredient'].description)
+  $('#name').html(ingredient.name)
+  $('#description').html(ingredient.description)
   $('#stock').attr('disabled', false)
   $('#stock').parent().find("label").addClass('active')
   $('#stock').attr('disabled', true)
-  $('#stock').val(Number(ingredientData['ingredient'].stock))
+  $('#stock').val(Number(ingredient.stock))
   $('#update_stock').on('click', () => {
     $('#stock').attr('disabled', false)
     $('#stock_take').attr('disabled', false)
@@ -454,19 +458,23 @@ const displayIngredientData = () => {
     })
   })
 }
-
 const switchGetIngredientData = (val) => {
   const is_manufactored = val.split('.')[0]
   const ingredient_id = val.split('.')[1].split(' ')[0]
-  if (is_manufactored == "I")  {
-    getIngredientData(ingredient_id)
-    $('.ingredient-only').show()
-    $('.manufactored-only').hide() 
-  } else  {
-    getManufactoredIngredientData(ingredient_id)
-    $('.manufactored-only').show() 
-    $('.ingredient-only').hide()
-  }  
+  const ingredient_name = val.split('.')[1].split(' - ')[1]
+  if (window.location.pathname == "/manager/stockmanagement") {
+    if (is_manufactored == "I")  {
+      getIngredientData(ingredient_id)
+      $('.ingredient-only').show()
+      $('.manufactored-only').hide() 
+    } else  {
+      getManufactoredIngredientData(ingredient_id)
+      $('.manufactored-only').show() 
+      $('.ingredient-only').hide()
+    }
+  } else { 
+    addIngredientQuantity(is_manufactored, ingredient_id, ingredient_name)
+  }
 }
 
 const showTabData = (tabId) => {
@@ -662,27 +670,27 @@ const getIngredients = async () => {
       method:  "GET",
     })
     const data = await response.json();
-    console.log(data)
-    const ingredients_data = {}
+    const ingredients = {}
     for (let ingredient in data) {
       if (!data[ingredient]['manufactored']){
         const ingredient_in_searchbar = `I.${data[ingredient]['id']} - ${data[ingredient]['name']}`
-        ingredients_data[ingredient_in_searchbar] = null;
+        ingredients[ingredient_in_searchbar] = null;
       } else {
         const ingredient_in_searchbar = `M.${data[ingredient]['id']} - ${data[ingredient]['name']}`
-        ingredients_data[ingredient_in_searchbar] = null;
+        ingredients[ingredient_in_searchbar] = null;
       }
     }
     $(function() {
       $('input.autocomplete').autocomplete({
-        data: ingredients_data,
+        data: ingredients,
         limit: 7, // The max amount of results that can be shown at once. Default: Infinity.
         onAutocomplete: function (val) {
-          switchGetIngredientData(val)
-        },
+            switchGetIngredientData(val)
+          },
         minLength: 1, // The minimum length of the input for the autocomplete to start. Default: 1.
         });
-    }, ingredients_data);
+    }, ingredients);
+    return ingredients;
   } catch  (e)  {
     console.error(e);
   }
@@ -746,10 +754,10 @@ $(document).ready(function () {
   } else if (window.location.pathname === '/register') {
     $('#metamask').on('click', connectWithMetamask);
     $('#submitform').on('click', submitRegisterForm);
-    //$('#login').on('click', window.location.href = window.location.pathname.replace('/register', '/login'));
   } else if (window.location.pathname.includes('/manager/recipe')) {
     $('#edit').on('click', editRecipe);
     $('#prepare').on('click', submitPrepareRecipeForm);
+    getIngredients();
   } else if (window.location.pathname.includes('/manager/stockmanagement')){
     $('.view-toggle').hide()
     getIngredients();
@@ -782,11 +790,14 @@ $(document).ready(function () {
       }
     });
     $('#submitform').on('click', submitWastageForm);
-  } 
+  } else if (window.location.pathname == '/manager/addemployee'){
+    getUsers();
+    $('#submitform').on('click', submitHireForm);
+  }
 });
 
 const stockTakeIngredient = async () => {
-  const id = ingredientData['ingredient'].ingredient_id
+  const id = ingredient.ingredient_id
   const form = document.getElementById('stock_take_form')
   const formData = new FormData(form)
   console.log(formData)
@@ -806,7 +817,7 @@ const stockTakeIngredient = async () => {
 }
 
 const stockTakeManufactoredIngredient = async () => {
-  const id = ingredientData['ingredient'].manufactored_ingredient_id
+  const id = ingredient.manufactored_ingredient_id
   const form = document.getElementById('stock_take_form')
   const formData = new FormData(form)
   console.log(formData)
@@ -825,9 +836,90 @@ const stockTakeManufactoredIngredient = async () => {
 }
 
 const switchSetStock = () => {
-  if(ingredientData['ingredient'].manufactored == false) {
+  if(ingredient.manufactored == false) {
     stockTakeIngredient()
   } else {
     stockTakeManufactoredIngredient()
+  }
+}
+
+const getUsers = async () => {
+  try {
+    const response = await fetch('/api/users/get_users', {    
+    })
+    const data = await response.json();
+    const users_data = {}
+    
+    for (let user in data) {
+      const ingredient_in_searchbar = `${data[user]['full_name']} - Id: ${data[user]['id']}`
+      users_data[ingredient_in_searchbar] = null;
+    }
+    $(function() {
+      $('input.autocomplete').autocomplete({
+        data: users_data,
+        limit: 7, // The max amount of results that can be shown at once. Default: Infinity.
+        onAutocomplete: function (val) {
+          const fullName = val.split(' - Id:')[0];
+          const id = val.split(' - Id: ')[1];
+          $('.card-title').html(fullName)
+          $('#user-id').html(id)
+        },
+        minLength: 1, // The minimum length of the input for the autocomplete to start. Default: 1.
+        });
+    }, users_data);
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+const addIngredientQuantity = (is_manufactored, ingredient_id, ingredient_name) => {
+
+  let item = ""
+  let itemQuantity = ""
+  let quantity;
+  if(is_manufactored != "M") {
+    item = "ingredient_id_"
+    itemQuantity = "ingredient_quantity_"
+    quantity = "grams"
+  } else {
+    item = "manufactored_ingredient_id_"
+    itemQuantity = "manufactored_ingredient_quantity_"
+    quantity = "Portions"
+  }
+  const row = document.createElement('div')
+  row.classList.add('row')
+  const p = document.createElement('p')
+  p.classList.add('col', 's7')
+  const label = document.createElement('label')
+  label.classList.add('brown-text', 'text-darken-4')
+  const input = document.createElement('input')
+  input.classList.add('myCheckbox')
+  $(input).attr('type','checkbox')
+  $(input).attr('name', item + ingredient_id)
+  $(input).attr('id', item + ingredient_id)
+  const span = document.createElement('span')
+  span.innerHTML=ingredient_name
+  label.appendChild(input)
+  label.appendChild(span)
+  p.appendChild(label)
+  const inputField = document.createElement('div')
+  inputField.classList.add('input-field','col','s3','push-s1','view-toggle')
+  const quantityAdded = document.createElement('input')
+  quantityAdded.classList.add('validate')
+  $(quantityAdded).attr('type', 'number')
+  $(quantityAdded).attr('name', itemQuantity + ingredient_id)
+  $(quantityAdded).attr('id', itemQuantity + ingredient_id)
+  $(quantityAdded).attr('placeholder', 0)
+  const quantityLabel = document.createElement('label')
+  quantityLabel.innerHTML=quantity
+  quantityLabel.classList.add('brown-text', 'text-darken-4')
+  inputField.appendChild(quantityAdded)
+  inputField.appendChild(quantityLabel)
+  row.appendChild(p)
+  row.appendChild(inputField)
+  if (is_manufactored != "M") {
+    document.getElementById('ingredients').appendChild(row)
+  } else {
+    document.getElementById('manufactoredIngredients').appendChild(row)
   }
 }
