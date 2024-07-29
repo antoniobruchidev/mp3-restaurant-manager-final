@@ -742,10 +742,11 @@ $(document).ready(function () {
     $('#submitform').on('click', submitPlaceOrderForm)
   } else if (window.location.pathname === '/login') {
     $('#metamask').on('click', connectWithMetamask);
-    $('#submitform').on('click', submitLoginForm);
+    $('#submitform').on('click', submitLoginForm)
   } else if (window.location.pathname === '/register') {
     $('#metamask').on('click', connectWithMetamask);
     $('#submitform').on('click', submitRegisterForm);
+    //$('#login').on('click', window.location.href = window.location.pathname.replace('/register', '/login'));
   } else if (window.location.pathname.includes('/manager/recipe')) {
     $('#edit').on('click', editRecipe);
     $('#prepare').on('click', submitPrepareRecipeForm);

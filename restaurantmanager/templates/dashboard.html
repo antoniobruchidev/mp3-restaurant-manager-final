@@ -23,6 +23,50 @@
 {% if (f_name + l_name) != '' %}
 <p>User:  {{ f_name + " " + l_name }}</p>
 {% endif %}
+<hr>
+{% if is_manager %}
+<a href="{{ url_for('get_employees') }}">
+  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Staff</button>
+</a>
+<a href="{{ url_for('get_suppliers') }}">
+  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Suppliers</button>
+</a>
+<a href="{{ url_for('stockmanagement') }}">
+  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Manage</button>
+</a>
+<a href="">
+  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Sales</button>
+</a>
+<a href="{{ url_for('get_all_placedorders') }}">
+  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Placed Orders</button>
+</a>
+<a href="{{ url_for('get_all_deliveries') }}">
+  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Deliveries</button>
+</a>
+<a href="{{ url_for('get_all_recipes') }}">
+  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Recipes</button>
+</a>
+{% endif %}
+{% if is_chef %}
+<a href="{{ url_for('get_all_recipes') }}">
+  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Recipes</button>
+</a>
+<a href="{{ url_for('get_suppliers') }}">
+  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Suppliers</button>
+</a>
+{% endif %}
+{% if is_waiter %}
+<a href="{{ url_for('get_suppliers') }}">
+  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Suppliers</button>
+</a>
+{% endif %}
+<a href="{{ url_for('messageboard') }}">
+  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Messageboard</button>
+</a>
+<a href="{{ url_for('logout') }}">
+  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Logout</button>
+</a>
+<hr>
 {% for my_message in my_messages  %}
 <div class="row">
     <div class="col s8 push-s1">
@@ -41,22 +85,4 @@
 </div>
 {{ display_reply(my_message) }}
 {% endfor %}
-<hr>
-<a href="{{ url_for('get_employees') }}">Staff</a>
-<br>
-<a href="{{ url_for('add_employee') }}">Add_employee</a>
-<br>
-<a href="{{ url_for('get_suppliers') }}">Suppliers</a>
-<br>
-<a href="{{ url_for('add_supplier') }}">Add_suppliers</a>
-<br>
-<a href="{{ url_for('get_all_placedorders') }}">Go to orders</a>
-<br>
-<a href="{{ url_for('get_all_deliveries') }}">Got to deliveries</a>
-<br>
-<a href="{{ url_for('get_all_recipes') }}">Got to recipes</a>
-<br>
-<a href="{{ url_for('messageboard') }}">Message Board</a>
-<br>
-<a href="{{ url_for('logout') }}">Logout</a>
 {% endblock %}

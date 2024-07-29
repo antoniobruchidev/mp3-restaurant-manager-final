@@ -25,42 +25,42 @@
         <header>
             <nav class="brown darken-4">
                 <div class="nav-wrapper">
-                    <a href="{{ url_for('home') }}" class="brand-logo orange-text text-accent-4">Carpez's Kitchen</a>
+                    <a href="{{ url_for('home') }}" class="brand-logo lime-text text-lighten-4">Carpez's Kitchen</a>
                     <a href="#" data-target="mobile-demo" class="sidenav-trigger">
-                        <i class="fa-solid fa-bars orange-text text-accent-4"></i>
+                        <i class="fa-solid fa-bars lime-text text-lighten-4"></i>
                     </a>
                     <ul class="right hide-on-med-and-down">
                         <li>
-                            <a class="orange-text text-accent-4" href="{{ url_for('home') }}">Home</a>
+                            <a class="lime-text text-lighten-4" href="{{ url_for('home') }}">Home</a>
                         </li>
                         <li>
-                            <a class="orange-text text-accent-4" href="#!">Menu</a>
+                            <a class="lime-text text-lighten-4" href="{{ url_for('menu') }}">Menu</a>
                         </li>
                         <li>
-                            <a class="orange-text text-accent-4" href="#!">Table</a>
+                            <a class="lime-text text-lighten-4" href="#!">Table</a>
                         </li>
                         <li>
-                            <a class="orange-text text-accent-4 modal-trigger" href="{{ url_for('login') }}">Login</a>
+                            <a class="lime-text text-lighten-4" href="{{ url_for('login') }}">Login</a>
                         </li>
                     </ul>
                 </div>
             </nav>
-            <ul class="sidenav brown darken-3" id="mobile-demo">
+            <ul class="sidenav lime lighten-5" id="mobile-demo">
                 <li>
-                    <a href="{{ url_for('home') }}" class="orange-text text-accent-4 center-align">Home</a>
+                    <a href="{{ url_for('home') }}" class="lime-text text-lighten-4 center-align">Home</a>
                 </li>
                 <li>
-                    <a href="#!" class="orange-text text-accent-4 center-align">Menu</a>
+                    <a href="{{ url_for('menu') }}" class="lime-text text-lighten-4 center-align">Menu</a>
                 </li>
                 <li>
-                    <a href="#!" class="orange-text text-accent-4 center-align">Table</a>
+                    <a href="#!" class="lime-text text-lighten-4 center-align">Table</a>
                 </li>
                 <li>
-                    <a href="{{ url_for('login') }}" class="orange-text text-accent-4 center-align">Login</a>
+                    <a href="{{ url_for('login') }}" class="lime-text text-lighten-4 center-align">Login</a>
                 </li>
             </ul>
         </header>
-        <main class="brown darken-4 white-text">
+        <main class="lime lighten-5 brwon-text text-darken-4 brown-text text-darken-4">
             <div class="container">
             {% block content %}
             {% endblock %}
@@ -70,9 +70,9 @@
             <div class="container">
             </div>
             <div class="footer-copyright">
-                <div class="container orange-text text-accent-4">
+                <div class="container lime-text text-{{ url_for('menu') }}-4">
                     © 2014 Copyright Text
-                    <a class="orange-text text-accent-4 right" href="#!">More Links</a>
+                    <a class="lime-text text-lighten-4 right" href="#!">More Links</a>
                 </div>
             </div>
         </footer>
