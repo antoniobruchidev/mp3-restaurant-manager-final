@@ -223,8 +223,8 @@
 <a href="{{ url_for('create_recipe') }}">
   <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Create Recipe</button>
 </a>
-<a href="{{ url_for('add_delivery') }}">
-  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Add Delivery</button>
+<a href="{{ url_for('get_all_deliveries') }}">
+  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Deliveries</button>
 </a>
 <a href="{{ url_for('add_wastages') }}">
   <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Add Wastages</button>
@@ -237,8 +237,8 @@
   </a>
   {% endif %}
 {% if is_waiter and not is_manager %}
-<a href="{{ url_for('add_delivery') }}">
-  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Add Delivery</button>
+<a href="{{ url_for('get_all_deliveries') }}">
+  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Deliveries</button>
 </a>
 <a href="{{ url_for('add_wastages') }}">
   <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Add Wastages</button>

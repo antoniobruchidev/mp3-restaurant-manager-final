@@ -83,8 +83,91 @@ def load_user(user_id):
 
 
 @app.route("/")
-def home():
-    return render_template("menu.html", logged_out=True)
+def menu():
+    starters = (
+        db.session.query(ManufactoredIngredient)
+        .filter(
+            ManufactoredIngredient.sellable_item == True,
+            ManufactoredIngredient.kind == ItemKind(1),
+        )
+        .all()
+    )
+    mains = (
+        db.session.query(ManufactoredIngredient)
+        .filter_by(sellable_item=True)
+        .filter_by(kind=ItemKind.main)
+        .all()
+    )
+    desserts = (
+        db.session.query(ManufactoredIngredient)
+        .filter_by(sellable_item=True)
+        .filter_by(kind=ItemKind.dessert)
+        .all()
+    )
+    pizzas = (
+        db.session.query(ManufactoredIngredient)
+        .filter_by(sellable_item=True)
+        .filter_by(kind=ItemKind.pizza)
+        .all()
+    )
+    pastas = (
+        db.session.query(ManufactoredIngredient)
+        .filter_by(sellable_item=True)
+        .filter_by(kind=ItemKind.pasta)
+        .all()
+    )
+    water = (
+        db.session.query(ManufactoredIngredient)
+        .filter_by(sellable_item=True)
+        .filter_by(kind=ItemKind.water)
+        .all()
+    )
+    soft_drinks = (
+        db.session.query(ManufactoredIngredient)
+        .filter_by(sellable_item=True)
+        .filter_by(kind=ItemKind.soft_drinks)
+        .all()
+    )
+    juices = (
+        db.session.query(ManufactoredIngredient)
+        .filter_by(sellable_item=True)
+        .filter_by(kind=ItemKind.juice)
+        .all()
+    )
+    wines = (
+        db.session.query(ManufactoredIngredient)
+        .filter_by(sellable_item=True)
+        .filter_by(kind=ItemKind.wine)
+        .all()
+    )
+    beers = (
+        db.session.query(ManufactoredIngredient)
+        .filter_by(sellable_item=True)
+        .filter_by(kind=ItemKind.beer)
+        .all()
+    )
+    distillates = (
+        db.session.query(ManufactoredIngredient)
+        .filter_by(sellable_item=True)
+        .filter_by(kind=ItemKind.distillates)
+        .all()
+    )
+    return render_template(
+        "menu.html",
+        starters=starters,
+        mains=mains,
+        desserts=desserts,
+        pizzas=pizzas,
+        pastas=pastas,
+        water=water,
+        soft_drinks=soft_drinks,
+        juices=juices,
+        wines=wines,
+        beers=beers,
+        distillates=distillates,
+        logged_out=True
+    )
+
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -522,9 +605,11 @@ def add_to_order(supplier_id):
 @login_required
 def get_all_deliveries():
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
-    if is_manager:
+    is_chef = check_role(role_hash("chef"), current_user.web3_address)
+    is_waiter = check_role(role_hash("waiter"), current_user.web3_address)
+    if is_manager or is_chef or is_waiter:
         deliveries = db.session.query(Delivery).all()
-        return render_template("deliveries.html", deliveries=deliveries)
+        return render_template("deliveries.html", deliveries=deliveries, is_manager=is_manager, is_chef=is_chef, is_waiter=is_waiter)
     else:
         return redirect(url_for("logout"))
 
@@ -544,28 +629,61 @@ def get_deliveries(supplier_id):
 @login_required
 def get_delivery(supplier_id, delivery_id):
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
-    if is_manager:
-        delivery = (
-            db.session.query(Delivery)
-            .filter_by(supplier_id=supplier_id, id=delivery_id)
-            .first()
-        )
-        return render_template(
-            "delivery.html", supplier_id=delivery.supplier_id, delivery=delivery
-        )
+    is_chef = check_role(role_hash("chef"), current_user.web3_address)
+    is_waiter = check_role(role_hash("waiter"), current_user.web3_address)
+    if delivery_id==0:
+        if is_manager or is_chef or is_waiter:
+            delivery = db.session.query(Delivery).filter_by(id=supplier_id).filter_by(sent=False).first()
+            ingredients = []
+            if delivery != None:
+                for ingredient_quantity in delivery.ingredient_quantities:
+                    ingredient = (
+                        db.session.query(Ingredient)
+                        .filter_by(id=ingredient_quantity.ingredient_id)
+                        .first()
+                    )
+                    ingredients.append(ingredient)
+                return render_template(
+                    "delivery.html",
+                    delivery=delivery,
+                    ingredients=ingredients,
+                    is_manager=is_manager,
+                    is_chef=is_chef,
+                    )
+            else:
+                return render_template("delivery.html", supplier_id=supplier_id, delivery=None)
+        else:
+            return redirect(url_for("logout"))
     else:
-        return redirect(url_for("logout"))
+        delivery = db.session.query(Delivery).filter_by(id=delivery_id).first()
+        ingredients = []
+        if delivery != None:
+            for ingredient_quantity in delivery.ingredient_quantities:
+                ingredient = (
+                    db.session.query(Ingredient)
+                    .filter_by(id=ingredient_quantity.ingredient_id)
+                    .first()
+                )
+                ingredients.append(ingredient)
+            return render_template(
+                "placedorder.html",
+                placedorder=delivery,
+                ingredients=ingredients,
+                is_manager=is_manager,
+                is_chef=is_chef,
+                )
 
 
 @app.route(
-    "/manager/suppliers/<supplier_id>/deliveries/adddelivery", methods=["GET", "POST"]
+    "/manager/suppliers/<int:supplier_id>/deliveries/adddelivery", methods=["GET", "POST"]
 )
 @login_required
 def add_delivery(supplier_id):
-    is_owner = check_role(role_hash("owner"), current_user.web3_address)
-    has_roles = current_user.roles
+    is_manager = check_role(role_hash("manager"), current_user.web3_address)
+    is_chef = check_role(role_hash("chef"), current_user.web3_address)
+    is_waiter = check_role(role_hash("waiter"), current_user.web3_address)
     ingredients = db.session.query(Ingredient).filter_by(supplier_id=supplier_id).all()
-    if has_roles or is_owner:
+    if is_manager or is_chef or is_waiter:
         if request.method == "POST":
             delivery = Delivery(
                 supplier_id=supplier_id,
@@ -1146,92 +1264,6 @@ def set_manufactoredingredient_stock(ingredient_id):
         return {"success": True}
     else:
         return redirect(url_for("logout"))
-
-
-@app.route("/menu")
-def menu():
-    starters = (
-        db.session.query(ManufactoredIngredient)
-        .filter(
-            ManufactoredIngredient.sellable_item == True,
-            ManufactoredIngredient.kind == ItemKind(1),
-        )
-        .all()
-    )
-    mains = (
-        db.session.query(ManufactoredIngredient)
-        .filter_by(sellable_item=True)
-        .filter_by(kind=ItemKind.main)
-        .all()
-    )
-    desserts = (
-        db.session.query(ManufactoredIngredient)
-        .filter_by(sellable_item=True)
-        .filter_by(kind=ItemKind.dessert)
-        .all()
-    )
-    pizzas = (
-        db.session.query(ManufactoredIngredient)
-        .filter_by(sellable_item=True)
-        .filter_by(kind=ItemKind.pizza)
-        .all()
-    )
-    pastas = (
-        db.session.query(ManufactoredIngredient)
-        .filter_by(sellable_item=True)
-        .filter_by(kind=ItemKind.pasta)
-        .all()
-    )
-    water = (
-        db.session.query(ManufactoredIngredient)
-        .filter_by(sellable_item=True)
-        .filter_by(kind=ItemKind.water)
-        .all()
-    )
-    soft_drinks = (
-        db.session.query(ManufactoredIngredient)
-        .filter_by(sellable_item=True)
-        .filter_by(kind=ItemKind.soft_drinks)
-        .all()
-    )
-    juices = (
-        db.session.query(ManufactoredIngredient)
-        .filter_by(sellable_item=True)
-        .filter_by(kind=ItemKind.juice)
-        .all()
-    )
-    wines = (
-        db.session.query(ManufactoredIngredient)
-        .filter_by(sellable_item=True)
-        .filter_by(kind=ItemKind.wine)
-        .all()
-    )
-    beers = (
-        db.session.query(ManufactoredIngredient)
-        .filter_by(sellable_item=True)
-        .filter_by(kind=ItemKind.beer)
-        .all()
-    )
-    distillates = (
-        db.session.query(ManufactoredIngredient)
-        .filter_by(sellable_item=True)
-        .filter_by(kind=ItemKind.distillates)
-        .all()
-    )
-    return render_template(
-        "menu.html",
-        starters=starters,
-        mains=mains,
-        desserts=desserts,
-        pizzas=pizzas,
-        pastas=pastas,
-        water=water,
-        soft_drinks=soft_drinks,
-        juices=juices,
-        wines=wines,
-        beers=beers,
-        distillates=distillates,
-    )
 
 
 @app.route("/manager/placedorders/<int:order_id>/delete")
