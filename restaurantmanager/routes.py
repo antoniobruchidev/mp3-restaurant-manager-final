@@ -1232,3 +1232,16 @@ def menu():
         beers=beers,
         distillates=distillates,
     )
+
+
+@app.route("/manager/placedorders/<int:order_id>/delete")
+def delete_placedorder(order_id):
+    order = (
+        db.session.query(PlacedOrder)
+        .filter_by(id=order_id)
+        .one()
+    )
+    db.session.delete(order)
+    db.session.commit()
+    flash("Order deleted")
+    return redirect(url_for("dashboard"))

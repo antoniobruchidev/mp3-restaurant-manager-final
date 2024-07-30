@@ -1,4 +1,4 @@
-{% from 'macros.html' import display_reply, display_employee_menu_items %}
+{% from 'macros.html' import display_reply, display_employee_menu_items, display_messages %}
 {% extends "base.html" %}
 {% block headscripts %}
 <script>
@@ -25,6 +25,7 @@
 {% endif %}
 <hr>
 {{ display_employee_menu_items(is_manager,is_chef,is_waiter) }}
+{{ display_messages(messages) }}
 {% for my_message in my_messages  %}
 <div class="row">
     <div class="col s8 push-s1">

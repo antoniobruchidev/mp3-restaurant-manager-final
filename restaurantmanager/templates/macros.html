@@ -100,13 +100,10 @@
         <p><em>{{placed_order.dateTime}}</em></p>
       </div>
       <div class="card-action">
-        <a class="lime-text" href="#">Delete</a>
+        <a class="lime-text" href="{{url_for('delete_placedorder', order_id=placed_order.id)}}">Delete</a>
       </div>
       <div class="card-action">
         <a class="lime-text" href="{{ url_for('get_placedorder', supplier_id=placed_order.supplier_id, order_id=placed_order.id)}}">view/Update</a>
-      </div>
-      <div class="card-action">
-        <a class="lime-text" href="#">Send</a>
       </div>
     </div>
   </div>
@@ -215,23 +212,37 @@
 <a href="{{ url_for('get_all_recipes') }}">
   <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Recipes</button>
 </a>
+<a href="{{ url_for('logout') }}">
+  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Logout</button>
+</a>
 {% endif %}
-{% if is_chef %}
+{% if is_chef and not is_manager %}
 <a href="{{ url_for('get_all_recipes') }}">
   <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Recipes</button>
 </a>
 <a href="{{ url_for('create_recipe') }}">
   <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Create Recipe</button>
 </a>
-<a href="{{ url_for('get_suppliers') }}">
-  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Suppliers</button>
+<a href="{{ url_for('add_delivery') }}">
+  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Add Delivery</button>
 </a>
-{% endif %}
-{% if is_waiter %}
-<a href="{{ url_for('get_suppliers') }}">
-  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Suppliers</button>
+<a href="{{ url_for('add_wastages') }}">
+  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Add Wastages</button>
 </a>
-{% endif %}
+  <a href="{{ url_for('messageboard') }}">
+    <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Messageboard</button>
+  </a>
+  <a href="{{ url_for('logout') }}">
+    <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Logout</button>
+  </a>
+  {% endif %}
+{% if is_waiter and not is_manager %}
+<a href="{{ url_for('add_delivery') }}">
+  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Add Delivery</button>
+</a>
+<a href="{{ url_for('add_wastages') }}">
+  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Add Wastages</button>
+</a>
 <a href="{{ url_for('messageboard') }}">
   <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Messageboard</button>
 </a>
@@ -239,4 +250,5 @@
   <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Logout</button>
 </a>
 <hr>
+{% endif %}
 {% endmacro %}

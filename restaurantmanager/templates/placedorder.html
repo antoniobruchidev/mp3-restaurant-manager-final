@@ -17,8 +17,8 @@
 <a href="{{ url_for('dashboard') }}">
   <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Dashboard</button>
 </a>
-<a href="{{ url_for('get_supplier', supplier_id=supplier.id) }}">
-  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Back to supplier</button>
+<a href="{{ url_for('get_placedorders', supplier_id=placedorder.supplier_id) }}">
+  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Back to placedorders</button>
 </a>
 <a href="{{ url_for('logout') }}">
   <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Logout</button>

@@ -13,18 +13,23 @@ The platform targets any company in the hospitality industry. The application is
 The platform will be designed to use preparation and deliveries record to increse the inventory and wastage and orders to reduce it. It will also track the company's sales and showcase which dishes are the most popular.
 
 ### User Stories
-- As an UNREGISTERED USER, I want the platform to be intuitive.
-- As an UNREGISTERED USER, I want to be able to view the menu.
-- As an UNREGISTERED USER, I want to be able to know the ingredients of the dishes.
-- As an UNREGISTERED USER, I want to be able to place an order.
-- As an UNREGISTERED USER, I want to be able to update or delete an order.
-- As an USER, I want to be able to do everything a not registered user can.
-- As an USER, I want to be able to view my invoice.
-- As an USER, I want to be able to view my previous orders.
-- As an USER, I want to be able to pay for my order.
+- As an USER, I want the platform to be intuitive.
 - As an EMPLOYEE(WAITER, CHEF and MANAGER), I want the platform to be easy of use.
+- As a MANAGER, I want to be able to hire and fire CHEFS and WAITERS.
+- As a Manager, I wawnt to be able to add suppliers and ingredients.
+- As a MANAGER, I want to keep track of stock levels.
+- As a Manager, I want to be able to place orders.
+- As a Manager, I want to be able to add items to the order but send it later.
+- As a MANAGER, I want to be able to track deliveries and their related info.
+- As a MANAGER, I want CHEFS and WAITERS to be able to do wastage reports and add deliveries.
+- As a CHEF, I want to be able to create recipes with the ingredients at hand.
+- As a CHEF, I want to be able to change my recipes.
+- As a MANAGER, I want to be able to price the recipe that will go in the menu.
+- As a CHEF, I want to be able to prepare the recipes (for future revisions it'd be nice a labeling system for the manufactured ingredients).
+- As a MAANAGER, I want the platform to increase and decrease stock levels depending on wastage reports, sales, deliveries and preparations.
+- As a MANAGER, I want to be able to manually reset the stock level as in a stock take.
 - As an OWNER, I want the platform to integrate Web3 and blockchain technology, at least for authentication process. Accepting payments would be optimal.
-- As another OWNER, I'm afraid of technology and I want to have nothing to do with new stuff, every platform feature MUST also work without any additional extension.
+- As another OWNER, I'm afraid of technology and I want to have nothing to do with new stuff, every platform feature MUST also work without any additional extension that is not Google...
 
 ### Strategy
 The goal of this project is to create a platform that interacts with users and employees letting them access a variety of CRUD operations depending on their role.
