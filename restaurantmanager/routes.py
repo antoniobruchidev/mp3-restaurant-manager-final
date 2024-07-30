@@ -84,7 +84,7 @@ def load_user(user_id):
 
 @app.route("/")
 def home():
-    return render_template("home.html")
+    return render_template("menu.html", logged_out=True)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -139,7 +139,7 @@ def login():
             else:
                 return redirect(url_for("login"))
 
-    return render_template("login.html", g_client_id=g_client_id)
+    return render_template("login.html", g_client_id=g_client_id, logged_out=True)
 
 
 @app.route("/dashboard")
@@ -441,24 +441,55 @@ def get_placedorders(supplier_id):
         return redirect(url_for("logout"))
 
 
-@app.route("/manager/suppliers/<supplier_id>/placedorders/<order_id>")
+@app.route("/manager/suppliers/<int:supplier_id>/placedorders/<int:order_id>/view-placedorder")
 @login_required
 def get_placedorder(supplier_id, order_id):
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
-    if is_manager:
-        order = (
-            db.session.query(PlacedOrder)
-            .filter_by(supplier_id=supplier_id, id=order_id)
-            .first()
-        )
-        return render_template(
-            "placedorder.html", supplier_id=order.supplier_id, order=order
-        )
+    is_chef = check_role(role_hash("chef"), current_user.web3_address)
+    if order_id==0:
+        if is_manager or is_chef:
+            placedorder = db.session.query(PlacedOrder).filter_by(id=supplier_id).filter_by(sent=False).first()
+            ingredients = []
+            if placedorder != None:
+                for ingredient_quantity in placedorder.ingredient_quantities:
+                    ingredient = (
+                        db.session.query(Ingredient)
+                        .filter_by(id=ingredient_quantity.ingredient_id)
+                        .first()
+                    )
+                    ingredients.append(ingredient)
+                return render_template(
+                    "placedorder.html",
+                    placedorder=placedorder,
+                    ingredients=ingredients,
+                    is_manager=is_manager,
+                    is_chef=is_chef,
+                    )
+            else:
+                return render_template("placedorder.html", supplier_id=supplier_id, placedorder=None)
+        else:
+            return redirect(url_for("logout"))
     else:
-        return redirect(url_for("logout"))
+        placedorder = db.session.query(PlacedOrder).filter_by(id=order_id).first()
+        ingredients = []
+        if placedorder != None:
+            for ingredient_quantity in placedorder.ingredient_quantities:
+                ingredient = (
+                    db.session.query(Ingredient)
+                    .filter_by(id=ingredient_quantity.ingredient_id)
+                    .first()
+                )
+                ingredients.append(ingredient)
+            return render_template(
+                "placedorder.html",
+                placedorder=placedorder,
+                ingredients=ingredients,
+                is_manager=is_manager,
+                is_chef=is_chef,
+                )
 
 
-@app.route("/manager/suppliers/<supplier_id>/placedorders/<order_id>/send")
+@app.route("/manager/suppliers/<supplier_id>/placedorders/<order_id>/send", methods=['POST'])
 @login_required
 def send_order(supplier_id, order_id):
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
@@ -466,34 +497,33 @@ def send_order(supplier_id, order_id):
         order = db.session.query(PlacedOrder).filter_by(id=order_id).first()
         order.sent = True
         # TODO: send order to supplier via email
+        db.session.add(order)
         db.session.commit()
-        flash("Order sent to supplier")
-        return redirect(url_for("get_placedorders", supplier_id=supplier_id))
+        return {"success": True}
     else:
         return redirect(url_for("logout"))
 
 
-@app.route(
-    "/manager/suppliers/<int:supplier_id>/placedorders/addorder", methods=["GET", "POST"]
-)
+@app.route("/manager/suppliers/<supplier_id>/add_to_order", methods=['POST'])
 @login_required
-def place_order(supplier_id):
+def add_to_order(supplier_id):
+    is_chef = check_role(role_hash("chef"), current_user.web3_address)
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
-    ingredients = db.session.query(Ingredient).filter_by(supplier_id=supplier_id).all()
-    if is_manager:
+    if is_manager or is_chef:
         if request.method == "POST":
-            placed_order = PlacedOrder(
-                supplier_id=supplier_id, dateTime=datetime.datetime.now()
-            )
-            db.session.add(placed_order)
-            keys = request.form.keys()
-            ingredient_quantity = get_ingredient_quantity_from_form(keys, request.form)
-            assert append_ingredient_quantity(ingredient_quantity, placed_order)
+            open_order = db.session.query(PlacedOrder).filter_by(supplier_id=supplier_id).filter_by(sent=False).first()
+            if open_order == None:
+                open_order = PlacedOrder(supplier_id=supplier_id, sent=False, dateTime=datetime.datetime.now())
+            db.session.add(open_order)
             db.session.commit()
-            flash("Order placed successfully")
+            print(request.form.keys())
+            open_order = db.session.query(PlacedOrder).filter_by(supplier_id=supplier_id).filter_by(sent=False).first()
+            ingredient_quantites = get_ingredient_quantity_from_form(request.form.keys(), request.form)
+            print(ingredient_quantites)
+            assert append_ingredient_quantity(ingredient_quantites, open_order)
+            db.session.commit()
+            flash("Item added to order successfully")
             return {"success": True}
-        else:
-            return render_template("placeorder.html", ingredients=ingredients)
     else:
         return redirect(url_for("logout"))
 
@@ -612,7 +642,6 @@ def get_recipe(recipe_id):
                 .first()
             )
             ingredients.append(ingredient)
-            print(ingredient)
         for (
             manufactored_ingredient_quantity
         ) in recipe.manufactoredingredient_quantities:
@@ -685,6 +714,7 @@ def edit_recipe(recipe_id):
 
 
 @app.route("/manager/stockmanagement")
+@login_required
 def stockmanagement():
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
     if is_manager:
@@ -782,7 +812,7 @@ def register():
         db.session.commit()
         return {"success": True}
     form = request.form
-    return render_template("register.html", form=form, g_client_id=g_client_id)
+    return render_template("register.html", form=form, g_client_id=g_client_id, logged_out=True)
 
 
 @app.route("/activate/<web3_address>")
@@ -826,6 +856,7 @@ def get_ingredient_data(id):
         "ingredient_id": ingredient.id,
         "description": ingredient.description,
         "stock": ingredient.stock_in_weight,
+        "supplier_id": ingredient.supplier_id,
     }
     related_ingredientquantities = (
         db.session.query(IngredientQuantity).filter_by(ingredient_id=id).all()
@@ -848,6 +879,7 @@ def get_ingredient_data(id):
             .all()
         )
         for placedorder in related_placedorders:
+            print(placedorder, placedorder.placedorder_id)
             if placedorder != None:
                 placedorder_ids.append(placedorder.placedorder_id)
     delivery_ids = []
@@ -870,6 +902,11 @@ def get_ingredient_data(id):
         for related_stockmovement in related_stockmovements:
             if related_stockmovement != None:
                 stockmovement_ids.append(related_stockmovement.stockmovement_id)
+    print(recipe_ids, placedorder_ids, delivery_ids, stockmovement_ids)
+    recipe_ids = list(set(recipe_ids))
+    placedorder_ids = list(set(placedorder_ids))
+    delivery_ids = list(set(delivery_ids))
+    stockmovement_ids = list(set(stockmovement_ids))
     ingredient_related_recipes_data = get_ingredient_related_recipes(recipe_ids)
     ingredient_related_placeorders_data = get_ingredient_related_placedorders(
         placedorder_ids
@@ -880,6 +917,7 @@ def get_ingredient_data(id):
         ingredient_related_preparations_data,
         ingredient_related_stock_takes_data,
     ) = get_ingredient_related_stockmovements(stockmovement_ids)
+    print(recipe_ids, placedorder_ids, delivery_ids, stockmovement_ids)
     return {
         "ingredient": ingredient_data,
         "recipes": ingredient_related_recipes_data,
@@ -893,11 +931,13 @@ def get_ingredient_data(id):
 @app.route("/api/manufactoredingredients/<int:id>/get_ingredient_data")
 def get_manufactored_ingredient_data(id):
     ingredient = db.session.query(ManufactoredIngredient).filter_by(id=id).first()
+    recipe = db.session.query(Recipe).filter_by(recipe_for=ingredient.id).first()
     ingredient_data = {
         "name": ingredient.name,
         "manufactored_ingredient_id": ingredient.id,
         "description": ingredient.description,
         "stock": ingredient.stock_in_portions,
+        "recipe": recipe.id
     }
     related_ingredientquantities = (
         db.session.query(ManufactoredIngredientQuantity)
@@ -1047,7 +1087,6 @@ def add_preparation(recipe_id):
 @login_required
 def set_ingredient_stock(ingredient_id):
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
-    print(request)
     if is_manager:
         ingredient = db.session.query(Ingredient).filter_by(id=ingredient_id).first()
         ingredient.stock_in_weight = int(request.form["stock"])
@@ -1067,7 +1106,7 @@ def set_ingredient_stock(ingredient_id):
         )
         ingredient_quantities = [
             {
-                "manufactored_ingredient_id": ingredient_id,
+                "ingredient_id": ingredient_id,
                 "quantity": int(request.form["stock"]),
             }
         ]
@@ -1083,8 +1122,6 @@ def set_ingredient_stock(ingredient_id):
 @login_required
 def set_manufactoredingredient_stock(ingredient_id):
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
-    print(ingredient_id)
-    print(request.form)
     if is_manager:
         ingredient = (
             db.session.query(ManufactoredIngredient).filter_by(id=ingredient_id).first()

@@ -16,7 +16,7 @@ em {
   font-size: smaller;
 }
 
-#update_stock, #stock_take {
+#update_stock, #stock_take, #add_to_order, #go_to {
   min-height: 50px;
 }
 

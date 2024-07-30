@@ -383,7 +383,24 @@ const submitHireForm = async () =>  {
   } catch (e) {
     console.error(e);
   }
+}
 
+const submitOrderForm = async () => {
+  const form = document.getElementById('send-order');
+  const formData = new FormData(form);
+  try {
+    const response = await fetch("/manager/suppliers/"+supplierId+"/placedorders/"+orderId+"/send",  {
+      method: "POST",
+      // Set the FormData instance as the request body
+      body: formData,
+    })
+    const data = await response.json();
+    if (data.success) {
+      window.location.href = "/manager/stockmanagement";
+    }
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 let recipes;
@@ -394,6 +411,7 @@ let wastages;
 let stockTakes
 let preparations;
 let ingredient;
+let manufactored_ingredient;
 var tabsInstance;
 
 const getIngredientData = async (ingredient_id) => {
@@ -414,6 +432,9 @@ const getIngredientData = async (ingredient_id) => {
     var instance = M.Tabs.getInstance(tabs)
     instance.select("recipes")
     displayIngredientData()
+    $('#go_to').attr('disabled', true)
+    $('#add_to_order').attr('disabled', false)
+    $('#add_to_order').on('click', addToOrder)
   } catch (error) {
     
   }
@@ -430,38 +451,39 @@ const getManufactoredIngredientData = async (ingredient_id) => {
     wastages = createRelatedWastageRecords(await data['wastages'])
     preparations = createRelatedPreparationRecords(await data['preparations'])
     stockTakes = createRelatedStockTakeRecords(await data['stock_takes'])
-    ingredient = await data['ingredient']
+    manufacoted_ingredient = await data['ingredient']
     deliveries = undefined
     placedorders = undefined
     const tabs = document.getElementById('tabs')
     var instance = M.Tabs.getInstance(tabs)
     instance.select("recipes")
     displayIngredientData()
+    $('#add_to_order').attr('disabled', true)
+    $('#go_to').attr('disabled', false)
+    $('#go_to').on('click', goToRecipe)
+
   } catch (error) {
     
   }
 }
 
+const goToRecipe = () => {
+  window.location.href = "/manager/recipes/" + ingredient['recipe']
+}
+
 const displayIngredientData = () => {
   $('#name').html(ingredient.name)
   $('#description').html(ingredient.description)
-  $('#stock').attr('disabled', false)
   $('#stock').parent().find("label").addClass('active')
-  $('#stock').attr('disabled', true)
   $('#stock').val(Number(ingredient.stock))
-  $('#update_stock').on('click', () => {
-    $('#stock').attr('disabled', false)
-    $('#stock_take').attr('disabled', false)
-    $('#update_stock').attr('disabled', true)
-    $('#stock_take').on('click',  () => {
-      // function to update stock
-    })
-  })
+  $('#stock').attr('disabled', false)
 }
 const switchGetIngredientData = (val) => {
   const is_manufactored = val.split('.')[0]
   const ingredient_id = val.split('.')[1].split(' ')[0]
   const ingredient_name = val.split('.')[1].split(' - ')[1]
+  $('#stock_take').attr('disabled', false)
+  $('#stock_take').on('click', switchSetStock)
   if (window.location.pathname == "/manager/stockmanagement") {
     if (is_manufactored == "I")  {
       getIngredientData(ingredient_id)
@@ -633,7 +655,7 @@ const createRelatedPlacedOrderRecords = (data) => {
     for (let placedorder of data) {
     let anchor = document.createElement('a')
     anchor.classList.add('collection-item')
-    anchor.href = '/manager/suppliers/' + placedorder.supplier_id + "/placedorders/" + placedorder.id
+    anchor.href = '/manager/suppliers/' + placedorder.supplier_id + "/placedorders/" + placedorder.id + "/view-placedorder"
     anchor.innerHTML = 'Id: ' + placedorder.id + ' -  Date: ' + placedorder.date + '  -  Quantity: ' + placedorder.quantity
     dataDiv.appendChild(anchor)
   }
@@ -686,6 +708,7 @@ const getIngredients = async () => {
         limit: 7, // The max amount of results that can be shown at once. Default: Infinity.
         onAutocomplete: function (val) {
             switchGetIngredientData(val)
+
           },
         minLength: 1, // The minimum length of the input for the autocomplete to start. Default: 1.
         });
@@ -793,12 +816,38 @@ $(document).ready(function () {
   } else if (window.location.pathname == '/manager/addemployee'){
     getUsers();
     $('#submitform').on('click', submitHireForm);
+  } else if (window.location.pathname.includes('view-placedorder')) {
+    $('#submitform').on('click', submitOrderForm);
   }
 });
 
+const addToOrder = async () => {
+  const form = document.getElementById('ingredient_quantity_form')
+  const formData = new FormData(form)
+  const quantity = formData.get('stock')
+  formData.append('ingredient_quantity_'+ingredient['ingredient_id'], quantity)
+
+  try  {
+    const response 
+    = await fetch("/manager/suppliers/"+ingredient['supplier_id']+"/add_to_order",{
+      method: 'POST',
+      body: formData
+    })
+    const data 
+    = await response.json()
+    console.log(data)
+    if  (data.success)  {
+      window.location.href = '/manager/stockmanagement'
+    }
+  } catch  (error)  {
+    console.log(error)
+  }
+}
+
 const stockTakeIngredient = async () => {
   const id = ingredient.ingredient_id
-  const form = document.getElementById('stock_take_form')
+  console.log(id)
+  const form = document.getElementById('ingredient_quantity_form')
   const formData = new FormData(form)
   console.log(formData)
   try {
@@ -806,10 +855,10 @@ const stockTakeIngredient = async () => {
       method: 'POST',
       body: formData
     })
-    console.log(formData)
     const data = await response.json()
     if(data.success) {
       window.location.reload()
+      console.log(formData)
     }
   } catch (error) {
     
@@ -817,8 +866,8 @@ const stockTakeIngredient = async () => {
 }
 
 const stockTakeManufactoredIngredient = async () => {
-  const id = ingredient.manufactored_ingredient_id
-  const form = document.getElementById('stock_take_form')
+  const id = manufactored_ingredient.manufactored_ingredient_id
+  const form = document.getElementById('ingredient_quantity_form')
   const formData = new FormData(form)
   console.log(formData)
   try {
@@ -829,14 +878,16 @@ const stockTakeManufactoredIngredient = async () => {
     const data = await response.json()
     if(data.success) {
       window.location.reload()
+      console.log(formData)
     }
   } catch (error) {
     
   }
 }
 
+  
 const switchSetStock = () => {
-  if(ingredient.manufactored == false) {
+  if(ingredient != undefined) {
     stockTakeIngredient()
   } else {
     stockTakeManufactoredIngredient()

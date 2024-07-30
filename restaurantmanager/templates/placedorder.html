@@ -1,7 +1,31 @@
-{% from 'macros.html' import display_placed_order, display_messages %}
+{% from 'macros.html' import display_table_ingredient_quantities, display_messages %}
 {% extends "base.html" %}
+{% block headscripts %}
+<script>
+    const supplierId = "{{ placedorder.supplier_id }}"
+    const orderId = "{{ placedorder.id }}"
+</script>
+{% endblock %}
 {% block content %}
 <h1 class="center-align">
-    order Page
+{% if placedorder %}
+    Order: {{ placedorder.id }}
+{% else %}
+    New order
+{% endif %}
 </h1>
+<hr>
+{{ display_messages(messages) }}
+<div class="container">
+    <form action="" id="send-order"></form>
+    {{ display_table_ingredient_quantities(ingredients, placedorder.ingredient_quantities) }}
+    </form>
+    <hr>
+    {% if placedorder.sent %}
+    <button class="btn waves-effect waves-light" id="submitform" disabled>Sent</button>
+    {% else  %}
+    <button class="btn waves-effect waves-light" id="submitform">Send</button>
+    {% endif  %}
+        {{ display_messages(messages) }}
+</div>
 {% endblock %}

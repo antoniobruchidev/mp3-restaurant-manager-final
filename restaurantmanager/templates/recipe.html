@@ -1,4 +1,4 @@
-{% from 'macros.html' import display_recipe_ingredient_quantities, display_recipe_manufactored_ingredient_quantities, display_messages %}
+{% from 'macros.html' import display_table_ingredient_quantities, display_table_manufactored_ingredient_quantities, display_messages %}
 {% extends "base.html" %}
 {% block headscripts %}
 <script>
@@ -75,11 +75,11 @@
         </div>
         <div class="col s6" id="ingredients">
             <h5> Ingredients</h5>
-            {{ display_recipe_ingredient_quantities(ingredients, recipe.ingredient_quantities) }}    
+            {{ display_table_ingredient_quantities(ingredients, recipe.ingredient_quantities) }}    
         </div>
         <div class="col s6" id="manufactoredIngredients">
             <h5>Manufactored ingredients</h5>
-            {{ display_recipe_manufactored_ingredient_quantities(manufactored_ingredients, recipe.manufactoredingredient_quantities) }}
+            {{ display_table_manufactored_ingredient_quantities(manufactored_ingredients, recipe.manufactoredingredient_quantities) }}
         </div>
     </div>
 </form>
