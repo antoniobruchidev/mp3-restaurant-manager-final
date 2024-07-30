@@ -666,8 +666,8 @@ def get_delivery(supplier_id, delivery_id):
                 )
                 ingredients.append(ingredient)
             return render_template(
-                "placedorder.html",
-                placedorder=delivery,
+                "delivery.html",
+                delivery=delivery,
                 ingredients=ingredients,
                 is_manager=is_manager,
                 is_chef=is_chef,

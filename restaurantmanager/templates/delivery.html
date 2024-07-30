@@ -1,4 +1,4 @@
-{% from 'macros.html' import display_placed_order, display_messages, display_employee_menu_items %}
+{% from 'macros.html' import display_placed_order, display_messages, display_employee_menu_items, display_table_ingredient_quantities %}
 {% extends "base.html" %}
 {% block content %}
 <h1 class="center-align">
@@ -7,8 +7,8 @@
 <a href="{{ url_for('dashboard') }}">
   <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Dashboard</button>
 </a>
-<a href="{{ url_for('get_all_deliveries', supplier_id=placedorder.supplier_id) }}">
-  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Back to pdeliveries</button>
+<a href="{{ url_for('get_all_deliveries', supplier_id=delivery.supplier_id) }}">
+  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Back to deliveries</button>
 </a>
 <a href="{{ url_for('logout') }}">
   <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Logout</button>
@@ -17,7 +17,7 @@
 {{ display_messages(messages) }}
 <div class="container">
     <form action="" id="delivery"></form>
-    {{ display_table_ingredient_quantities(ingredients, placedorder.ingredient_quantities) }}
+    {{ display_table_ingredient_quantities(ingredients, delivery.ingredient_quantities) }}
     </form>
     <hr>
 </div>
