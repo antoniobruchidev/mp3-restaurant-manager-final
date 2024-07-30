@@ -1,6 +1,18 @@
 {% from 'macros.html' import display_messages %}
 {% extends "base.html" %}
 {% block content %}
+<h1 class="center-align">Grant role</h1>
+
+<a href="{{ url_for('dashboard') }}">
+  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Dashboard</button>
+</a>
+<a href="{{ url_for('get_employees') }}">
+  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Back to staff</button>
+</a>
+<a href="{{ url_for('logout') }}">
+  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Logout</button>
+</a>
+<hr>
 {{ display_messages(messages) }}
 <div class="row">
     <div class="col s12">
@@ -13,8 +25,8 @@
         </div>
     </div>
     <div class="col s12 m6">
-        <div class="card blue-grey darken-1">
-          <div class="card-content white-text">
+        <div class="card brown darken-4">
+          <div class="card-content lime-text text-lighten-4">
             <span class="card-title"></span>
             <p>ID: <span id="user-id"></span></p>
           </div>
@@ -38,5 +50,4 @@
     <button class="btn waves-effect waves-light brown darken-4 lime-text text-lighten-4" id="submitform">Hire</button>
 </div>
 <br>
-<a href="{{ url_for('dashboard') }}" class="brown-text text-darken-3">Dashboard</a>
 {% endblock %}

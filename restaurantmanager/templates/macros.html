@@ -49,16 +49,16 @@
 {% for board_message in board_messages %}
 <div class="row">
   <div class="col s8 push-s1">
-    <div class="card blue-grey darken-1">
-      <div class="card-content white-text">
+    <div class="card  brown darken-4">
+      <div class="card-content lime-text text-lighten-4">
         <span class="card-title">Subject {{board_message.subject}}</span>
         <p><em>{{board_message.sender_id}} @ {{board_message.board}}</em></p>
         <p><em>{{board_message.timestamp}}</em></p>
         <p>{{board_message.message}}</p>
       </div>
       <div class="card-action">
-        <a href="#">Delete</a>
-        <a href="{{ url_for('answer_message', message_id=board_message.id) }}">Answer</a>
+        <a class="lime-text" href="#">Delete</a>
+        <a class="lime-text" href="{{ url_for('answer_message', message_id=board_message.id) }}">Answer</a>
       </div>
     </div>
   </div>
@@ -73,14 +73,14 @@
 {% for reply in board_message.replies %}
 <div class="row">
   <div class="col s8 push-s3">
-    <div class="card blue-grey darken-1">
-      <div class="card-content white-text">
+    <div class="card brown darken-4">
+      <div class="card-content lime-text text-lighten-4">
         <span class="card-title">Answer to: {{board_message.subject}}</span>
         <p><em>{{reply.timestamp}}</em></p>
         <p>{{reply.reply}}</p>
       </div>
       <div class="card-action">
-        <a href="#">Delete</a>
+        <a class="lime-text" href="#">Delete</a>
       </div>
     </div>
   </div>
@@ -94,19 +94,19 @@
 {% for placed_order in placed_orders %}
 <div class="row">
   <div class="col s8 push-s3">
-    <div class="card blue-grey darken-1">
-      <div class="card-content white-text">
+    <div class="card brown darken-4">
+      <div class="card-content lime-text text-lighten-4">
         <span class="card-title">From supplier: {{ placed_order.supplier_id }}</span>
         <p><em>{{placed_order.dateTime}}</em></p>
       </div>
       <div class="card-action">
-        <a href="#">Delete</a>
+        <a class="lime-text" href="#">Delete</a>
       </div>
       <div class="card-action">
-        <a href="{{ url_for('get_placedorder', supplier_id=placed_order.supplier_id, order_id=placed_order.id)}}">view/Update</a>
+        <a class="lime-text" href="{{ url_for('get_placedorder', supplier_id=placed_order.supplier_id, order_id=placed_order.id)}}">view/Update</a>
       </div>
       <div class="card-action">
-        <a href="#">Send</a>
+        <a class="lime-text" href="#">Send</a>
       </div>
     </div>
   </div>
@@ -119,13 +119,13 @@
 {% for delivery in deliveries %}
 <div class="row">
   <div class="col s8 push-s3">
-    <div class="card blue-grey darken-1">
-      <div class="card-content white-text">
+    <div class="card brown darken-4">
+      <div class="card-content lime-text text-lighten-4">
         <span class="card-title">From supplier: {{ delivery.supplier_id }}</span>
         <p><em>{{delivery.date}}</em></p>
       </div>
       <div class="card-action">
-        <a href="{{ url_for('get_delivery', supplier_id=delivery.supplier_id, delivery_id=delivery.id)}}">View</a>
+        <a class="lime-text" href="{{ url_for('get_delivery', supplier_id=delivery.supplier_id, delivery_id=delivery.id)}}">View</a>
       </div>
     </div>
   </div>
@@ -138,14 +138,14 @@
 {% for recipe in recipes %}
 {% set recipe_for = recipes_for[recipes.index(recipe)] %}
 <div class="row">
-  <div class="col s8 push-s3">
-    <div class="card blue-grey darken-1">
-      <div class="card-content white-text">
+  <div class="col s8 push-s2">
+    <div class="card brown darken-4">
+      <div class="card-content lime-text text-lighten-4">
         <span class="card-title">{{ recipe_for.name }}</span>
         <p><em>{{recipe_for.description}}</em></p>
       </div>
       <div class="card-action">
-        <a href="{{ url_for('get_recipe', recipe_id=recipe.id)}}">View</a>
+        <a class="lime-text" href="{{ url_for('get_recipe', recipe_id=recipe.id)}}">View</a>
       </div>
     </div>
   </div>
@@ -219,6 +219,9 @@
 {% if is_chef %}
 <a href="{{ url_for('get_all_recipes') }}">
   <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Recipes</button>
+</a>
+<a href="{{ url_for('create_recipe') }}">
+  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Create Recipe</button>
 </a>
 <a href="{{ url_for('get_suppliers') }}">
   <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Suppliers</button>

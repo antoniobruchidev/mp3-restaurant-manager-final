@@ -14,6 +14,15 @@
     New order
 {% endif %}
 </h1>
+<a href="{{ url_for('dashboard') }}">
+  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Dashboard</button>
+</a>
+<a href="{{ url_for('get_supplier', supplier_id=supplier.id) }}">
+  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Back to supplier</button>
+</a>
+<a href="{{ url_for('logout') }}">
+  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Logout</button>
+</a>
 <hr>
 {{ display_messages(messages) }}
 <div class="container">

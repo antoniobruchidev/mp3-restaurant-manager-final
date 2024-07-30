@@ -1,20 +1,42 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Supplier: {{ supplier.name }}</h1>
-<p>Email:  {{ supplier.email }}</p>
-{% for ingredient in ingredients  %}
-<hr>
-<p>Item ID: {{ ingredient.id }}</p>
-<p>Item Name:  {{ ingredient.name  }}</p>
-<p>Desc: {{ ingredient.description }}</p>
-<p>stock:  {{ ingredient.stock_in_weight }}</p>
-{% endfor %}
-<hr>
-<a href="{{ url_for('get_suppliers') }}">Suppliers</a>
+<a href="{{ url_for('get_suppliers') }}">
+    <button class="btn waves-effect waves-light brown darken-4 lime-text text-lighten-4">
+        Suppliers
+    </button>
+</a>
+<a href="{{ url_for('add_ingredient', supplier_id=supplier.id) }}">
+    <button class="btn waves-effect waves-light brown darken-4 lime-text text-lighten-4">
+        Add ingredient
+    </button>
+</a>
+<a href="{{ url_for('dashboard') }}">
+    <button class="btn waves-effect waves-light brown darken-4 lime-text text-lighten-4">
+        Dashboard
+    </button>
+</a>
+<a href="{{ url_for('logout') }}">
+    <button class="btn waves-effect waves-light brown darken-4 lime-text text-lighten-4">
+        Logout
+    </button>
+</a>
 <br>
-<a href="{{ url_for('add_ingredient', supplier_id=supplier.id) }}">Add Item</a>
-<br>
-<a href="{{ url_for('messageboard') }}">Message Board</a>
-<br>
-<a href="{{ url_for('logout') }}">Logout</a>
+<div class="container">
+    <div class="row">
+        <div class="col s12">
+            <h1 class="center-align">Supplier: {{ supplier.name }}</h1>
+        </div>
+        <div class="col s12">
+            <p>Email: {{ supplier.email }}</p>
+            <p>Info: {{ supplier.info}} </p>
+        </div>
+        <ul class="collection col s8 push-s2">
+
+            {% for ingredient in ingredients %}
+            <li class="collection-item brown darken-2 lime-text text-lighten-5">{{ ingredient.name }} - stock in grams: {{ ingredient.stock_in_weight }}</a>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
 {% endblock %}

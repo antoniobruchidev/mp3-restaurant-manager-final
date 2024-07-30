@@ -2,15 +2,18 @@
 {% extends "base.html" %}
 {% block content %}
 <h1 class="center-align">
-    Add Ingredient Page
+    Add Ingredient
 </h1>
+<hr>
+<a href="{{ url_for('dashboard') }}">
+    <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Dashboard</button>
+</a>
+<br>
 {{ display_messages(messages) }}
 <form method="POST" action="{{ url_for('add_ingredient', supplier_id=supplier_id)}}">
     {{ form.hidden_tag() }}
-    {{ form.name }}
-    {{ form.supplier_id  }}
+    {{ form.name(placeholder="Ingredient Name")  }}
+    {{ form.supplier_id(value=supplier_id)   }}
     {{ form.submit }}
 </form>
-<hr>
-<a href="{{ url_for('dashboard') }}">Dashboard</a>
 {% endblock %}

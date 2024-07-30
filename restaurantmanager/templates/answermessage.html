@@ -1,8 +1,10 @@
+{% from 'macros.html' import display_employee_menu_items}
 {% extends "base.html" %}
 {% block content %}
 <h1 class="center-align">
-    Answer message Page
+    Answer message
 </h1>
+{{ display_employee_menu_items(is_manager, is_chef, is_waiter) }}
 <form method="POST" action="">
     {{ form.hidden_tag() }}
     {{ form.answer }}

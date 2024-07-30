@@ -223,12 +223,15 @@ def messageboard():
         + public_messages
     )
 
-    return render_template("messageboard.html", board_messages=board_messages)
+    return render_template("messageboard.html", board_messages=board_messages, is_manager=is_manager, is_chef=is_chef, is_waiter=is_waiter)
 
 
 @app.route("/messageboards/sendmessage", methods=["GET", "POST"])
 @login_required
 def sendmessage():
+    is_manager = check_role(role_hash("manager"), current_user.web3_address)
+    is_chef = check_role(role_hash("chef"), current_user.web3_address)
+    is_waiter = check_role(role_hash("waiter"), current_user.web3_address)
     date = datetime.datetime.now()
     form = CreateMessageForm()
     if form.validate_on_submit():
@@ -242,12 +245,15 @@ def sendmessage():
         db.session.add(message)
         db.session.commit()
         return redirect(url_for("dashboard"))
-    return render_template("sendmessage.html", form=form)
+    return render_template("sendmessage.html", form=form, is_manager=is_manager, is_chef=is_chef, is_waiter=is_waiter)
 
 
 @app.route("/messageboards/<int:message_id>/answer", methods=["GET", "POST"])
 @login_required
 def answer_message(message_id):
+    is_manager = check_role(role_hash("manager"), current_user.web3_address)
+    is_chef = check_role(role_hash("chef"), current_user.web3_address)
+    is_waiter = check_role(role_hash("waiter"), current_user.web3_address)
     board_message = db.session.query(BoardMessage).filter_by(id=message_id).first()
     if board_message:
         date = datetime.datetime.now()
@@ -262,7 +268,7 @@ def answer_message(message_id):
             db.session.commit()
             flash("Your reply has been sent")
             return redirect(url_for("messageboard"))
-        return render_template("answermessage.html", form=form)
+        return render_template("answermessage.html", form=form,is_manager=is_manager,is_chef=is_chef,is_waiter=is_waiter)
     else:
         flash("You cannot answer this message")
         return redirect(url_for("messageboard"))
@@ -321,7 +327,7 @@ def add_employee():
             flash("success", "Account created successfully")
             return {"success": True}
         return render_template(
-            "addemployee.html", is_owner=is_owner)
+            "addemployee.html", is_owner=is_owner, is_manager=is_manager)
     else:
         return redirect(url_for("logout"))
 
@@ -341,7 +347,7 @@ def get_suppliers():
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
     if is_manager:
         suppliers = db.session.query(Supplier).all()
-        return render_template("suppliers.html", suppliers=suppliers)
+        return render_template("suppliers.html", suppliers=suppliers, is_manager=is_manager)
     else:
         return redirect(url_for("logout"))
 
@@ -356,7 +362,7 @@ def get_supplier(supplier_id):
             db.session.query(Ingredient).filter_by(supplier_id=supplier_id).all()
         )
         return render_template(
-            "supplier.html", supplier=supplier, ingredients=ingredients
+            "supplier.html", supplier=supplier, ingredients=ingredients, is_manager=is_manager
         )
     else:
         return redirect(url_for("logout"))
@@ -375,7 +381,7 @@ def add_supplier():
             db.session.add(supplier)
             db.session.commit()
             return redirect(url_for("get_suppliers"))
-        return render_template("addsupplier.html", form=form)
+        return render_template("addsupplier.html", form=form, is_manager=is_manager)
     else:
         return redirect(url_for("logout"))
 
@@ -398,23 +404,7 @@ def add_ingredient(supplier_id):
             db.session.commit()
             flash("{0} added successfully".format(form.name.data))
             form.name.data = ""
-        return render_template("addingredient.html", form=form, supplier_id=supplier_id)
-    else:
-        return redirect(url_for("logout"))
-
-
-@app.route("/manager/ingredients/<int:ingredient_id>")
-@login_required
-def get_ingredient(ingredient_id):
-    is_manager = check_role(role_hash("manager"), current_user.web3_address)
-    if is_manager:
-        ingredient = db.session.query(Ingredient).filter_by(id=ingredient_id).first()
-        supplier = (
-            db.session.query(Supplier).filter_by(id=ingredient.supplier_id).first()
-        )
-        return render_template(
-            "supplier.html", ingredient=ingredient, supplier=supplier
-        )
+        return render_template("addingredient.html", form=form, supplier_id=supplier_id, is_manager=is_manager)
     else:
         return redirect(url_for("logout"))
 
@@ -425,7 +415,7 @@ def get_all_placedorders():
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
     if is_manager:
         orders = db.session.query(PlacedOrder).all()
-        return render_template("placedorders.html", orders=orders)
+        return render_template("placedorders.html", orders=orders, is_manager=is_manager)
     else:
         return redirect(url_for("logout"))
 
@@ -596,7 +586,7 @@ def add_delivery(supplier_id):
             flash("Delivery placed successfully")
             return {"success": True}
         else:
-            return render_template("adddelivery.html", ingredients=ingredients)
+            return render_template("adddelivery.html",supplier_id=supplier_id, ingredients=ingredients)
     else:
         return redirect(url_for("logout"))
 
@@ -616,7 +606,7 @@ def get_all_recipes():
                 .first()
             )
             recipes_for.append(recipe_for)
-        return render_template("recipes.html", recipes=recipes, recipes_for=recipes_for)
+        return render_template("recipes.html", recipes=recipes, recipes_for=recipes_for, is_manager=is_manager, is_chef=is_chef)
     else:
         return redirect(url_for("logout"))
 
@@ -706,7 +696,7 @@ def edit_recipe(recipe_id):
                 manufactored_ingredient_quantity, recipe
             )
         if request.method == "GET":
-            return redirect(url_for("get_recipe", recipe_id=recipe_id))
+            return redirect(url_for("get_recipe", recipe_id=recipe_id, is_manager=is_manager, is_chef=is_chef))
         flash("Recipe updated successfully")
         return {"success": True}
     else:
@@ -717,8 +707,10 @@ def edit_recipe(recipe_id):
 @login_required
 def stockmanagement():
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
-    if is_manager:
-        return render_template("stockmanagement.html")
+    is_chef = check_role(role_hash("chef"), current_user.web3_address)
+    is_waiter = check_role(role_hash("waiter"), current_user.web3_address)
+    if is_manager or is_chef or is_waiter:
+        return render_template("stockmanagement.html", is_manager=is_manager, is_chef=is_chef, is_waiter=is_waiter)
     else:
         return redirect(url_for("logout"))
 
@@ -902,7 +894,6 @@ def get_ingredient_data(id):
         for related_stockmovement in related_stockmovements:
             if related_stockmovement != None:
                 stockmovement_ids.append(related_stockmovement.stockmovement_id)
-    print(recipe_ids, placedorder_ids, delivery_ids, stockmovement_ids)
     recipe_ids = list(set(recipe_ids))
     placedorder_ids = list(set(placedorder_ids))
     delivery_ids = list(set(delivery_ids))
@@ -1032,7 +1023,8 @@ def add_wastages():
             return render_template(
                 "addwastages.html",
                 ingredients=ingredients,
-                manufactored_ingredients=manufactored_ingredients,
+                manufactored_ingredients=manufactored_ingredients, is_manager=is_manager,
+                is_waiter=is_waiter, is_chef=is_chef
             )
     else:
         return redirect(url_for("logout"))

@@ -64,17 +64,15 @@ def append_ingredient_quantity(ingredient_quantities, table):
             )
             if ingredientquantity != None:
                 table.ingredient_quantities.append(ingredientquantity)
-                db.session.add(table)
-                db.session.commit()
             else:
                 new_ingredient_quantity = IngredientQuantity(
                     ingredient_id=ingredient_quantity["ingredient_id"],
                     quantity=ingredient_quantity["quantity"],
                 )
                 db.session.add(new_ingredient_quantity)
-                table.ingredient_quantities.append(new_ingredient_quantity)
-                db.session.add(table)
-                db.session.commit()
+                table.ingredient_quantities.append(new_ingredient_quantity) 
+    db.session.add(table)
+    db.session.commit()
     return True
 
 
@@ -95,8 +93,6 @@ def append_manufactored_ingredient_quantity(ingredient_quantities, table):
                 table.manufactoredingredient_quantities.append(
                     manufactoredingredient_quantity
                 )
-                db.session.add(table)
-                db.session.commit()
 
             else:
                 new_manufactored_ingredient_quantity = ManufactoredIngredientQuantity(
@@ -109,8 +105,8 @@ def append_manufactored_ingredient_quantity(ingredient_quantities, table):
                 table.manufactoredingredient_quantities.append(
                     new_manufactored_ingredient_quantity
                 )
-                db.session.add(table)
-                db.session.commit()
+    db.session.add(table)
+    db.session.commit()
     return True
 
 

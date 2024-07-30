@@ -2,16 +2,18 @@
 {% extends "base.html" %}
 {% block content %}
 <h1 class="center-align">
-    Add employee Page
+    Add supplier
 </h1>
+<hr>
+<a href="{{ url_for('dashboard') }}">
+    <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Dashboard</button>
+</a>
 {{ display_messages(messages) }}
 <form method="POST" action="">
     {{ form.hidden_tag() }}
-    {{ form.name }}
+    {{ form.name(placeholder="Supplier name")  }}
     {{ form.email(placeholder="Email address")}}
-    {{ form.info }}
+    {{ form.info(placeholder="Supplier info")  }}
     {{ form.submit }}
 </form>
-<br>
-<a href="{{ url_for('dashboard') }}">Dashboard</a>
 {% endblock %}

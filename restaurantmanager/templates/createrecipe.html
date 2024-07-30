@@ -4,6 +4,13 @@
 <h1 class="center-align">
     create recipe Page
 </h1>
+<a href="{{ url_for('get_all_recipes') }}">
+  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Back to recipes</button>
+</a>
+<a href="{{ url_for('logout') }}">
+  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Logout</button>
+</a>
+<hr>
 {{ display_messages(messages) }}
 <form action="" method="POST" id="create_recipe_form">
     <div class="row">
@@ -53,7 +60,4 @@
 </form>
 <button class="btn waves-effect waves-light" id="submitform">Submit</button>
 <hr>
-<a href="{{ url_for('add_ingredient', supplier_id=0)  }}">Add Ingredient</a>
-<br>
-<a href="{{ url_for('dashboard') }}">Dashboard</a>
 {% endblock %}
