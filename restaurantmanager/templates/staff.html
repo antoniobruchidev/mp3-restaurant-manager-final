@@ -6,6 +6,17 @@
 </h1>
 {{ display_messages(messages) }}
 
+<a href="{{ url_for('dashboard') }}">
+  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Dashboard</button>
+</a>
+<a href="{{ url_for('add_employee') }}">
+  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Give role</button>
+</a>
+<a href="{{ url_for('logout') }}">
+  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Logout</button>
+</a>
+
+<br>
 {% for employee in employees %}
 
 <div class="row">
@@ -16,8 +27,7 @@
           <p>Email: {{ employee.email }}</p>
         </div>
         <div class="card-action">
-          <a href="#">Send email</a>
-          <a href="#">Check roles</a>
+          <a href="#">Send message</a>
           <a href="#">Remove</a>
         </div>
       </div>
@@ -25,8 +35,4 @@
 </div>
             
 {% endfor %}
-<hr>
-<a href="{{ url_for('add_employee')}}">Add Employee</a>
-<br>
-<a href="{{ url_for('dashboard') }}">Dashboard</a>
 {% endblock %}

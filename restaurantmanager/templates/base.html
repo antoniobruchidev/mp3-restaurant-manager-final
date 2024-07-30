@@ -2,20 +2,20 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="description" content="A simple web app to track a restaurant daily tasks" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="A simple web app to track a restaurant daily tasks">
         
         <!-- Compiled and minified CSS -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
         <script src="https://kit.fontawesome.com/c18c39146b.js"></script>
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
         <title>Restaurant Manager</title>
         
         <!-- Google sign in-->
         <script src="https://accounts.google.com/gsi/client" async defer></script>
 
         <!-- Ethers.js-->
-        <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>
+        <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
 
         {% block headscripts %}
         {% endblock %}
@@ -31,33 +31,45 @@
                     </a>
                     <ul class="right hide-on-med-and-down">
                         <li>
-                            <a class="lime-text text-lighten-4" href="{{ url_for('home') }}">Home</a>
+                            <a class="lime-text text-lighten-4" href="{{ url_for('menu') }}">Home</a>
                         </li>
                         <li>
-                            <a class="lime-text text-lighten-4" href="{{ url_for('menu') }}">Menu</a>
+                            <a class="lime-text text-lighten-4" href="{{ url_for('dashboard') }}">Dashboard</a>
                         </li>
                         <li>
                             <a class="lime-text text-lighten-4" href="#!">Table</a>
                         </li>
+                        {% if logged_out %}
                         <li>
                             <a class="lime-text text-lighten-4" href="{{ url_for('login') }}">Login</a>
                         </li>
+                        {% else %}
+                        <li>
+                            <a class="lime-text text-lighten-4" href="{{ url_for('logout')  }}">Logout</a>
+                        </li>
+                        {% endif %}
                     </ul>
                 </div>
             </nav>
             <ul class="sidenav lime lighten-5" id="mobile-demo">
                 <li>
-                    <a href="{{ url_for('home') }}" class="brown-text text-darken-4 center-align">Home</a>
+                    <a href="{{ url_for('menu') }}" class="brown-text text-darken-4 center-align">Home</a>
                 </li>
                 <li>
-                    <a href="{{ url_for('menu') }}" class="brown-text text-darken-4 center-align">Menu</a>
+                    <a href="{{ url_for('menu') }}" class="brown-text text-darken-4 center-align">Dashboard</a>
                 </li>
                 <li>
                     <a href="#!" class="brown-text text-darken-4 center-align">Table</a>
                 </li>
+                {% if logged_out %}
                 <li>
                     <a href="{{ url_for('login') }}" class="brown-text text-darken-4 center-align">Login</a>
                 </li>
+                {% else %}
+                <li>
+                    <a href="{{ url_for('logout') }}" class="brown-text text-darken-4 center-align">Logout</a>
+                </li>
+                {% endif %}
             </ul>
         </header>
         <main class="lime lighten-5 brown-text text-darken-4">

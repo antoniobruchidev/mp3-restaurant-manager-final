@@ -3,6 +3,13 @@
 <h1 class="center-align">
   Suppliers Page
 </h1>
+<a href="{{ url_for('dashboard') }}">
+  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Dashboard</button>
+</a>
+<a href="{{ url_for('logout') }}">
+  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Logout</button>
+</a>
+<hr>
 {% for supplier in suppliers %}
 
 <div class="row">
@@ -16,7 +23,7 @@
       <div class="card-action">
         <a href="#">Delete</a>
         <a href="{{ url_for('get_supplier', supplier_id=supplier.id) }}">Go to</a>
-        <a href="{{ url_for('place_order', supplier_id=supplier.id) }}">Add order</a>
+        <a href="{{ url_for('get_placedorder', supplier_id=supplier.id) }}">Open order</a>
         <a href="{{ url_for('add_delivery', supplier_id=supplier.id) }}">Add delivery</a>
       </div>
     </div>
@@ -24,8 +31,4 @@
 </div>
 
 {% endfor %}
-<hr>
-<a href="{{ url_for('add_supplier')  }}" class="brown-text text-darken-3">Add supplier</a>
-<a href="{{ url_for('dashboard') }}" class="brown-text text-darken-3">Dashboard</a>
-
 {% endblock %}
