@@ -1,5 +1,7 @@
 # Carpez Kitchen Manager
-A platform for managing kitchens. 
+A platform for managing kitchens.
+
+## Live demo at [Carpez Kitchen Manager](https://carpez-kitchen-manager-e9e93ef660cf.herokuapp.com/)
 
 ## UX
 The platform targets any company in the hospitality industry. The application is designed to distinguish its users in:
@@ -26,16 +28,15 @@ The platform will be designed to use preparation and deliveries record to incres
 - As a CHEF, I want to be able to change my recipes.
 - As a MANAGER, I want to be able to price the recipe that will go in the menu.
 - As a CHEF, I want to be able to prepare the recipes (for future revisions it'd be nice a labeling system for the manufactured ingredients).
-- As a MAANAGER, I want the platform to increase and decrease stock levels depending on wastage reports, sales, deliveries and preparations.
+- As a MANAGER, I want the platform to increase and decrease stock levels depending on wastage reports, sales, deliveries and preparations.
 - As a MANAGER, I want to be able to manually reset the stock level as in a stock take.
 - As an OWNER, I want the platform to integrate Web3 and blockchain technology, at least for authentication process. Accepting payments would be optimal.
-- As another OWNER, I'm afraid of technology and I want to have nothing to do with new stuff, every platform feature MUST also work without any additional extension that is not Google...
 
 ### Strategy
 The goal of this project is to create a platform that interacts with users and employees letting them access a variety of CRUD operations depending on their role.
 
 ### Scope
-The platform is designed to be a restaurant management system. It will be able to:
+The platform is designed to be a restaurant stock management system. It will be able to:
 - Hire and fire employees.
 - Add and manage suppliers and their items.
 - Keep track of deliveries and stock levels.
@@ -44,9 +45,31 @@ The platform is designed to be a restaurant management system. It will be able t
 - Show a menu with what is available.
 - Add and manage orders.
 - Keep track of sales and automatically adjust stock levels.
-- Show data for preparations wastages and sales to improve efficiency.
+- Show data for preparations, wastages and sales to improve efficiency.
 - Register and login customers.
-- Let registered customers see their previous orders and their invoices.
+
+### Structure
+The platform is designed to be a web application. It is built using Flask and Flask-SQLAlchemy.
+
+#### database diagram
+![database diagram](
+
+### Skeleton
+The platform it's not as easy to use as it probably should be, but it's a good start. From the manage pagem the manager can search an ingredient in the searchbar and it will populate the collections in the materilize tabs. From there the manager can update the stock level or add the item to an open order from its supplier, or go the the recipe page of a manufactored item searched and maybe enabling a new dish in the menu by flagging the sellable item and giving it a price.
+Chefs mostly live in the kitchen so they'll have access to wastage reports and the recipes pages, including editing the ingredients in a very easy way.
+
+### Surface
+The platform will be accessible by any device, including mobile devices. To access from mobile with web3 application the user needs to have Metamask installed.
+We have the landing page which is the menu, populated with the dishes available at the moment.
+From the navigation bar at the top, the user can login, or redirect to register from the login page, once logged the user will be presented with his dashboard, containing the user's messages and their answers. From their dashboard the user can access the previusly mentioned messageboard, in which, in real life situation, he'd probably find some notes and to dos.
+Depending on their role the pages thhe user can access are different, or in a different way.
+
+### MVP
+- Create a a platform capable of running daily or so tasks and relate everything to the user in a dynamic way, menu included.
+- Employees and registered users can leave messages on dedicated messageboards for manager, chefs and waiters. That is an important feature of the platform, as if an User has a dietary requirement, he can leave a message on the chefs messageboard and both the manager and the chef will be notified, if a User wants needs special accomodations from front of the house, space for wheelchairs, or lots of baby seats, they can leave it on the waiter messageboard and both waiters and managers will be notified.
+- For a special customer experience the restaurant is intented to give a nice a la carte experience, with the meals varying a lot compared to a normal restaurant. This would slowly build up important losses from missed profits due too much wastage. From this the necessity to keep track of wastages and stock levels.
+- For future editions it would be nice to add comment and stars to the menu containing user's feedback to our offer.
+- Also for future editions, it would be very helpful to add a labeling system, to print labels for the items to store and table for storing due diligence data, including staff training, cleaning and temperature levels.
 
 ## Techologies
 1. python 3.10.12
@@ -65,7 +88,6 @@ The platform is designed to be a restaurant management system. It will be able t
 
 ### User Authentication
 
-Probably the trickiest part of this project given the owner's user stories.
 I created an authentication process that can login users and employees, they can register and login the platform using Metamask or compatible ethereum wallet. They can also register and login with Google or simply using their email and a password.
 
 #### The user register with metamask or compatible ethereum wallet.
@@ -126,3 +148,22 @@ Once I was at it I decided to rename some variables in a more semantic way and t
 #### Bugs in development - Commit [1](https://github.com/antoniobruchidev/mp3-restaurant-manager/commit/6dcafa5633f49ba5f6c9f13584c14b9a3180b825){:target="_blank"}
 
 I started developing it using wtforms, but I had trouble changing the values of select fields with javascript, so at the beginning I tought of having the select field to be choosen manually and when the user would select an option have it populate the form accordingly, because I couldn't find a way to populate a hidden field, so the result was clearly not good for user experience. From there the decision to quit using wtforms and let javascript handle the rest.
+
+#### Other bugs
+
+Almost ninthy percent of the bugs solved are due mistyping and in this kind of project.
+
+### Testing
+
+#### HTML checker
+https://validator.w3.org/nu/?doc=https%3A%2F%2Fcarpez-kitchen-manager-e9e93ef660cf.herokuapp.com%2F
+
+#### Color checker
+https://webaim.org/resources/contrastchecker/?fcolor=ECE889&bcolor=3E2723
+https://webaim.org/resources/contrastchecker/?fcolor=F9FBE7&bcolor=3E2723
+
+### Deployement
+
+The platform is deployed on heroku and code stored on github for comparison.
+Deploying procedure is semi automatic once we connect the github repo to heroku.
+Set DEBUG to False.
