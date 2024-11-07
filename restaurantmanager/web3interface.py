@@ -1,9 +1,11 @@
 import json
 import os
+from flask.cli import load_dotenv
 from web3 import Web3
 from eth_account import Account
 from eth_account.signers.local import LocalAccount
 from web3.middleware import construct_sign_and_send_raw_middleware
+load_dotenv()
 
 # create an instance of the web3 provider
 w3 = Web3(Web3.HTTPProvider(os.environ.get("ALCHEMY_KEY")))

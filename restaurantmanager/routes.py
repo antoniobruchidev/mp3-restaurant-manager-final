@@ -187,7 +187,6 @@ def login():
                 ).first()
                 login_user(logged_in)
                 return {"success": True}
-                return redirect(url_for("dashboard"))
             else:
                 return redirect(url_for("login"))
         elif request.form["account_type"] == "2":
@@ -202,7 +201,6 @@ def login():
                         ).first()
                     login_user(logged_in)
                     return {"success": True}
-                    return redirect(url_for("dashboard"))
                 else:
                     return redirect(url_for("login"))
             else:
@@ -884,11 +882,13 @@ def create_recipe():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     g_client_id = os.environ.get("GOOGLE_CLIENT_ID")
+    activation_link = "{}/activate".format(os.environ.get("HEROKU_DOMAIN"))
+    user_delete_link = "{}/delete".format(os.environ.get("HEROKU_DOMAIN"))
     if request.method == "POST":
         hashed_password = argon2.generate_password_hash(request.form["password"])
-        activated = False
-        if request.form["account_type"] != "2":
-            activated = True
+        activated = True
+        if request.form["account_type"] == "2":
+            activated = False
         new_user = User(
             f_name=request.form["f_name"],
             l_name=request.form["l_name"],
@@ -906,13 +906,33 @@ def register():
             .filter_by(web3_address=request.form["web3_address"])
             .first()
         )
-        msg = Message(
-            "Please activate your account",
-            sender=os.environ.get("MAIL_USERNAME"),
-            recipients=[request.form["email"]],
-        )
-        msg.body = f"Hello {user.f_name}, \n\nPlease click on the link below to activate your account.\n\nhttps://carpez-kitchen-manager-e9e93ef660cf.herokuapp.com/activate/{request.form['web3_address']}\n\nThanks."
-        mail.send(msg)
+        if request.form["account_type"] == "2":
+            msg = Message(
+                "Please activate your account",
+                sender=os.environ.get("MAIL_USERNAME"),
+                recipients=[request.form["email"]],
+            )
+            msg.body = (
+                f"Hello {user.f_name},\n\n"
+                f"please click on the link below to activate your account.\n\n"
+                f"{activation_link}/{user.web3_address}\n\n"
+                "Thanks."
+            )
+            mail.send(msg)
+        elif request.form["account_type"] == "3":
+            msg = Message(
+                "Registration Confirmation",
+                sender=os.environ.get("MAIL_USERNAME"),
+                recipients=[request.form["email"]],
+            )
+            msg.body = (
+                f"Hello {user.f_name},\n\n"
+                "You just registered on Carpez Kitchen. If it wasn't you \
+                or you changed your mind please the link below.\n\n"
+                f"{user_delete_link}/{user.web3_address}\n\n"
+                "Thanks."
+            )
+            mail.send(msg)
         new_wallet = Wallet(
             user_id=user.id,
             mnemonic=request.form["mnemonic"],
@@ -927,7 +947,7 @@ def register():
 
 @app.route("/activate/<web3_address>")
 def activate(web3_address):
-    print(web3_address)
+    print(web3_address.lower())
     user = db.session.query(User).filter_by(web3_address=web3_address).first()
     print(user.activated)
     if user.activated:
@@ -1277,3 +1297,17 @@ def delete_placedorder(order_id):
     db.session.commit()
     flash("Order deleted")
     return redirect(url_for("dashboard"))
+
+
+@app.route("/delete/<web3_address>")
+def delete_user(web3_address):
+    w3_cs_a = w3.to_checksum_address(web3_address)
+    user = (
+        db.session.query(User)
+        .filter_by(web3_address=w3_cs_a)
+        .one()
+    )
+    db.session.delete(user)
+    db.session.commit()
+    flash("Successfully deleted user")
+    return redirect(url_for("menu"))
