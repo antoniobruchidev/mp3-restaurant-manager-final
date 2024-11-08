@@ -1,42 +1,39 @@
+{% from 'macros.html' import display_messages %}
 {% extends "base.html" %}
 {% block content %}
-<a href="{{ url_for('get_suppliers') }}">
-    <button class="btn waves-effect waves-light brown darken-4 lime-text text-lighten-4">
-        Suppliers
-    </button>
-</a>
-<a href="{{ url_for('add_ingredient', supplier_id=supplier.id) }}">
-    <button class="btn waves-effect waves-light brown darken-4 lime-text text-lighten-4">
-        Add ingredient
-    </button>
-</a>
-<a href="{{ url_for('dashboard') }}">
-    <button class="btn waves-effect waves-light brown darken-4 lime-text text-lighten-4">
-        Dashboard
-    </button>
-</a>
-<a href="{{ url_for('logout') }}">
-    <button class="btn waves-effect waves-light brown darken-4 lime-text text-lighten-4">
-        Logout
-    </button>
-</a>
-<br>
-<div class="container">
-    <div class="row">
-        <div class="col s12">
-            <h1 class="center-align">Supplier: {{ supplier.name }}</h1>
-        </div>
-        <div class="col s12">
-            <p>Email: {{ supplier.email }}</p>
-            <p>Info: {{ supplier.info}} </p>
-        </div>
-        <ul class="collection col s8 push-s2">
-
-            {% for ingredient in ingredients %}
-            <li class="collection-item brown darken-2 lime-text text-lighten-5">{{ ingredient.name }} - stock in grams: {{ ingredient.stock_in_weight }}</a>
-            {% endfor %}
-        </ul>
+<div class="text-center">
+    <div class="btn-group">
+        <a href="{{ url_for('get_suppliers') }}" class="btn">
+            Back to Suppliers
+        </a>
+        <a href="{{ url_for('add_ingredient', supplier_id=supplier.id) }}" class="btn">
+            Add ingredient
+        </a>
+        <a href="{{ url_for('dashboard') }}" class="btn">
+            Dashboard
+        </a>
+        <a href="{{ url_for('logout') }}" class="btn">
+            Logout
+        </a>
     </div>
 </div>
+{{ display_messages(messages) }}
 
+<hr>
+<br>
+<h1 class="text-center">Supplier: {{ supplier.name }}</h1>
+<p>Email: {{ supplier.email }}  -  Phone: {{ supplier.phone }}</p>
+<p>{{ supplier.info }}</p>
+<ul class="list-group">
+    {% for ingredient in ingredients %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">{{ ingredient.name }} - stock in grams: {{ ingredient.stock_in_weight }}
+        <a href="{{ url_for('delete_ingredient', supplier_id=supplier.id, ingredient_id=ingredient.id) }}">
+            <span class="badge text-bg-danger rounded-pill">
+                <i class="fa-solid fa-trash"></i><span class="sr-only">Delete Ingredient</span>
+            </span>
+        </a>
+    </li>
+    {% endfor %}
+</ul>
+  
 {% endblock %}

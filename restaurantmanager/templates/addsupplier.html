@@ -4,10 +4,18 @@
 <h1 class="center-align">
     Add supplier
 </h1>
+<div class="btn-group">
+    <a href="{{ url_for('get_suppliers') }}" class="btn">
+      Back to Suppliers
+    </a>
+    <a href="{{ url_for('dashboard') }}" class="btn">
+      Dashboard
+    </a>
+    <a href="{{ url_for('logout') }}" class="btn">
+      Logout
+    </a>
+  </div>
 <hr>
-<a href="{{ url_for('dashboard') }}">
-    <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Dashboard</button>
-</a>
 {{ display_messages(messages) }}
 <form method="POST" action="">
     {{ form.hidden_tag() }}

@@ -1,36 +1,35 @@
+{% from 'macros.html' import display_messages %}
 {% extends "base.html" %}
 {% block content %}
-<h1 class="center-align">
+<h1 class="text-center">
   Suppliers
 </h1>
-<a href="{{ url_for('dashboard') }}">
-  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Dashboard</button>
-</a>
-<a href="{{ url_for('add_supplier') }}">
-  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Add supplier</button>
-</a>
-<a href="{{ url_for('logout') }}">
-  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Logout</button>
-</a>
+    <div class="text-center">
+        <div class="btn-group">
+            <a href="{{ url_for('dashboard') }}" class="btn">
+                Back to Dashboard
+            </a>
+            <a href="{{ url_for('add_supplier') }}" class="btn">
+                Add Supplier
+            </a>
+        </div>
+    </div>
 <hr>
+{{ display_messages(messages) }}
+
 {% for supplier in suppliers %}
 
-<div class="row">
-  <div class="col s8 push-s2">
-    <div class="card brown darken-4">
-      <div class="card-content lime-text text-lighten-4">
-        <span class="card-title">{{supplier.name}}</span>
-        <p><em>{{supplier.name}}</em></p>
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">{{supplier.name}}</h5>
+        <h6 class="card-subtitle">{{supplier.email}} - {{supplier.phone}}</h6>
         <p>{{supplier.info}}</p>
-      </div>
-      <div class="card-action">
-        <a class="lime-text" href="#">Delete</a>
-        <a class="lime-text" href="{{ url_for('get_supplier', supplier_id=supplier.id) }}">Go to</a>
-        <a class="lime-text" href="{{ url_for('get_placedorder', supplier_id=supplier.id, order_id=0) }}">Open order</a>
-        <a class="lime-text" href="{{ url_for('add_delivery', supplier_id=supplier.id) }}">Add delivery</a>
-      </div>
+        <a class="card-link" href="#">Delete</a>
+        <a class="card-link" href="{{ url_for('get_supplier', supplier_id=supplier.id) }}">Go to</a>
+        <a class="card-link" href="{{ url_for('get_placedorder', supplier_id=supplier.id, order_id=0) }}">Open order</a>
+        <a class="card-link" href="{{ url_for('add_delivery', supplier_id=supplier.id) }}">Add delivery</a>
     </div>
-  </div>
 </div>
 
 {% endfor %}
