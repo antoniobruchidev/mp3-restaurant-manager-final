@@ -1,60 +1,68 @@
-{% from 'macros.html' import display_employee_menu_items }
+{% from 'macros.html' import display_employee_menu_items, display_messages %}
 {% extends "base.html" %}
 {% block content %}
-<h1 class="center-align">
+<h1 class="text-center">
     Stock Management Page
 </h1>
 {{display_employee_menu_items(is_manager,is_chef,is_waiter)}}
-
-<div class="row">
-    <div class="col s12">
-        <div class="row">
-            <div class="input-field col s12">
-                <i class="fa-solid fa-comment-dots"></i>
-                <input type="text" id="autocomplete-input" class="autocomplete">
-                <label class="active" for="autocomplete-input">Search ingredients</label> 
-            </div>
-        </div>
-    </div>
+{{ display_messages(messages) }}
+<div class="form-group">
+  <label for="autocomplete-input">
+    <i class="fa-solid fa-comment-dots"></i>
+    <span class="sr-only">Search for ingredients</span>
+  </label>
+  <input type="text" id="autocomplete-input" class="form-control" placeholder="Search for ingredients">
 </div>
-<div class="row" id="ingredient">
-  <div class="col s12">
-    <h5 class="center-align" id="name"></h5>
+<div id="ingredient">
+    <h5 class="text-center" id="name"></h5>
     <p id="description"></p>
     <p id="stock_level"></p>
-  </div>
-  <form id="ingredient_quantity_form">
-    <div class="input-field col s3">
-      <input id="stock" name="stock" type="number" class="validate" disabled>
-      <label for="stock">stock</label>
-    </div>
-  </form>
-  <button class="btn col s3 waves-effect waves-light" id="stock_take" disabled>STOCK TAKE</button>
-  <button class="btn col s3 waves-effect waves-light" id="add_to_order" disabled>ADD TO ORDER</button>
-  <button class="btn col s3 waves-effect waves-light" id="go_to" disabled>GO TO</button>
 </div>
-<div class="row">
-  <div class="col s12">
-    <ul class="tabs lime lighten-5" id="tabs">
-      <li class="tab col s2 brown darken-4"><a class="active lime-text text-lighten-4" href="#recipes">RECIPES</a></li>
-      <li class="tab col s2 brown darken-4 ingredient-only"><a class="lime-text text-lighten-4" href="#placedorders">PLACED ORDERS</a></li>
-      <li class="tab col s2 brown darken-4 ingredient-only"><a class="lime-text text-lighten-4" href="#deliveries">DELIVERIES</a></li>
-      <li class="tab col s2 brown darken-4 manufactored-only"><a class="lime-text text-lighten-4" href="#preparations">PREPARATIONS</a></li>
-      <li class="tab col s2 brown darken-4"><a class="lime-text text-lighten-4" href="#wastages">WASTAGES</a></li>
-      <li class="tab col s2 brown darken-4"><a class="lime-text text-lighten-4" href="#stocktakes">STOCK TAKES</a></li>
-      <li class="tab col s2 brown darken-4"><a class="lime-text text-lighten-4" href="#orders">SALES</a></li>
-    </ul>
+<form id="ingredient_quantity_form">
+  <div class="input-field col s3">
+    <input id="stock" name="stock" type="number" class="validate" disabled>
+    <label for="stock">stock</label>
   </div>
-  <div class="row" id="recipes"></div>
-  <div class="row" id="placedorders"></div>
-  <div class="row" id="deliveries"></div>
-  <div class="row" id="preparations"></div>
-  <div class="row" id="wastages"></div>
-  <div class="row" id="stocktakes"></div>
-  <div class="row" id="orders"></div>
+</form>
+<div class="text-center">
+  <div class="btn-group">
+    <button type="button" class="btn" id="add_to_order" disabled>ADD TO ORDER</button>
+    <button type="button" class="btn" id="stock_take" disabled>STOCK TAKE</button>
+    <button type="button" class="btn" id="go_to" disabled>GO TO</button>
+  </div>
+</div>
+</div>
+  <div id="recipes" class="related-info"></div>
+  <div id="placed_orders" class="related-info"></div>
+  <div id="deliveries" class="related-info"></div>
+  <div id="preparations" class="related-info"></div>
+  <div id="wastages" class="related-info"></div>
+  <div id="stocktakes" class="related-info"></div>
+  <div id="orders" class="related-info"></div>
 </div>
 
 
-<hr>
-<a href="{{ url_for('dashboard') }}">Dashboard</a>
+{% endblock %}
+{% block postloadjs %}
+<script type="module">
+  import Autocomplete from "https://cdn.jsdelivr.net/gh/lekoala/bootstrap5-autocomplete@master/autocomplete.js";
+  var src = [];
+  {% for ingredient in ingredients %}
+    src.push({
+      title: "{{ingredient.name}}",
+      id: "{{ingredient.id}}",
+      data: {
+        "manufactored": {% if ingredient.manufactored %}true{% else %}false{% endif %}
+      },
+    });
+  {% endfor %}
+  Autocomplete.init("#autocomplete-input", {
+    items: src,
+    valueField: "id",
+    labelField: "title",
+    highlightTyped: true,
+    onSelectItem: function(e){switchGetIngredientData(e.id, e.data.manufactored, e.title)},
+  });
+ 
+</script>
 {% endblock %}
