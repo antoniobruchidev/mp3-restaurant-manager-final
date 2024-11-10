@@ -7,93 +7,212 @@
 </script>
 {% endblock %}
 {% block content %}
-<h1 class="center-align">
-    {{item.name}} recipe <i class="fa-solid fa-pen-to-square" id="edit"></i>
+<h1 class="text-center">
+    {{item.name}} recipe <i class="fa-solid fa-pen-to-square" id="edit"><span class="sr-only">Edit recipe</span></i>
 </h1>
-{{display_employee_menu_items(is_manager,is_chef,is_waiter)}}
+<div class="text-center">
+    <div class="btn-group">
+        <a href="{{ url_for('get_all_recipes') }}" class="btn">
+            Back to Recipes
+        </a>
+        <a href="{{ url_for('dashboard') }}" class="btn">
+            Dashboard
+        </a>
+        <a href="{{ url_for('logout') }}" class="btn">
+            Logout
+        </a>
+    </div>
+    <hr>
+</div>
+
 {{ display_messages(messages) }}
 <form action="" method="POST" id="edit-recipe-form">
-    <div class="row">
-        <div class="input-field col s4">
-            <input type="text" id="name" name="name" value="{{item.name}}" disabled>
-        </div>
-        <div class="input-field col s4 push-s1">
-            <select id="itemkind" name="itemkind" disabled>
-                <option value="" disabled>Choose your option</option>
-                <option value="1" selected>Starter</option>
-                <option value="2">Pasta</option>
-                <option value="3">Pizza</option>
-                <option value="4">Main</option>
-                <option value="5">Dessert</option>
-                <option value="6">Pizza topping</option>
-                <option value="7">Water</option>
-                <option value="8">Juice</option>
-                <option value="9">Soft drink</option>
-                <option value="10">Wine</option>
-                <option value="11">Beer</option>
-                <option value="12">Distillates</option>
-                <option value="13">Other</option>
-              </select>
-              <label>Kind of item</label>
-            </select>
-        </div>
-        <div class="input-field col s2 push-s2">
-            <input type="number" id="portions" name="portions" value="{{recipe.portions}}" disabled>
-        </div>
-    </div>
-    <div class="row">
-        <div class="input-field col s6">
-            <textarea id="description" name="description" class="materialize-textarea" disabled>
-                {{item.description}}
-            </textarea>
-            <label for="description">Description</label>
-        </div>
-        <div class="col s2 push-s1 input-field">
-            <p>
-                <label>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-8 col-md-4 mb-3 mx-auto">
+                <div class="input-group">
+                    <span class="input-group-text">Name</span>
+                    <input type="text" id="name" name="name" value="{{item.name}}" disabled>
+                </div>
+            </div>
+            <div class="col-8 col-md-4 mb-3 mx-auto">
+                <div class="input-group">
+                    <span class="input-group-text">Type</span>
+                    <select id="itemkind" name="itemkind" disabled>
+                        <option value="" disabled>Choose your option</option>
+                        <option value="1" selected>Starter</option>
+                        <option value="2">Pasta</option>
+                        <option value="3">Pizza</option>
+                        <option value="4">Main</option>
+                        <option value="5">Dessert</option>
+                        <option value="6">Pizza topping</option>
+                        <option value="7">Water</option>
+                        <option value="8">Juice</option>
+                        <option value="9">Soft drink</option>
+                        <option value="10">Wine</option>
+                        <option value="11">Beer</option>
+                        <option value="12">Distillates</option>
+                        <option value="13">Other</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-8 col-md-4 mb-3 mx-auto">
+                <div class="input-group">
+                    <span class="input-group-text">Portions outcome</span>
+                    <input type="number" id="portions" name="portions" value="{{recipe.portions}}" disabled>
+                </div>
+            </div>
+            <div class="col-8 col-md-4 mb-3 mx-auto">
+                <div class="input-group">
+                    <span class="input-group-text">Sellable</span>
                     {% if item.sellable_item %}
                         <input type="checkbox" id="sellable_item_checkbox" name="sellable_item_checkbox" checked disabled />
                     {% else %}
                         <input type="checkbox" id="sellable_item_checkbox" name="sellable_item_checkbox" disabled />
                     {% endif %}
-                    <span>Sellable</span>
-                </label>
-            </p>
-        </div>
-        <div class="input-field col s2 push-s2">
-            <input type="number" id="price" name="price" value="{{item.price}}" disabled>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col s12">
-            <div class="row">
-                <div class="input-field col s10">
-                    <i class="fa-solid fa-comment-dots"></i>
-                    <input type="text" id="autocomplete-input" class="autocomplete" disabled>
-                    <label class="active" for="autocomplete-input">Search ingredients</label> 
+                </div>
+            </div>
+            <div class="col-8 col-md-4 mb-3 mx-auto">
+                <div class="input-group">
+                    <span class="input-group-text">Price £</span>
+                    <input type="number" id="price" name="price" value="{{item.price}}" disabled>
                 </div>
             </div>
         </div>
-        <div class="col s6" id="ingredients">
-            <h5> Ingredients</h5>
-            {{ display_table_ingredient_quantities(ingredients, recipe.ingredient_quantities) }}    
+        <div class="row mt-3">
+            <div class="col-8 mx-auto">
+                <div class="input-group">
+                    <span class="input-group-text">Description</span>
+                    <textarea id="description" name="description" placeholder="Description" disabled>
+                        {{item.description}}
+                    </textarea>
+                </div>
+            </div>
         </div>
-        <div class="col s6" id="manufactoredIngredients">
-            <h5>Manufactored ingredients</h5>
-            {{ display_table_manufactored_ingredient_quantities(manufactored_ingredients, recipe.manufactoredingredient_quantities) }}
+        <div class="row mt-3">
+            <div class="col-8 col-md-5 mx-auto">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa-solid fa-comment-dots"></i><span class="sr-only">Search for ingredients to add...</span></span>
+                    <input type="text" id="autocomplete-input" class="form-control" placeholder="Search for ingredients to add...">
+                </div>
+            </div>
+            <div class="col-8 col-md-5 mx-auto">
+                <div class="d-inline-block" id="file_input" name="file_input" tabindex="0" data-bs-toggle="popover" data-bs-data-bs-trigger="hover focus" data-bs-content="Add an image for the menu">
+                    <div class="input-group" id="image-upload">
+                        <input type="file" class="form-control" id="file_input" name="file_input">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-12 col-md-6" id="ingredients">
+                <h5> Ingredients</h5>
+                {{ display_table_ingredient_quantities(ingredients, recipe.ingredient_quantities) }}    
+            </div>
+            <div class="col-12 col-md-6" id="manufactored_ingredients">
+                <h5>Manufactored ingredients</h5>
+                {{ display_table_manufactored_ingredient_quantities(manufactored_ingredients, recipe.manufactoredingredient_quantities) }}
+            </div>
         </div>
     </div>
 </form>
-<button class="btn waves-effect waves-light" id="submitform" disabled>Update</button>
-<button class="btn waves-effect waves-light" id="prepare">Prepare</button>
 <form id="add_preparation_form">
-    <div class="input-field inline">
-        <input id="portions" name="portions" type="number" class="validate">
-        <label for="portions">Portions</label>
+    <div class="input-group">
+        <button class="btn" id="submitform" type="button" disabled>Update Recipe</button>
+        <input id="portions" name="portions" type="number" class="form-control">
+        <button class="btn" id="prepare" >Prepare Recipe</button>
     </div>
 </form>
-<hr>
-<a href="{{ url_for('add_ingredient', supplier_id=0)  }}">Add Ingredient</a>
-<br>
-<a href="{{ url_for('dashboard') }}">Dashboard</a>
+
+
+{% endblock %}
+{% block postloadjs %}
+<script type="module">
+  import Autocomplete from "https://cdn.jsdelivr.net/gh/lekoala/bootstrap5-autocomplete@master/autocomplete.js";
+  var src = [];
+  {% for ingredient in ingredients_data %}
+    src.push({
+      title: "{{ingredient.name}}",
+      id: "{{ingredient.id}}",
+      data: {
+        "manufactored": {% if ingredient.manufactored %}true{% else %}false{% endif %}
+      },
+    });
+  {% endfor %}
+  Autocomplete.init("#autocomplete-input", {
+    items: src,
+    valueField: "id",
+    labelField: "title",
+    highlightTyped: true,
+    onSelectItem: function(e){
+        console.log(e)
+        if (e.data["manufactored"]) {
+            var row = document.createElement("div")
+            row.classList.add("row")
+            var p = document.createElement("p")
+            p.classList.add("col", "s7")
+            var label = document.createElement("label")
+            var checkbox = document.createElement("input")
+            checkbox.setAttribute("type", "checkbox")
+            var checkboxId = `manufactored_ingredient_${e.id}`
+            checkbox.setAttribute("id", checkboxId)
+            checkbox.setAttribute("name", checkboxId)
+            var span = document.createElement("span")
+            span.innerText = e.title
+            label.appendChild(checkbox)
+            label.appendChild(span)
+            p.appendChild(label)
+            var div = document.createElement("div")
+            div.classList.add("col", "s3", "input-group")
+            var quantity = document.createElement("input")
+            var quantityId = `manufactored_ingredient_quantity_${e.id}`
+            quantity.setAttribute("id", quantityId)
+            quantity.setAttribute("name", quantityId)
+            quantity.setAttribute("type", "number")
+            var quantityLabel = document.createElement("label")
+            quantityLabel.setAttribute("for", quantityId)
+            quantityLabel.innerText = "portions"
+            div.appendChild(quantity)
+            div.appendChild(quantityLabel)
+            row.appendChild(p)
+            row.appendChild(div)
+            var manufactored = document.getElementById("manufactored_ingredients")
+            manufactored.appendChild(row)
+        } else {
+            var row = document.createElement("div")
+            row.classList.add("row")
+            var p = document.createElement("p")
+            p.classList.add("col", "s7")
+            var label = document.createElement("label")
+            var checkbox = document.createElement("input")
+            checkbox.setAttribute("type", "checkbox")
+            var checkboxId = `ingredient_${e.id}`
+            checkbox.setAttribute("id", checkboxId)
+            checkbox.setAttribute("name", checkboxId)
+            var span = document.createElement("span")
+            span.innerText = e.title
+            label.appendChild(checkbox)
+            label.appendChild(span)
+            p.appendChild(label)
+            var div = document.createElement("div")
+            div.classList.add("col", "s3", "input-group")
+            var quantity = document.createElement("input")
+            var quantityId = `ingredient_quantity_${e.id}`
+            quantity.setAttribute("id", quantityId)
+            quantity.setAttribute("name", quantityId)
+            quantity.setAttribute("type", "number")
+            var quantityLabel = document.createElement("label")
+            quantityLabel.setAttribute("for", quantityId)
+            quantityLabel.innerText = "grams"
+            div.appendChild(quantity)
+            div.appendChild(quantityLabel)
+            row.appendChild(p)
+            row.appendChild(div)
+            var manufactored = document.getElementById("ingredients")
+            manufactored.appendChild(row)
+        }
+    },
+  });
+ 
+</script>
 {% endblock %}

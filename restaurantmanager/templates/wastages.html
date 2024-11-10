@@ -1,0 +1,23 @@
+{% from 'macros.html' import display_wastages, display_messages, display_employee_menu_items %}
+{% extends "base.html" %}
+{% block content %}
+<h1 class="text-center">
+    Wastages
+</h1>
+<div class="text-center">
+  <div class="btn-group">
+    <a href="{{ url_for('stockmanagement') }}" class="btn">
+      Back to Manage
+    </a>
+    <a href="{{ url_for('add_wastages') }}" class="btn">
+        Add Wastages
+      </a>
+    <a href="{{ url_for('logout') }}" class="btn">
+      Logout
+    </a>
+  </div>
+</div>
+<hr>
+{{ display_messages(messages) }}
+{{ display_wastages(wastages) }}
+{% endblock %}
