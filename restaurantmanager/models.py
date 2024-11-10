@@ -145,6 +145,7 @@ class User(db.Model, UserMixin):
     l_name = db.Column(db.String(20), nullable=True)
     google_id = db.Column(db.String, nullable=True)
     email = db.Column(db.String(66), nullable=True)
+    phone = db.Column(db.String(12), nullable=True)
     password = db.Column(db.String(255), nullable=True)
     vat_number = db.Column(db.String, nullable=True)
     roles = db.Column(db.Boolean, default=False)
@@ -272,6 +273,7 @@ class ManufactoredIngredient(db.Model):
     sellable_item = db.Column(db.Boolean, default=False)
     kind = db.Column(db.Enum(ItemKind), default=ItemKind(12))
     price = db.Column(db.Float, nullable=True)
+    image = db.Column(db.String, nullable=True)
 
     def __repr__(self):
         return "#{0} | Name: {1} | Stock: {2} portions".format(
