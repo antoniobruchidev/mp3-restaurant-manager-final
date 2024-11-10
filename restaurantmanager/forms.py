@@ -78,6 +78,7 @@ class AddEmployeeForm(RegisterForm):
 class AddSupplierForm(FlaskForm):
     name = StringField('Name', validators=[InputRequired()])
     email = StringField('Email', validators=[InputRequired(), Email()])
+    phone = StringField('Phone Number')
     info = TextAreaField('Info', validators=[InputRequired()])
     submit = SubmitField('Add Supplier')
 
@@ -85,6 +86,7 @@ class AddSupplierForm(FlaskForm):
 class AddIngredientForm(FlaskForm):
     name = StringField('Name', validators=[InputRequired()])
     supplier_id = IntegerField('Supplier ID', validators=[InputRequired()])
+    description = TextAreaField('Description')
     submit = SubmitField('Add Item')
 
     def validate_supplier_id(self, supplier_id):
