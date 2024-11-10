@@ -1,7 +1,7 @@
 import os
 import datetime
 from flask import flash, jsonify, redirect, render_template, request, url_for
-from restaurantmanager import app, db, argon2, mail
+from restaurantmanager import app, db, argon2, mail, ALLOWED_EXTENSIONS
 from restaurantmanager.models import (
     AccountType,
     Board,
@@ -68,6 +68,7 @@ from restaurantmanager.forms import (
 )
 from restaurantmanager.web3interface import w3, check_role, grant_role, role_hash
 from flask_mail import Message
+from werkzeug.utils import secure_filename
 
 # from restaurantmanager.middleware import append_ingredient_quantity, append_manufactored_ingredient_quantity, get_ingredient_quantity_from_form, get_ingredient_related_deliveries, get_ingredient_related_placedorders, get_ingredient_related_recipes, get_manufactored_ingredient_quantity_from_form, increase_stock, update_ingredient_quantity
 
@@ -84,6 +85,9 @@ def load_user(user_id):
 
 @app.route("/")
 def menu():
+    """
+    Route to list the menu page, if an item is sellable
+    it will go in the menu"""
     starters = (
         db.session.query(ManufactoredIngredient)
         .filter(
@@ -172,6 +176,9 @@ def menu():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    """
+    Route for login
+    """
     g_client_id = os.environ.get("GOOGLE_CLIENT_ID")
     if request.method == "POST":
         if request.form["account_type"] == "3":
@@ -226,6 +233,9 @@ def login():
 @app.route("/dashboard")
 @login_required
 def dashboard():
+    """
+    Route for dashboard
+    """
     is_owner = check_role(role_hash("owner"), current_user.web3_address)
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
     is_chef = check_role(role_hash("chef"), current_user.web3_address)
@@ -261,6 +271,7 @@ def dashboard():
 @app.route("/logout")
 @login_required
 def logout():
+    """Logout route"""
     logout_user()
     return redirect(url_for("login"))
 
@@ -268,6 +279,7 @@ def logout():
 @app.route("/messageboard")
 @login_required
 def messageboard():
+    """messageboard route"""
     is_owner = check_role(role_hash("owner"), current_user.web3_address)
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
     is_chef = check_role(role_hash("chef"), current_user.web3_address)
@@ -310,6 +322,7 @@ def messageboard():
 @app.route("/messageboards/sendmessage", methods=["GET", "POST"])
 @login_required
 def sendmessage():
+    """Route for sending message"""
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
     is_chef = check_role(role_hash("chef"), current_user.web3_address)
     is_waiter = check_role(role_hash("waiter"), current_user.web3_address)
@@ -332,6 +345,7 @@ def sendmessage():
 @app.route("/messageboards/<int:message_id>/answer", methods=["GET", "POST"])
 @login_required
 def answer_message(message_id):
+    """Route to answer messages"""
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
     is_chef = check_role(role_hash("chef"), current_user.web3_address)
     is_waiter = check_role(role_hash("waiter"), current_user.web3_address)
@@ -358,6 +372,7 @@ def answer_message(message_id):
 @app.route("/messageboards/<int:message_id>/delete", methods=["GET", "POST"])
 @login_required
 def delete_message(message_id):
+    """route to delete a message"""
     board_message = db.session.query(BoardMessage).filter_by(id=message_id).first()
     if board_message:
         if board_message.sender_id == current_user.id:
@@ -378,10 +393,23 @@ def delete_message(message_id):
 @app.route("/manager/staff")
 @login_required
 def get_employees():
+    """route to get employees"""
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
     if is_manager:
         employees = db.session.query(User).filter_by(roles=True).all()
-        return render_template("staff.html", employees=employees)
+        managers= []
+        chefs= []
+        waiters= []
+                
+        for employee in employees:
+            manager = check_role(role_hash("manager"), employee.web3_address)
+            chef = check_role(role_hash("chef"), employee.web3_address)
+            waiter = check_role(role_hash("waiter"), employee.web3_address)
+            managers.append(manager)
+            chefs.append(chef)
+            waiters.append(waiter)
+        staff_data = list(zip(employees, managers, chefs, waiters))
+        return render_template("staff.html", staff_data=staff_data)
     else:
         return redirect(url_for("dashboard"))
 
@@ -389,8 +417,17 @@ def get_employees():
 @app.route("/manager/addemployee", methods=["GET", "POST"])
 @login_required
 def add_employee():
+    """Route to add an employee from the registered users"""
     is_owner = check_role(role_hash("owner"), current_user.web3_address)
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
+    users = db.session.query(User).all()
+    users_data = []
+    for user in users:
+        users_data.append({
+            "id": user.id,
+            "title": f"{user.f_name} {user.l_name}",
+            "web3_address": user.web3_address
+        })
     if is_owner or is_manager:
         if request.method == "POST":
             role_id = request.form['role']
@@ -408,36 +445,33 @@ def add_employee():
             flash("success", "Account created successfully")
             return {"success": True}
         return render_template(
-            "addemployee.html", is_owner=is_owner, is_manager=is_manager)
+            "addemployee.html", is_owner=is_owner, is_manager=is_manager, users=users_data)
     else:
         return redirect(url_for("logout"))
 
 
-@app.route("/api/users/get_users")
-@login_required
-def get_users():
-    users_data = []
-    users = db.session.query(User).all()
-    for user in users:
-        users_data.append({"full_name": user.f_name + " " + user.l_name, "id": user.id })
-    return jsonify(users_data)
-
-@app.route("/manager/suppliers")
+@app.route("/suppliers")
 @login_required
 def get_suppliers():
+    """route to list the suppliers"""
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
-    if is_manager:
+    is_chef = check_role(role_hash("chef"), current_user.web3_address)
+    is_waiter = check_role(role_hash("waiter"), current_user.web3_address)
+    if is_manager or is_chef or is_waiter:
         suppliers = db.session.query(Supplier).all()
         return render_template("suppliers.html", suppliers=suppliers, is_manager=is_manager)
     else:
         return redirect(url_for("logout"))
 
 
-@app.route("/manager/suppliers/<int:supplier_id>")
+@app.route("/suppliers/<int:supplier_id>")
 @login_required
 def get_supplier(supplier_id):
+    """route to list a supplier data and the ingredients bought from them"""
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
-    if is_manager:
+    is_chef = check_role(role_hash("chef"), current_user.web3_address)
+    is_waiter = check_role(role_hash("waiter"), current_user.web3_address)
+    if is_manager or is_chef or is_waiter:
         supplier = db.session.query(Supplier).filter_by(id=supplier_id).first()
         ingredients = (
             db.session.query(Ingredient).filter_by(supplier_id=supplier_id).all()
@@ -449,11 +483,13 @@ def get_supplier(supplier_id):
         return redirect(url_for("logout"))
 
 
-@app.route("/manager/addsupplier", methods=["GET", "POST"])
+@app.route("/suppliers/addsupplier", methods=["GET", "POST"])
 @login_required
 def add_supplier():
+    """route to add a supplier"""
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
-    if is_manager:
+    is_chef = check_role(role_hash("chef"), current_user.web3_address)
+    if is_manager or is_chef:
         form = AddSupplierForm()
         if form.validate_on_submit():
             supplier = Supplier(
@@ -464,63 +500,105 @@ def add_supplier():
             return redirect(url_for("get_suppliers"))
         return render_template("addsupplier.html", form=form, is_manager=is_manager)
     else:
-        return redirect(url_for("logout"))
+        flash("Only managers and chefs can add supliers")
+        return redirect(url_for("dashboard"))
 
 
 @app.route(
-    "/manager/suppliers/<int:supplier_id>/addingredient", methods=["GET", "POST"]
+    "/suppliers/<int:supplier_id>/addingredient", methods=["GET", "POST"]
 )
 @login_required
 def add_ingredient(supplier_id):
+    """route to add an ingredient to a given supplier"""
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
-    print(is_manager)
-    if is_manager:
+    is_chef = check_role(role_hash("chef"), current_user.web3_address)
+    if is_manager or is_chef:
         form = AddIngredientForm()
         form.supplier_id.data = supplier_id
+        supplier = db.session.query(Supplier).filter_by(id=supplier_id).first()
         if form.validate_on_submit():
             ingredients = Ingredient(
-                name=form.name.data, supplier_id=form.supplier_id.data
+                name=form.name.data,
+                supplier_id=form.supplier_id.data,
+                description=form.description.data
             )
             db.session.add(ingredients)
             db.session.commit()
             flash("{0} added successfully".format(form.name.data))
             form.name.data = ""
-        return render_template("addingredient.html", form=form, supplier_id=supplier_id, is_manager=is_manager)
+        return render_template("addingredient.html", form=form, supplier=supplier, is_manager=is_manager)
     else:
-        return redirect(url_for("logout"))
+        flash("Only managers and chefs can add an ingredient")
+        return redirect(url_for("dashboard"))
+
+@app.route(
+    "/suppliers/<int:supplier_id>/ingredients/<ingredient_id>/delete", methods=["GET"]
+)
+@login_required
+def delete_ingredient(supplier_id, ingredient_id):
+    """route to delete an ingredient from the supplier"""
+    is_manager = check_role(role_hash("manager"), current_user.web3_address)
+    if is_manager:
+        ingredient = db.session.query(Ingredient).filter_by(id=ingredient_id).first()
+        db.session.delete(ingredient)
+        db.session.commit()
+        flash("Ingredient removed successfully")
+        return redirect(url_for("get_supplier", supplier_id=supplier_id))
+    else:
+        flash("Only managers can delete ingredients")
+        return redirect(url_for('dashboard'))
 
 
 @app.route("/manager/placedorders")
 @login_required
 def get_all_placedorders():
-    is_manager = check_role(role_hash("manager"), current_user.web3_address)
-    if is_manager:
-        orders = db.session.query(PlacedOrder).all()
-        return render_template("placedorders.html", orders=orders, is_manager=is_manager)
-    else:
-        return redirect(url_for("logout"))
-
-
-@app.route("/manager/suppliers/<supplier_id>/placedorders")
-@login_required
-def get_placedorders(supplier_id):
-    is_manager = check_role(role_hash("manager"), current_user.web3_address)
-    if is_manager:
-        orders = db.session.query(PlacedOrder).filter_by(supplier_id=supplier_id).all()
-        return render_template("placedorders.html", orders=orders)
-    else:
-        return redirect(url_for("logout"))
-
-
-@app.route("/manager/suppliers/<int:supplier_id>/placedorders/<int:order_id>/view-placedorder")
-@login_required
-def get_placedorder(supplier_id, order_id):
+    """route to list all the placed orders"""
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
     is_chef = check_role(role_hash("chef"), current_user.web3_address)
+    is_waiter = check_role(role_hash("waiter"), current_user.web3_address)
+    if is_manager or is_chef or is_waiter:
+        orders = db.session.query(PlacedOrder).all()
+        suppliers = []
+        for order in orders:
+            supplier = db.session.query(Supplier).filter_by(id=order.supplier_id).first()
+            suppliers.append(supplier)
+        orders_data = list(zip(orders, suppliers))
+        return render_template("placedorders.html", orders_data=orders_data, is_manager=is_manager, is_chef=is_chef, is_waiter=is_waiter)
+    else:
+        return redirect(url_for("logout"))
+
+
+@app.route("/suppliers/<supplier_id>/placedorders")
+@login_required
+def get_placedorders(supplier_id):
+    """route to list the placed orders from a given supplier"""
+    is_manager = check_role(role_hash("manager"), current_user.web3_address)
+    is_chef = check_role(role_hash("chef"), current_user.web3_address)
+    is_waiter = check_role(role_hash("waiter"), current_user.web3_address)
+    if is_manager or is_chef or is_waiter:
+        supplier = db.session.query(Supplier).filter_by(id=order.supplier_id).first()
+        orders = db.session.query(PlacedOrder).filter_by(supplier_id=supplier_id).all()
+        suppliers = []
+        for order in orders:
+            suppliers.append(supplier)
+        orders_data = list(zip(orders, suppliers))
+        return render_template("placedorders.html", orders_data=orders_data, is_manager=is_manager, is_chef=is_chef, is_waiter=is_waiter)
+    else:
+        return redirect(url_for("logout"))
+
+
+@app.route("/suppliers/<int:supplier_id>/placedorders/<int:order_id>/view-placedorder")
+@login_required
+def get_placedorder(supplier_id, order_id):
+    """route to see a single placed order info"""
+    is_manager = check_role(role_hash("manager"), current_user.web3_address)
+    is_chef = check_role(role_hash("chef"), current_user.web3_address)
+    is_waiter = check_role(role_hash("waiter"), current_user.web3_address)
     if order_id==0:
-        if is_manager or is_chef:
+        if is_manager or is_chef or is_waiter:
             placedorder = db.session.query(PlacedOrder).filter_by(id=supplier_id).filter_by(sent=False).first()
-            ingredients = []
+            ingredients = db.session.query(Ingredient).filter_by(supplier_id=supplier_id).all()
+            ingredients_in_order = []
             if placedorder != None:
                 for ingredient_quantity in placedorder.ingredient_quantities:
                     ingredient = (
@@ -528,21 +606,23 @@ def get_placedorder(supplier_id, order_id):
                         .filter_by(id=ingredient_quantity.ingredient_id)
                         .first()
                     )
-                    ingredients.append(ingredient)
+                    ingredients_in_order.append(ingredient)
                 return render_template(
                     "placedorder.html",
                     placedorder=placedorder,
                     ingredients=ingredients,
+                    ingredients_in_order=ingredients_in_order,
                     is_manager=is_manager,
                     is_chef=is_chef,
                     )
             else:
-                return render_template("placedorder.html", supplier_id=supplier_id, placedorder=None)
+                return render_template("placedorder.html", supplier_id=supplier_id, placedorder=None, ingredients=ingredients, is_manager=is_manager, is_chef=is_chef)
         else:
             return redirect(url_for("logout"))
     else:
         placedorder = db.session.query(PlacedOrder).filter_by(id=order_id).first()
-        ingredients = []
+        ingredients = db.session.query(Ingredient).filter_by(supplier_id=supplier_id).all()
+        ingredients_in_order = []
         if placedorder != None:
             for ingredient_quantity in placedorder.ingredient_quantities:
                 ingredient = (
@@ -550,19 +630,24 @@ def get_placedorder(supplier_id, order_id):
                     .filter_by(id=ingredient_quantity.ingredient_id)
                     .first()
                 )
-                ingredients.append(ingredient)
+                ingredients_in_order.append(ingredient)
             return render_template(
                 "placedorder.html",
                 placedorder=placedorder,
                 ingredients=ingredients,
+                ingredients_in_order=ingredients_in_order,
                 is_manager=is_manager,
                 is_chef=is_chef,
                 )
 
 
-@app.route("/manager/suppliers/<supplier_id>/placedorders/<order_id>/send", methods=['POST'])
+@app.route("/placedorders/<order_id>/send", methods=['POST'])
 @login_required
-def send_order(supplier_id, order_id):
+def send_order(order_id):
+    """
+    route to flag an order as sent, it has to be done manually
+    depending from the supplier preference
+    """
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
     if is_manager:
         order = db.session.query(PlacedOrder).filter_by(id=order_id).first()
@@ -570,27 +655,29 @@ def send_order(supplier_id, order_id):
         # TODO: send order to supplier via email
         db.session.add(order)
         db.session.commit()
+        flash("Order saved successfully as sent")
         return {"success": True}
     else:
-        return redirect(url_for("logout"))
+        flash("Only managers can send an order")
+        return redirect(url_for("dashboard"))
 
 
-@app.route("/manager/suppliers/<supplier_id>/add_to_order", methods=['POST'])
+@app.route("/suppliers/<supplier_id>/add_to_order", methods=['POST'])
 @login_required
 def add_to_order(supplier_id):
+    """route to add ingredients to an order"""
     is_chef = check_role(role_hash("chef"), current_user.web3_address)
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
-    if is_manager or is_chef:
+    is_waiter = check_role(role_hash("waiter"), current_user.web3_address)
+    if is_manager or is_chef or is_waiter:
         if request.method == "POST":
             open_order = db.session.query(PlacedOrder).filter_by(supplier_id=supplier_id).filter_by(sent=False).first()
             if open_order == None:
                 open_order = PlacedOrder(supplier_id=supplier_id, sent=False, dateTime=datetime.datetime.now())
             db.session.add(open_order)
             db.session.commit()
-            print(request.form.keys())
             open_order = db.session.query(PlacedOrder).filter_by(supplier_id=supplier_id).filter_by(sent=False).first()
             ingredient_quantites = get_ingredient_quantity_from_form(request.form.keys(), request.form)
-            print(ingredient_quantites)
             assert append_ingredient_quantity(ingredient_quantites, open_order)
             db.session.commit()
             flash("Item added to order successfully")
@@ -599,62 +686,55 @@ def add_to_order(supplier_id):
         return redirect(url_for("logout"))
 
 
-@app.route("/manager/deliveries")
+@app.route("/deliveries")
 @login_required
 def get_all_deliveries():
+    """route to list all deliveries"""
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
     is_chef = check_role(role_hash("chef"), current_user.web3_address)
     is_waiter = check_role(role_hash("waiter"), current_user.web3_address)
     if is_manager or is_chef or is_waiter:
         deliveries = db.session.query(Delivery).all()
-        return render_template("deliveries.html", deliveries=deliveries, is_manager=is_manager, is_chef=is_chef, is_waiter=is_waiter)
+        suppliers = []
+        for delivery in deliveries:
+            supplier = db.session.query(Supplier).filter_by(id=delivery.supplier_id).first()
+            suppliers.append(supplier)
+        deliveries_data = list(zip(deliveries, suppliers))
+        return render_template("deliveries.html", deliveries_data=deliveries_data, is_manager=is_manager, is_chef=is_chef, is_waiter=is_waiter)
     else:
         return redirect(url_for("logout"))
 
 
-@app.route("/manager/suppliers/<supplier_id>/deliveries")
+@app.route("/deliveries/suppliers/<supplier_id>")
 @login_required
 def get_deliveries(supplier_id):
-    is_manager = check_role(role_hash("manager"), current_user.web3_address)
-    if is_manager:
-        deliveries = db.session.query(Delivery).filter_by(supplier_id=supplier_id).all()
-        return render_template("deliveries.html", deliveries=deliveries)
-    else:
-        return redirect(url_for("logout"))
-
-
-@app.route("/manager/suppliers/<supplier_id>/deliveries/<delivery_id>")
-@login_required
-def get_delivery(supplier_id, delivery_id):
+    """route to list deliveries from a given supplier"""
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
     is_chef = check_role(role_hash("chef"), current_user.web3_address)
     is_waiter = check_role(role_hash("waiter"), current_user.web3_address)
-    if delivery_id==0:
-        if is_manager or is_chef or is_waiter:
-            delivery = db.session.query(Delivery).filter_by(id=supplier_id).filter_by(sent=False).first()
-            ingredients = []
-            if delivery != None:
-                for ingredient_quantity in delivery.ingredient_quantities:
-                    ingredient = (
-                        db.session.query(Ingredient)
-                        .filter_by(id=ingredient_quantity.ingredient_id)
-                        .first()
-                    )
-                    ingredients.append(ingredient)
-                return render_template(
-                    "delivery.html",
-                    delivery=delivery,
-                    ingredients=ingredients,
-                    is_manager=is_manager,
-                    is_chef=is_chef,
-                    )
-            else:
-                return render_template("delivery.html", supplier_id=supplier_id, delivery=None)
-        else:
-            return redirect(url_for("logout"))
+    if is_manager or is_chef or is_waiter:
+        supplier = db.session.query(Supplier).filter_by(id=supplier_id).first()
+        suppliers = []
+        deliveries = db.session.query(Delivery).filter_by(supplier_id=supplier_id).all()
+        for delivery in deliveries:
+            suppliers.append(supplier)
+        deliveries_data = list(zip(deliveries, suppliers))
+        return render_template("deliveries.html", deliveries_data=deliveries_data, is_manager=is_manager, is_chef=is_chef, is_waiter=is_waiter)
     else:
+        return redirect(url_for("logout"))
+
+
+@app.route("/suppliers/<supplier_id>/deliveries/<delivery_id>")
+@login_required
+def get_delivery(supplier_id, delivery_id):
+    """route to list a single delivery info"""
+    is_manager = check_role(role_hash("manager"), current_user.web3_address)
+    is_chef = check_role(role_hash("chef"), current_user.web3_address)
+    is_waiter = check_role(role_hash("waiter"), current_user.web3_address)
+    if is_manager or is_chef or is_waiter:
         delivery = db.session.query(Delivery).filter_by(id=delivery_id).first()
         ingredients = []
+        quantities = []
         if delivery != None:
             for ingredient_quantity in delivery.ingredient_quantities:
                 ingredient = (
@@ -663,20 +743,28 @@ def get_delivery(supplier_id, delivery_id):
                     .first()
                 )
                 ingredients.append(ingredient)
+                quantities.append(ingredient_quantity.quantity)
+            supplier = db.session.query(Supplier).filter_by(id=delivery.supplier_id).first()
             return render_template(
                 "delivery.html",
                 delivery=delivery,
+                supplier=supplier,
                 ingredients=ingredients,
+                quantities=quantities,
                 is_manager=is_manager,
                 is_chef=is_chef,
                 )
-
+        else:
+            return render_template("delivery.html", delivery=None)
+    else:
+            return redirect(url_for("logout"))
 
 @app.route(
-    "/manager/suppliers/<int:supplier_id>/deliveries/adddelivery", methods=["GET", "POST"]
+    "/suppliers/<int:supplier_id>/deliveries/adddelivery", methods=["GET", "POST"]
 )
 @login_required
 def add_delivery(supplier_id):
+    """route to add a delivery to a given supplier"""
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
     is_chef = check_role(role_hash("chef"), current_user.web3_address)
     is_waiter = check_role(role_hash("waiter"), current_user.web3_address)
@@ -702,7 +790,7 @@ def add_delivery(supplier_id):
             flash("Delivery placed successfully")
             return {"success": True}
         else:
-            return render_template("adddelivery.html",supplier_id=supplier_id, ingredients=ingredients)
+            return render_template("adddelivery.html", supplier_id=supplier_id, ingredients=ingredients)
     else:
         return redirect(url_for("logout"))
 
@@ -710,6 +798,7 @@ def add_delivery(supplier_id):
 @app.route("/manager/recipes")
 @login_required
 def get_all_recipes():
+    """route to list all recipes"""
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
     is_chef = check_role(role_hash("chef"), current_user.web3_address)
     if is_manager or is_chef:
@@ -722,7 +811,7 @@ def get_all_recipes():
                 .first()
             )
             recipes_for.append(recipe_for)
-        return render_template("recipes.html", recipes=recipes, recipes_for=recipes_for, is_manager=is_manager, is_chef=is_chef)
+        return render_template("recipes.html", recipes=recipes, recipes_for=recipes_for, is_manager=is_manager, is_chef=is_chef, kind=ItemKind)
     else:
         return redirect(url_for("logout"))
 
@@ -730,8 +819,24 @@ def get_all_recipes():
 @app.route("/manager/recipes/<recipe_id>")
 @login_required
 def get_recipe(recipe_id):
+    """route lo list a given recipe info"""
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
     is_chef = check_role(role_hash("chef"), current_user.web3_address)
+    all_ingredients = db.session.query(Ingredient).all()
+    all_manufactored_ingredients = db.session.query(ManufactoredIngredient).all()
+    ingredients_data = []
+    for ingredient in all_ingredients:
+        ingredients_data.append({
+            "name": ingredient.name,
+            "id": ingredient.id,
+            "manufactored": False
+            })
+    for manufactored_ingredient in all_manufactored_ingredients:
+        ingredients_data.append({
+            "name": manufactored_ingredient.name,
+            "id": manufactored_ingredient.id,
+            "manufactored": True
+            })
     if is_manager or is_chef:
         recipe = db.session.query(Recipe).filter_by(id=recipe_id).first()
         item = (
@@ -764,6 +869,7 @@ def get_recipe(recipe_id):
             recipe=recipe,
             ingredients=ingredients,
             manufactored_ingredients=manufactored_ingredients,
+            ingredients_data=ingredients_data,
             item=item,
             is_manager=is_manager,
             is_chef=is_chef,
@@ -775,6 +881,7 @@ def get_recipe(recipe_id):
 @app.route("/manager/recipes/<recipe_id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_recipe(recipe_id):
+    """route for editing a recipe"""
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
     is_chef = check_role(role_hash("chef"), current_user.web3_address)
     if is_manager or is_chef:
@@ -784,7 +891,6 @@ def edit_recipe(recipe_id):
             .filter_by(id=recipe.recipe_for)
             .first()
         )
-
         if request.method == "POST" and is_manager:
             if request.form["name"]:
                 manufactored_ingredient.name = request.form["name"]
@@ -796,7 +902,22 @@ def edit_recipe(recipe_id):
                 manufactored_ingredient.sellable_item = False
             if request.form["price"]:
                 manufactored_ingredient.price = request.form["price"]
-            db.session.commit()
+            print(request.files)
+            if 'file_input' in request.files:
+                file = request.files['file_input']
+                if file.filename != '':
+                    allowed_file = '.' in file.filename and \
+                    file.filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+                if file and allowed_file:
+                    filename = secure_filename(file.filename)
+                    path = app.root_path + app.config["UPLOAD_FOLDER"] + filename
+                    file.save(path)
+                    manufactored_ingredient.image = f"images/{filename}"
+                    db.session.add(manufactored_ingredient)
+                    db.session.commit()
+                else:
+                    flash("File format not recognized")
+                    return {"success":False}
         if request.method == "POST" and is_chef:
             if request.form["portions"]:
                 recipe.portions = request.form["portions"]
@@ -822,11 +943,26 @@ def edit_recipe(recipe_id):
 @app.route("/manager/stockmanagement")
 @login_required
 def stockmanagement():
+    """route for the stock management"""
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
     is_chef = check_role(role_hash("chef"), current_user.web3_address)
-    is_waiter = check_role(role_hash("waiter"), current_user.web3_address)
-    if is_manager or is_chef or is_waiter:
-        return render_template("stockmanagement.html", is_manager=is_manager, is_chef=is_chef, is_waiter=is_waiter)
+    ingredients = db.session.query(Ingredient).all()
+    ingredients_data = []
+    manufactored_ingredients = db.session.query(ManufactoredIngredient).all()
+    for ingredient in ingredients:
+        ingredients_data.append({
+            "name": ingredient.name,
+            "id": ingredient.id,
+            "manufactored": False
+            })
+    for manufactored_ingredient in manufactored_ingredients:
+        ingredients_data.append({
+            "name": manufactored_ingredient.name,
+            "id": manufactored_ingredient.id,
+            "manufactored": True
+            })
+    if is_manager or is_chef:
+        return render_template("stockmanagement.html", is_manager=is_manager, is_chef=is_chef, ingredients=ingredients_data)
     else:
         return redirect(url_for("logout"))
 
@@ -834,6 +970,7 @@ def stockmanagement():
 @app.route("/chef/createrecipe", methods=["GET", "POST"])
 @login_required
 def create_recipe():
+    """route to create a recipe"""
     is_chef = check_role(role_hash("chef"), current_user.web3_address)
     ingredients = db.session.query(Ingredient).all()
     manufactored_ingredients = db.session.query(ManufactoredIngredient).all()
@@ -881,6 +1018,7 @@ def create_recipe():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    """route to register"""
     g_client_id = os.environ.get("GOOGLE_CLIENT_ID")
     activation_link = "{}/activate".format(os.environ.get("HEROKU_DOMAIN"))
     user_delete_link = "{}/delete".format(os.environ.get("HEROKU_DOMAIN"))
@@ -947,6 +1085,7 @@ def register():
 
 @app.route("/activate/<web3_address>")
 def activate(web3_address):
+    """route to activate user"""
     print(web3_address.lower())
     user = db.session.query(User).filter_by(web3_address=web3_address).first()
     print(user.activated)
@@ -958,28 +1097,9 @@ def activate(web3_address):
         return redirect(url_for("login"))
 
 
-@app.route("/api/get_all_ingredients")
-def get_all_ingredients():
-    ingredients = db.session.query(Ingredient).all()
-    ingredients_data = []
-    manufactored_ingredients = db.session.query(ManufactoredIngredient).all()
-    for ingredient in ingredients:
-        ingredients_data.append(
-            {"name": ingredient.name, "id": ingredient.id, "manufactored": False}
-        )
-    for manufactored_ingredient in manufactored_ingredients:
-        ingredients_data.append(
-            {
-                "name": manufactored_ingredient.name,
-                "id": manufactored_ingredient.id,
-                "manufactored": True,
-            }
-        )
-    return jsonify(ingredients_data)
-
-
 @app.route("/api/ingredients/<int:id>/get_ingredient_data")
 def get_ingredient_data(id):
+    """route to get all data related to a given ingredient"""
     ingredient = db.session.query(Ingredient).filter_by(id=id).first()
     ingredient_data = {
         "name": ingredient.name,
@@ -1053,12 +1173,14 @@ def get_ingredient_data(id):
         "placedorders": ingredient_related_placeorders_data,
         "deliveries": ingredient_related_deliveries_data,
         "wastages": ingredient_related_wastages_data,
+        "preparations": ingredient_related_preparations_data,
         "stock_takes": ingredient_related_stock_takes_data,
     }
 
 
 @app.route("/api/manufactoredingredients/<int:id>/get_ingredient_data")
 def get_manufactored_ingredient_data(id):
+    """route to get all data from a given manufactored ingredient"""
     ingredient = db.session.query(ManufactoredIngredient).filter_by(id=id).first()
     recipe = db.session.query(Recipe).filter_by(recipe_for=ingredient.id).first()
     ingredient_data = {
@@ -1125,9 +1247,66 @@ def get_manufactored_ingredient_data(id):
     }
 
 
+@app.route("/wastages")
+@login_required
+def get_wastages():
+    """route to list all the recorded wastages"""
+    is_manager = check_role(role_hash("manager"), current_user.web3_address)
+    is_chef = check_role(role_hash("chef"), current_user.web3_address)
+    is_waiter = check_role(role_hash("waiter"), current_user.web3_address)
+    if is_manager or is_chef or is_waiter:
+        wastages = db.session.query(StockMovement).filter_by(preparation_kind=StockManagement(2)).all()
+        return render_template("wastages.html", wastages=wastages, is_manager=is_manager, is_chef=is_chef, is_waiter=is_waiter)
+
+
+
+@app.route("/suppliers/<supplier_id>/deliveries/<delivery_id>")
+@login_required
+def get_wastage(wastage_id):
+    """route to list a single wastage info"""
+    is_manager = check_role(role_hash("manager"), current_user.web3_address)
+    is_chef = check_role(role_hash("chef"), current_user.web3_address)
+    is_waiter = check_role(role_hash("waiter"), current_user.web3_address)
+    if is_manager or is_chef or is_waiter:
+        wastage = db.session.query(StockMovement).filter_by(id=wastage_id).first()
+        ingredients = []
+        manufactored_ingredients = []
+        for ingredient_quantity in wastage.ingredient_quantities:
+            ingredient = (
+                db.session.query(Ingredient)
+                .filter_by(id=ingredient_quantity.ingredient_id)
+                .first()
+            )
+            ingredients.append(ingredient)
+        for (
+            manufactored_ingredient_quantity
+        ) in wastage.manufactoredingredient_quantities:
+            manufactored_ingredient = (
+                db.session.query(ManufactoredIngredient)
+                .filter_by(
+                    id=manufactored_ingredient_quantity.manufactored_ingredient_id
+                )
+                .first()
+            )
+            manufactored_ingredients.append(manufactored_ingredient)
+            return render_template(
+                "delivery.html",
+                wastage=wastage,
+                ingredients=ingredients,
+                manufactored_ingredients=manufactored_ingredients,
+                is_manager=is_manager,
+                is_chef=is_chef,
+                )
+        else:
+            return render_template("delivery.html", delivery=None)
+    else:
+            return redirect(url_for("logout"))
+
+
 @app.route("/manager/addwastages", methods=["GET", "POST"])
 @login_required
 def add_wastages():
+    """route to add a wastage"""
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
     is_chef = check_role(role_hash("chef"), current_user.web3_address)
     is_waiter = check_role(role_hash("waiter"), current_user.web3_address)
@@ -1171,6 +1350,7 @@ def add_wastages():
 @app.route("/chef/recipes/<int:recipe_id>/prepare", methods=["GET", "POST"])
 @login_required
 def add_preparation(recipe_id):
+    """route to add a preparation"""
     is_chef = check_role(role_hash("chef"), current_user.web3_address)
     recipe = db.session.query(Recipe).filter_by(id=recipe_id).first()
     if is_chef:
@@ -1216,6 +1396,7 @@ def add_preparation(recipe_id):
 @app.route("/manager/ingredients/<int:ingredient_id>/setstock", methods=["POST"])
 @login_required
 def set_ingredient_stock(ingredient_id):
+    """route to manually adjust stock levels for a given ingredient"""
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
     if is_manager:
         ingredient = db.session.query(Ingredient).filter_by(id=ingredient_id).first()
@@ -1251,6 +1432,7 @@ def set_ingredient_stock(ingredient_id):
 )
 @login_required
 def set_manufactoredingredient_stock(ingredient_id):
+    """route to manually adjust stock levels for a given manufactored ingredient"""
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
     if is_manager:
         ingredient = (
@@ -1288,6 +1470,7 @@ def set_manufactoredingredient_stock(ingredient_id):
 
 @app.route("/manager/placedorders/<int:order_id>/delete")
 def delete_placedorder(order_id):
+    """route to delete a placed order"""
     order = (
         db.session.query(PlacedOrder)
         .filter_by(id=order_id)
@@ -1301,6 +1484,7 @@ def delete_placedorder(order_id):
 
 @app.route("/delete/<web3_address>")
 def delete_user(web3_address):
+    """route to delete an user"""
     w3_cs_a = w3.to_checksum_address(web3_address)
     user = (
         db.session.query(User)
