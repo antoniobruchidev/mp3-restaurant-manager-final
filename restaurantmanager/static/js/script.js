@@ -270,9 +270,9 @@ const submitEditRecipeForm = async () =>  {
       body: formData,
     })
     const data = await response.json();
-    if  (data.success)  {
-    window.location.href = window.location.pathname;
-    }
+    
+    window.location.reload()
+    
   } catch  (e)  {
     console.error(e);
   }
@@ -280,8 +280,6 @@ const submitEditRecipeForm = async () =>  {
 
 const editRecipe = () => {
   $('#autocomplete-input').attr('disabled', false)
-  $('#addingredient').attr('disabled', false)
-  getIngredients();
   if (is_chef == "True") {
     const ingredients = $('.myCheckbox')
     for (let ingredient of ingredients) {
@@ -365,8 +363,7 @@ const submitPrepareRecipeForm = async () =>  {
 const submitHireForm = async () =>  {
   const form = document.getElementById('hire-form');
   const formData = new FormData(form);
-  const id = $('#user-id').html()
-  const elem = document.getElementById('role')
+  const id = $('#user').html().split(" - ")[0]
   formData.append('id', id)
   formData.get('role')
   
@@ -389,14 +386,14 @@ const submitOrderForm = async () => {
   const form = document.getElementById('send-order');
   const formData = new FormData(form);
   try {
-    const response = await fetch("/manager/suppliers/"+supplierId+"/placedorders/"+orderId+"/send",  {
+    const response = await fetch("/placedorders/"+orderId+"/send",  {
       method: "POST",
       // Set the FormData instance as the request body
       body: formData,
     })
     const data = await response.json();
     if (data.success) {
-      window.location.href = "/manager/stockmanagement";
+      window.location.reload();
     }
   } catch (e) {
     console.error(e);
@@ -412,7 +409,6 @@ let stockTakes
 let preparations;
 let ingredient;
 let manufactored_ingredient;
-var tabsInstance;
 
 const getIngredientData = async (ingredient_id) => {
   try {
@@ -428,9 +424,6 @@ const getIngredientData = async (ingredient_id) => {
     ingredient = await data['ingredient']
     preparations = undefined
     orders = undefined
-    const tabs = document.getElementById('tabs')
-    var instance = M.Tabs.getInstance(tabs)
-    instance.select("recipes")
     displayIngredientData()
     $('#go_to').attr('disabled', true)
     $('#add_to_order').attr('disabled', false)
@@ -451,12 +444,9 @@ const getManufactoredIngredientData = async (ingredient_id) => {
     wastages = createRelatedWastageRecords(await data['wastages'])
     preparations = createRelatedPreparationRecords(await data['preparations'])
     stockTakes = createRelatedStockTakeRecords(await data['stock_takes'])
-    manufacoted_ingredient = await data['ingredient']
+    manufactored_ingredient = await data['ingredient']
     deliveries = undefined
     placedorders = undefined
-    const tabs = document.getElementById('tabs')
-    var instance = M.Tabs.getInstance(tabs)
-    instance.select("recipes")
     displayIngredientData()
     $('#add_to_order').attr('disabled', true)
     $('#go_to').attr('disabled', false)
@@ -477,25 +467,30 @@ const displayIngredientData = () => {
   $('#stock').parent().find("label").addClass('active')
   $('#stock').val(Number(ingredient.stock))
   $('#stock').attr('disabled', false)
+  $("#recipes").html(recipes)
+  $("#placed_orders").html(placedorders)
+  $("#deliveries").html(deliveries)
+  $("#preparations").html(preparations)
+  $("#watages").html(wastages)
+  $("#stock_takes").html(stockTakes)
+  $("#sales").html(orders)
 }
-const switchGetIngredientData = (val) => {
-  const is_manufactored = val.split('.')[0]
-  const ingredient_id = val.split('.')[1].split(' ')[0]
-  const ingredient_name = val.split('.')[1].split(' - ')[1]
+
+const switchGetIngredientData = (id, manufactored, name) => {
   $('#stock_take').attr('disabled', false)
   $('#stock_take').on('click', switchSetStock)
   if (window.location.pathname == "/manager/stockmanagement") {
-    if (is_manufactored == "I")  {
-      getIngredientData(ingredient_id)
+    if (!manufactored)  {
+      getIngredientData(id)
       $('.ingredient-only').show()
       $('.manufactored-only').hide() 
     } else  {
-      getManufactoredIngredientData(ingredient_id)
+      getManufactoredIngredientData(id)
       $('.manufactored-only').show() 
       $('.ingredient-only').hide()
     }
   } else { 
-    addIngredientQuantity(is_manufactored, ingredient_id, ingredient_name)
+    addIngredientQuantity(manufactored, id, name)
   }
 }
 
@@ -536,17 +531,17 @@ const showTabData = (tabId) => {
 
 const createRelatedOrderRecords = (data) => {
   let div = document.createElement('div')
-  div.classList.add('col', 's12')
+  div.classList.add('container-fluid')
   let h5 = document.createElement('h5')
-  h5.classList.add('center-align')
+  h5.classList.add('text-center')
   h5.innerHTML = 'Releated sales'
   div.appendChild(h5)
   let ul = document.createElement('ul')
-  ul.classList.add('collection')
+  ul.classList.add('list-group')
   if(data != [] && data != undefined){
     for (let sale of data) {
     let li = document.createElement('li')
-    li.classList.add('collection-item')
+    li.classList.add('list-group-item')
     li.innerHTML = 'Date: ' + sale.date + ' -  Table: ' + sale.table + ' - Quantity: ' + sale.quantity
     ul.appendChild(li)
   }
@@ -557,18 +552,18 @@ const createRelatedOrderRecords = (data) => {
 
 const createRelatedWastageRecords = (data) => {
   let div = document.createElement('div')
-  div.classList.add('col', 's12')
+  div.classList.add('container-fluid')
   let h5 = document.createElement('h5')
-  h5.classList.add('center-align')
+  h5.classList.add('text-center')
   h5.innerHTML = 'Releated wastages'
   div.appendChild(h5)
   let dataDiv = document.createElement('div')
-  dataDiv.classList.add('collection')
+  dataDiv.classList.add('list-group')
   if(data != [] && data != undefined){
     for (let wastage of data) {
       console.log(wastage)
     let anchor = document.createElement('a')
-    anchor.classList.add('collection-item')
+    anchor.classList.add('list-group-item', 'list-group-item-action')
     anchor.href = "/manager/wastages/" + wastage.id
     anchor.innerHTML = 'Date: ' + wastage.date + ' - Info: ' + wastage.stockmovement_info + ' - Quantity: ' + wastage.quantity
     dataDiv.appendChild(anchor)
@@ -580,17 +575,17 @@ const createRelatedWastageRecords = (data) => {
 
 const createRelatedPreparationRecords = (data) => {
   let div = document.createElement('div')
-  div.classList.add('col', 's12')
+  div.classList.add('container-fluid')
   let h5 = document.createElement('h5')
-  h5.classList.add('center-align')
+  h5.classList.add('text-center')
   h5.innerHTML = 'Releated preparations'
   div.appendChild(h5)
   let ul = document.createElement('ul')
-  ul.classList.add('collection')
+  ul.classList.add('list-group')
   if(data != [] && data != undefined){
     for (let preparation of data) {
       let li = document.createElement('li')
-      li.classList.add('collection-item', "brown-text", "text-darken-3")
+      li.classList.add('list-group-item')
       li.innerHTML = 'Date: ' + preparation.date + ' - Quantity: ' + preparation.quantity
       ul.appendChild(li)
     }
@@ -601,17 +596,17 @@ const createRelatedPreparationRecords = (data) => {
 
 const createRelatedStockTakeRecords = (data) => {
   let div = document.createElement('div')
-  div.classList.add('col', 's12')
+  div.classList.add('container-fluid')
   let h5 = document.createElement('h5')
-  h5.classList.add('center-align')
-  h5.innerHTML = 'Releated preparations'
+  h5.classList.add('text-center')
+  h5.innerHTML = 'Releated stock takes'
   div.appendChild(h5)
   let ul = document.createElement('ul')
-  ul.classList.add('collection')
+  ul.classList.add('list-group')
   if(data != [] && data != undefined){
     for (let stockTake of data) {
       let li = document.createElement('li')
-      li.classList.add('collection-item', "brown-text", "text-darken-3")
+      li.classList.add('list-group-item')
       li.innerHTML = 'Date: ' + stockTake.date + ' - Quantity: ' + stockTake.quantity
       ul.appendChild(li)
     }
@@ -622,17 +617,17 @@ const createRelatedStockTakeRecords = (data) => {
 
 const createRelatedRecipeRecords = (data) => {
   let div = document.createElement('div')
-  div.classList.add('col', 's12')
+  div.classList.add('container-fluid')
   let h5 = document.createElement('h5')
-  h5.classList.add('center-align')
+  h5.classList.add('text-center')
   h5.innerHTML = 'Releated recipes'
   div.appendChild(h5)
   let dataDiv = document.createElement('div')
-  dataDiv.classList.add('collection')
+  dataDiv.classList.add('list-group')
   if(data != [] && data != undefined){
     for (let recipe of data) {
     let anchor = document.createElement('a')
-    anchor.classList.add('collection-item')
+    anchor.classList.add('list-group-item', 'list-group-item-action')
     anchor.href = '/manager/recipes/' + recipe.id
     anchor.innerHTML = 'Id: ' + recipe.id + ' -  Manufactored ingredient: ' + recipe.name + ' - Sellable: ' + recipe.sellable
     dataDiv.appendChild(anchor)
@@ -644,18 +639,18 @@ const createRelatedRecipeRecords = (data) => {
 
 const createRelatedPlacedOrderRecords = (data) => {
   let div = document.createElement('div')
-  div.classList.add('col', 's12')
+  div.classList.add('container-fluid')
   let h5 = document.createElement('h5')
-  h5.classList.add('center-align')
+  h5.classList.add('text-center')
   h5.innerHTML = 'Releated placed orders'
   div.appendChild(h5)
   let dataDiv = document.createElement('div')
-  dataDiv.classList.add('collection')
+  dataDiv.classList.add('list-group')
   if(data != [] && data != undefined){
     for (let placedorder of data) {
     let anchor = document.createElement('a')
-    anchor.classList.add('collection-item')
-    anchor.href = '/manager/suppliers/' + placedorder.supplier_id + "/placedorders/" + placedorder.id + "/view-placedorder"
+    anchor.classList.add('list-group-item', 'list-group-item-action')
+    anchor.href = '/suppliers/' + placedorder.supplier_id + "/placedorders/" + placedorder.id + "/view-placedorder"
     anchor.innerHTML = 'Id: ' + placedorder.id + ' -  Date: ' + placedorder.date + '  -  Quantity: ' + placedorder.quantity
     dataDiv.appendChild(anchor)
   }
@@ -666,18 +661,18 @@ const createRelatedPlacedOrderRecords = (data) => {
 
 const createRelatedDeliveryRecords = (data) => {
   let div = document.createElement('div')
-  div.classList.add('col', 's12')
+  div.classList.add('container-fluid')
   let h5 = document.createElement('h5')
-  h5.classList.add('center-align')
+  h5.classList.add('text-center')
   h5.innerHTML = 'Related deliveries'
   div.appendChild(h5)
   let dataDiv = document.createElement('div')
-  dataDiv.classList.add('collection')
+  dataDiv.classList.add('list-group')
   if(data != [] && data != undefined){
     for (let delivery of data) {
     let anchor = document.createElement('a')
-    anchor.classList.add('collection-item')
-    anchor.href = '/manager/suppliers/' + delivery.supplier_id + "/deliveries/" + delivery.id
+    anchor.classList.add('list-group-item', 'list-group-item-action')
+    anchor.href = '/suppliers/' + delivery.supplier_id + "/deliveries/" + delivery.id
     anchor.innerHTML = 'Id: ' + delivery.id + ' -  Date: ' + delivery.date + '  -  Quantity: ' + delivery.quantity
     dataDiv.appendChild(anchor)
   }
@@ -686,43 +681,7 @@ const createRelatedDeliveryRecords = (data) => {
   return div
 }
 
-const getIngredients = async () => {
-  try  {
-    const response = await fetch('/api/get_all_ingredients', {
-      method:  "GET",
-    })
-    const data = await response.json();
-    const ingredients = {}
-    for (let ingredient in data) {
-      if (!data[ingredient]['manufactored']){
-        const ingredient_in_searchbar = `I.${data[ingredient]['id']} - ${data[ingredient]['name']}`
-        ingredients[ingredient_in_searchbar] = null;
-      } else {
-        const ingredient_in_searchbar = `M.${data[ingredient]['id']} - ${data[ingredient]['name']}`
-        ingredients[ingredient_in_searchbar] = null;
-      }
-    }
-    $(function() {
-      $('input.autocomplete').autocomplete({
-        data: ingredients,
-        limit: 7, // The max amount of results that can be shown at once. Default: Infinity.
-        onAutocomplete: function (val) {
-            switchGetIngredientData(val)
-
-          },
-        minLength: 1, // The minimum length of the input for the autocomplete to start. Default: 1.
-        });
-    }, ingredients);
-    return ingredients;
-  } catch  (e)  {
-    console.error(e);
-  }
-}
-
-$(document).ready(function () {
-  $('.sidenav').sidenav();
-  $('select').formSelect();
-  if (window.location.pathname === '/chef/createrecipe') {
+$(document).ready(function () {  if (window.location.pathname === '/chef/createrecipe') {
     const inputFields = $('.view-toggle');
     for (let inputField of inputFields) {
       $(inputField).hide();
@@ -780,20 +739,8 @@ $(document).ready(function () {
   } else if (window.location.pathname.includes('/manager/recipe')) {
     $('#edit').on('click', editRecipe);
     $('#prepare').on('click', submitPrepareRecipeForm);
-    getIngredients();
   } else if (window.location.pathname.includes('/manager/stockmanagement')){
     $('.view-toggle').hide()
-    getIngredients();
-    if (tabsInstance === undefined)
-    $(function() {
-      tabsInstance = M.Tabs.init(tabs,{
-        duration: 1000,
-        onShow: function () {
-          tab = tabsInstance.index
-          showTabData(tab)
-        },
-      });
-    });
   } else if (window.location.pathname === '/manager/addwastages') {
     const inputFields = $('.view-toggle');
     for (let inputField of inputFields) {
@@ -814,7 +761,6 @@ $(document).ready(function () {
     });
     $('#submitform').on('click', submitWastageForm);
   } else if (window.location.pathname == '/manager/addemployee'){
-    getUsers();
     $('#submitform').on('click', submitHireForm);
   } else if (window.location.pathname.includes('view-placedorder')) {
     $('#submitform').on('click', submitOrderForm);
@@ -825,22 +771,38 @@ const addToOrder = async () => {
   const form = document.getElementById('ingredient_quantity_form')
   const formData = new FormData(form)
   const quantity = formData.get('stock')
-  formData.append('ingredient_quantity_'+ingredient['ingredient_id'], quantity)
+  if(window.location.pathname == '/manager/stockmanagement'){
+    formData.append('ingredient_quantity_'+ingredient['ingredient_id'], quantity)
 
-  try  {
-    const response 
-    = await fetch("/manager/suppliers/"+ingredient['supplier_id']+"/add_to_order",{
-      method: 'POST',
-      body: formData
-    })
-    const data 
-    = await response.json()
-    console.log(data)
-    if  (data.success)  {
-      window.location.href = '/manager/stockmanagement'
+    try  {
+      const response = await fetch("/suppliers/"+ingredient['supplier_id']+"/add_to_order",{
+        method: 'POST',
+        body: formData
+      })
+      const data = await response.json()
+      console.log(data)
+      if  (data.success)  {
+        window.location.href = '/manager/stockmanagement'
+      }
+    } catch  (error)  {
+      console.log(error)
     }
-  } catch  (error)  {
-    console.log(error)
+  } else {
+    formData.append('ingredient_quantity_'+$("#ingredient_id").val(), quantity)
+
+    try  {
+      const response = await fetch("/suppliers/"+$("#supplier_id").val()+"/add_to_order",{
+        method: 'POST',
+        body: formData
+      })
+      const data = await response.json()
+      if  (data.success)  {
+        window.location.reload()
+      }
+    } catch  (error)  {
+      console.log(error)
+    }
+
   }
 }
 
@@ -894,41 +856,12 @@ const switchSetStock = () => {
   }
 }
 
-const getUsers = async () => {
-  try {
-    const response = await fetch('/api/users/get_users', {    
-    })
-    const data = await response.json();
-    const users_data = {}
-    
-    for (let user in data) {
-      const ingredient_in_searchbar = `${data[user]['full_name']} - Id: ${data[user]['id']}`
-      users_data[ingredient_in_searchbar] = null;
-    }
-    $(function() {
-      $('input.autocomplete').autocomplete({
-        data: users_data,
-        limit: 7, // The max amount of results that can be shown at once. Default: Infinity.
-        onAutocomplete: function (val) {
-          const fullName = val.split(' - Id:')[0];
-          const id = val.split(' - Id: ')[1];
-          $('.card-title').html(fullName)
-          $('#user-id').html(id)
-        },
-        minLength: 1, // The minimum length of the input for the autocomplete to start. Default: 1.
-        });
-    }, users_data);
-  } catch (e) {
-    console.error(e);
-  }
-}
-
 const addIngredientQuantity = (is_manufactored, ingredient_id, ingredient_name) => {
 
   let item = ""
   let itemQuantity = ""
   let quantity;
-  if(is_manufactored != "M") {
+  if(is_manufactored) {
     item = "ingredient_id_"
     itemQuantity = "ingredient_quantity_"
     quantity = "grams"
