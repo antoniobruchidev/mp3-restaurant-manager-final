@@ -6,12 +6,143 @@ body {
 
 main {
   flex: 1 0 auto;
+  padding-top: 20px;
+  background-color: bisque;
 }
 
-.sidenav li > a {
-  font-size: 36px;
+.navbar-collapse {
+  flex-grow: 0;
 }
 
+.navbar {
+  background-color: brown !important;
+}
+
+.brand-logo {
+  color: snow;
+  text-decoration: none;
+  margin-left: 10px;
+  font-size: xx-large;
+}
+
+.nav-link {
+  color: snow;
+  font-size: xx-large;
+  margin-right: 15px;
+}
+
+#login-link, #logout-link {
+  margin-right: 35px;
+}
+
+.active {
+  color: lightyellow !important;
+}
+
+.brand-logo:hover, .nav-link:hover {
+  text-decoration: underline;
+  color:lightyellow;
+}
+
+.text-center {
+  text-align: center;
+}
+
+h1 {
+  color: brown;
+  margin-bottom: 20px;
+}
+
+.accordion-button {
+  background-color: brown !important;
+  color: snow !important;
+  font-weight: bold;
+}
+
+.accordion-item, .accordion-body, table, tr, td {
+  background-color: transparent !important;
+}
+
+tr:hover {
+  background-color: lightcoral !important;
+  color: lightyellow !important;
+  border-radius: 50% !important;
+}
+
+.dish-image {
+  height: 90px;
+  width: 90px;
+}
+
+.dish-name {
+  color: brown !important;
+  font-weight: bold;
+}
+
+.dish-price {
+  color: brown !important;
+}
+
+.btn {
+  background-color: lightcoral !important;
+  color: snow !important;
+}
+
+.btn-show {
+  background-color: brown !important;
+  color: lightyellow;
+}
+
+.btn-group {
+  margin: 0 auto;
+}
+
+.btn:hover {
+  background-color: brown !important;
+  color: lightyellow !important;
+}
+
+.card {
+  background-color: blanchedalmond;
+}
+
+.card-title {
+  color: brown;
+  font-weight: bold;
+}
+
+.card-subtitle {
+  color: brown;
+}
+
+.card-body p {
+  color: brown;
+}
+
+.card-link {
+  color: brown;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.card-link:hover {
+  color: brown;
+  text-decoration: underline !important;
+  font-weight: bolder;
+}
+
+.list-group-item {
+  color: brown;
+  background-color: blanchedalmond;
+}
+
+.list-group-item a {
+  color: snow
+}
+
+.badge:hover {
+  background-color: darkred !important;
+}
 em {
   font-size: smaller;
 }
@@ -22,4 +153,40 @@ em {
 
 #addingredient {
   top: 30px;
+}
+
+.related-info {
+  margin: 10px;
+}
+
+#supplier_reference {
+  max-width: 400px;
+}
+
+.form-check {
+  margin-left: 20px !important;
+}
+
+input[type=number] {
+  max-width: 155px;
+}
+
+.quantity-label {
+  padding: 5px !important;
+}
+
+#image-upload {
+  margin: 0 auto;
+}
+
+.input-group {
+  max-width: 100%;
+}
+
+#add_preparation_form {
+  margin: 15px auto;
+}
+
+textarea {
+  flex-grow: 1;
 }
