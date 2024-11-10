@@ -1,32 +1,38 @@
 {% from 'macros.html' import display_messages, display_ingredients %}
 {% extends 'base.html' %}
 {% block content %}
-<h1 class="center-align">
+<h1 class="text-center">
     Add delivery Page
 </h1>
-<a href="{{ url_for('dashboard') }}">
-  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Dashboard</button>
-</a>
-<a href="{{ url_for('logout') }}">
-  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Logout</button>
-</a>
+<div class="text-center">
+  <div class="btn-group">
+    <a href="{{ url_for('get_deliveries', supplier_id=supplier_id) }}" class="btn">
+      Back to Deliveries
+    </a>
+    <a href="{{ url_for('dashboard') }}" class="btn">
+      Dashboard
+    </a>
+    <a href="{{ url_for('logout') }}" class="btn">
+      Logout
+    </a>
+  </div>
+</div>
 <hr>
 {{ display_messages(messages) }}
 <form action="" method="POST" id="add_delivery_form">
-    <div class="row">
-        <div class="input-field col s6">
-          <input placeholder="Supplier reference" id="supplier_reference" name="supplier_reference" type="text" class="validate">
-          <label for="supplier_reference">Supplier reference</label>
-        </div>
+  <div class="flex">
+    <div class="form-floating mb-3">
+      <input id="supplier_reference" class="form-control" name="supplier_reference" type="text">
+      <label for="supplier_reference">Supplier reference</label>
     </div>
-    <div class="row">
-        <div class="input-field col s12">
-          <textarea id="info" class="materialize-textarea" name="info"></textarea>
-          <label for="info">Info</label>
-        </div>
-      </div>
+    <div class="form-floating mb-2">
+      <textarea id="info" class="form-control" name="info"></textarea>
+      <label for="info">Info</label>
+    </div>
+  </div>
+  
 {{ display_ingredients(ingredients) }}
 </form>
-<button class="btn waves-effect waves-light" id="submitform">Submit</button>
+<button class="btn" id="submitform">Submit</button>
 <hr>
 {% endblock %}

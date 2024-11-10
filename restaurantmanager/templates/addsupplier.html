@@ -1,10 +1,11 @@
 {% from 'macros.html' import display_messages %}
 {% extends "base.html" %}
 {% block content %}
-<h1 class="center-align">
+<h1 class="text-center">
     Add supplier
 </h1>
-<div class="btn-group">
+<div class="text-center">
+  <div class="btn-group">
     <a href="{{ url_for('get_suppliers') }}" class="btn">
       Back to Suppliers
     </a>
@@ -15,13 +16,27 @@
       Logout
     </a>
   </div>
+</div>
 <hr>
 {{ display_messages(messages) }}
 <form method="POST" action="">
     {{ form.hidden_tag() }}
-    {{ form.name(placeholder="Supplier name")  }}
-    {{ form.email(placeholder="Email address")}}
-    {{ form.info(placeholder="Supplier info")  }}
-    {{ form.submit }}
+    <div class="container mt-3">
+      <label>Supplier Name:</label>
+      {{ form.name(placeholder="Supplier name", class_='form-control mt-2') }}
+    </div>
+    <div class="container mt-3">
+      <label>Email:</label>
+      {{ form.email(placeholder="supplier@theiremail.com", class_='form-control mt-2') }}
+    </div>
+    <div class="container mt-3">
+      <label>Phonenumber:</label>
+      {{ form.phone(placeholder="02029532562", class_='form-control mt-2') }}
+    </div>
+    <div class="container mt-3">
+      <label>Info:</label>
+      {{ form.info(placeholder="Supplier info", class_='form-control mt-2') }}
+    {{ form.submit(class_='btn mt-2') }}
+    </div>
 </form>
 {% endblock %}
