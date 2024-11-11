@@ -190,3 +190,11 @@ input[type=number] {
 textarea {
   flex-grow: 1;
 }
+
+#qr-reader {
+  margin: 0 auto;
+}
+
+.text-end {
+  text-align: end;
+}
