@@ -1,66 +1,65 @@
 {% extends "base.html" %}
 {% block content %}
-<h1 class="center-align">
-    Register Page
-</h1>
-<form method="POST" action="" id="register_form">
-    <div class="row">
-        <div class="input-field col s6">
-        </div>
-        <!-- Metamask -->
-        <div class="col s2 push-s1">
-            <img src="{{ url_for('static', filename='images/metamask.svg') }}" alt="Metamask sign in" id="metamask">
-        </div>
-        <!-- Google -->
-        <div class="col s2 push-s1">
-            <div id="g_id_onload"
-                data-client_id="{{ g_client_id }}"
-                data-context="signin"
-                data-ux_mode="popup"
-                data-callback="handleCredentialResponse"
-                data-auto_prompt="false">
+    <h1 class="text-center">
+        Register Page
+    </h1>
+    <form method="POST" action="" id="register_form">
+        <div class="row">
+            <!-- Metamask -->
+            <div class="col-4">
+                <img src="{{ url_for('static', filename='images/metamask.svg') }}" alt="Metamask sign in" id="metamask">
             </div>
+            <!-- Google -->
+            <div class="col-4">
+                <div id="g_id_onload"
+                    data-client_id="{{ g_client_id }}"
+                    data-context="signin"
+                    data-ux_mode="popup"
+                    data-callback="handleCredentialResponse"
+                    data-auto_prompt="false">
+                </div>
 
-            <div class="g_id_signin"
-                data-type="icon"
-                data-shape="circle"
-                data-theme="outline"
-                data-text="continue_with"
-                data-size="large">
+                <div class="g_id_signin"
+                    data-type="icon"
+                    data-shape="circle"
+                    data-theme="outline"
+                    data-text="continue_with"
+                    data-size="large">
+                </div>
+                <p id="googleResponse" class="center-align"></p>
             </div>
-            <p id="googleResponse" class="center-align"></p>
         </div>
+        <div class="row mt-4">
+            <div class="input-group col-6 mt-2">
+                <label for="f_name" class="input-group-text">First Name</label>
+                <input placeholder="First Name" id="f_name" name="f_name" type="text">
+            </div>
+            <div class="input-group col-6 mt-2">
+                <label for="l_name" class="input-group-text">Last Name</label>
+                <input  placeholder="Last Name" id="l_name" type="text" name="l_name">
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-group col-6 mt-2">
+                <label for="email" class="input-group-text">Email</label>
+                <input placeholder="youremail@server.com" id="email" type="email" name="email">
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-group col-6 mt-2">
+                <label for="password" class="input-group-text">Password</label>
+                <input id="password" type="password" name="password">
+            </div>
+            <div class="input-group col-6 mt-2">
+                <label for="confirm_password" class="input-group-text">Password</label>
+                <input id="confirm_password" name="confirm_password" type="password">
+            </div>
+        </div>
+    </form>
+    <div class="btn-group mt-3">
+      <button class="btn" id="submitform">Register</button>
+      <a href="{{ url_for('login') }}">
+          <button class="btn">Login</button>
+      </a>
     </div>
-    <div class="row">
-        <div class="input-field col s6">
-          <input placeholder="Placeholder" id="f_name" name="f_name" type="text" class="validate">
-          <label for="f_name">First Name</label>
-        </div>
-        <div class="input-field col s6">
-          <input id="l_name" type="text" name="l_name" class="validate">
-          <label for="l_name">Last Name</label>
-        </div>
-      </div>
-      <div class="row">
-        <div class="input-field col s12">
-          <input id="email" type="email" name="email" class="validate">
-          <label for="email">Email</label>
-        </div>
-      </div>
-      <div class="row">
-        <div class="input-field col s6">
-            <input id="password" type="password" name="password" class="validate">
-            <label for="password">Password</label>
-          </div>
-          <div class="input-field col s6">
-            <input id="confirm_password" name="confirm_password" type="password" class="validate">
-            <label for="confirm_password">Password</label>
-          </div>
-      </div>
-</form>
-<button class="btn waves-effect waves-light brown darken-4 lime-text text-lighten-4" id="submitform">Register</button>
-<a href="{{ url_for('login') }}">
-  <button class="btn waves-effect waves-light brown darken-4 lime-text text-lighten-4">Login</button>
-</a>
-<br>
 {% endblock %}

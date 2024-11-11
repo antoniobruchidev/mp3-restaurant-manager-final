@@ -1,70 +1,70 @@
 {% from 'macros.html' import display_recipes, display_messages,display_employee_menu_items %}
 {% extends "base.html" %}
 {% block content %}
-<h1 class="text-center">
-    Recipes
-</h1>
-<div class="text-center">
-    <div class="btn-group">
-        <a href="{{ url_for('dashboard') }}" class="btn">
-            Back to Dashboard
-        </a>
-        {% if is_chef %}
-        <a href="{{ url_for('create_recipe') }}" class="btn">
-            Create Recipe
-        </a>
-        {% endif %}
-        <a href="{{ url_for('logout') }}" class="btn">
-            Logout
-        </a>
+    <h1 class="text-center">
+        Recipes
+    </h1>
+    <div class="text-center">
+        <div class="btn-group">
+            <a href="{{ url_for('dashboard') }}" class="btn">
+                Back to Dashboard
+            </a>
+            {% if is_chef %}
+                <a href="{{ url_for('create_recipe') }}" class="btn">
+                    Create Recipe
+                </a>
+            {% endif %}
+            <a href="{{ url_for('logout') }}" class="btn">
+                Logout
+            </a>
+        </div>
     </div>
-</div>
-<div class="text-center mt-2">
-    <div class="btn-group">
-        <button data-kind="starter" class="btn btn-show">
-            Starters
-        </button>
-        <button data-kind="pasta" type="button" class="btn btn-show">
-            Pastas
-        </button>
-        <button data-kind="pizza" type="button" class="btn btn-show">
-            Pizzas
-        </button>
-        <button data-kind="main" type="button" class="btn btn-show">
-            Mains
-        </button>
-        <button data-kind="dessert" type="button" class="btn btn-show">
-            Desserts
-        </button>
-        <button data-kind="topping" type="button" class="btn btn-show">
-            Pizza toppings
-        </button>
-        <button data-kind="water" type="button" class="btn btn-show">
-            Waters
-        </button>
-        <button data-kind="juice" type="button" class="btn btn-show">
-            Juices
-        </button>
-        <button data-kind="soft" type="button" class="btn btn-show">
-            Soft drinks
-        </button>
-        <button data-kind="wine" type="button" class="btn btn-show">
-            Wines
-        </button>
-        <button data-kind="beer" type="button" class="btn btn-show">
-            Beers
-        </button>
-        <button data-kind="distillates" type="button" class="btn btn-show">
-            Distillates
-        </button>
-        <button data-kind="other" type="button" class="btn btn-show">
-            Others
-        </button>
+    <div class="text-center mt-2">
+        <div class="btn-group">
+            <button data-kind="starter" class="btn btn-show">
+                Starters
+            </button>
+            <button data-kind="pasta" type="button" class="btn btn-show">
+                Pastas
+            </button>
+            <button data-kind="pizza" type="button" class="btn btn-show">
+                Pizzas
+            </button>
+            <button data-kind="main" type="button" class="btn btn-show">
+                Mains
+            </button>
+            <button data-kind="dessert" type="button" class="btn btn-show">
+                Desserts
+            </button>
+            <button data-kind="topping" type="button" class="btn btn-show">
+                Pizza toppings
+            </button>
+            <button data-kind="water" type="button" class="btn btn-show">
+                Waters
+            </button>
+            <button data-kind="juice" type="button" class="btn btn-show">
+                Juices
+            </button>
+            <button data-kind="soft" type="button" class="btn btn-show">
+                Soft drinks
+            </button>
+            <button data-kind="wine" type="button" class="btn btn-show">
+                Wines
+            </button>
+            <button data-kind="beer" type="button" class="btn btn-show">
+                Beers
+            </button>
+            <button data-kind="distillates" type="button" class="btn btn-show">
+                Distillates
+            </button>
+            <button data-kind="other" type="button" class="btn btn-show">
+                Others
+            </button>
+        </div>
     </div>
-</div>
-<hr>
-{{ display_messages(messages) }}
-{{ display_recipes(recipes,recipes_for) }}
+    <hr>
+    {{ display_messages(messages) }}
+    {{ display_recipes(recipes,recipes_for) }}
 {% endblock %}
 
 {% block postloadjs %}

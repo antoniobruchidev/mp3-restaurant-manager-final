@@ -1,15 +1,15 @@
-{% from 'macros.html' import display_employee_menu_items}
+{% from 'macros.html' import display_employee_menu_items %}
 {% extends "base.html" %}
 {% block content %}
-<h1 class="center-align">
-    Answer message
-</h1>
-{{ display_employee_menu_items(is_manager, is_chef, is_waiter) }}
-<form method="POST" action="">
-    {{ form.hidden_tag() }}
-    {{ form.answer }}
-    {{ form.submit }}
-</form>
-<br>
-<a href="{{ url_for('dashboard') }}">Dashboard</a>
+    <h1 class="text-center">
+        Answer message
+    </h1>
+    {{ display_employee_menu_items(is_manager, is_chef, is_waiter) }}
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        {{ form.answer }}
+        {{ form.submit }}
+    </form>
+    <br>
+    <a href="{{ url_for('dashboard') }}">Dashboard</a>
 {% endblock %}

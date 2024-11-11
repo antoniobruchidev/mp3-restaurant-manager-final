@@ -1,20 +1,20 @@
 {% from 'macros.html' import display_deliveries, display_messages, display_employee_menu_items %}
 {% extends "base.html" %}
 {% block content %}
-<h1 class="text-center">
-    Deliveries
-</h1>
-<div class="text-center">
-  <div class="btn-group">
-    <a href="{{ url_for('stockmanagement') }}" class="btn">
-      Back to Manage
-    </a>
-    <a href="{{ url_for('logout') }}" class="btn">
-      Logout
-    </a>
-  </div>
-</div>
-<hr>
+    <h1 class="text-center">
+        Deliveries
+    </h1>
+    <div class="text-center">
+        <div class="btn-group">
+            <a href="{{ url_for('stockmanagement') }}" class="btn">
+                Back to Manage
+            </a>
+            <a href="{{ url_for('logout') }}" class="btn">
+                Logout
+            </a>
+        </div>
+    </div>
+    <hr>
 {{ display_messages(messages) }}
 {{ display_deliveries(deliveries) }}
 {% endblock %}

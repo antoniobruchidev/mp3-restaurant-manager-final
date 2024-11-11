@@ -1,36 +1,32 @@
 {% from 'macros.html' import display_messages %}
 {% extends "base.html" %}
 {% block content %}
-<h1 class="text-center">
-  Suppliers
-</h1>
-<div class="text-center">
-    <div class="btn-group">
-        <a href="{{ url_for('dashboard') }}" class="btn">
-            Back to Dashboard
-        </a>
-        <a href="{{ url_for('add_supplier') }}" class="btn">
-            Add Supplier
-        </a>
+    <h1 class="text-center">
+        Suppliers
+    </h1>
+    <div class="text-center">
+        <div class="btn-group">
+            <a href="{{ url_for('dashboard') }}" class="btn">
+                Back to Dashboard
+            </a>
+            <a href="{{ url_for('add_supplier') }}" class="btn">
+                Add Supplier
+            </a>
+        </div>
     </div>
-</div>
-<hr>
-{{ display_messages(messages) }}
-
-{% for supplier in suppliers %}
-
-
-<div class="card">
-    <div class="card-body">
-        <h5 class="card-title">{{supplier.name}}</h5>
-        <h6 class="card-subtitle">{{supplier.email}} - {{supplier.phone}}</h6>
-        <p>{{supplier.info}}</p>
-        <a class="card-link" href="#">Delete</a>
-        <a class="card-link" href="{{ url_for('get_supplier', supplier_id=supplier.id) }}">Go to</a>
-        <a class="card-link" href="{{ url_for('get_placedorder', supplier_id=supplier.id, order_id=0) }}">Open order</a>
-        <a class="card-link" href="{{ url_for('add_delivery', supplier_id=supplier.id) }}">Add delivery</a>
-    </div>
-</div>
-
-{% endfor %}
+    <hr>
+    {{ display_messages(messages) }}
+    {% for supplier in suppliers %}
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">{{supplier.name}}</h5>
+                <h6 class="card-subtitle">{{supplier.email}} - {{supplier.phone}}</h6>
+                <p>{{supplier.info}}</p>
+                <a class="card-link" href="#">Delete</a>
+                <a class="card-link" href="{{ url_for('get_supplier', supplier_id=supplier.id) }}">Go to</a>
+                <a class="card-link" href="{{ url_for('get_placedorder', supplier_id=supplier.id, order_id=0) }}">Open order</a>
+                <a class="card-link" href="{{ url_for('add_delivery', supplier_id=supplier.id) }}">Add delivery</a>
+            </div>
+        </div>
+    {% endfor %}
 {% endblock %}

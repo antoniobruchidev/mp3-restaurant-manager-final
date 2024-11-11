@@ -54,7 +54,13 @@ class LoginForm(FlaskForm):
 class CreateMessageForm(FlaskForm):
     subject = StringField('Subject', validators=[InputRequired()])
     message = TextAreaField('Message', validators=[InputRequired()])
-    board_id = SelectField('Board', choices=[('0', 'Choose a board'), ('1', 'Owners board'), ('2', 'Managers board'), ('3', 'Chefs board'), ('4', 'Waiters board')])
+    board_id = SelectField('Board', choices=[
+        ('0', 'Choose a board'),
+        ('1', 'Owners board'),
+        ('2', 'Managers board'),
+        ('3', 'Chefs board'),
+        ('4', 'Waiters board')
+    ])
     submit = SubmitField('Send')
 
     def validate_board_id(self, board_id):
@@ -68,7 +74,12 @@ class AnswerMessageForm(FlaskForm):
     
 
 class AddEmployeeForm(RegisterForm):
-    role = SelectField('Role', choices=[('0', 'Choose a role'), ('1', 'Manager'), ('2', 'Chef'), ('3', 'Waiter')])
+    role = SelectField('Role', choices=[
+        ('0', 'Choose a role'),
+        ('1', 'Manager'),
+        ('2', 'Chef'),
+        ('3', 'Waiter')
+    ])
     submit = SubmitField('Add Employee')
     def validate_role(self, role):
         if role.data == 0:

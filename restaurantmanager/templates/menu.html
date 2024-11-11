@@ -1,162 +1,156 @@
 {% extends "base.html" %}
 {% block content %}
-
-<h1 class="text-center">Menu</h1>
-<div class="accordion" id="menu">
-    <div class="accordion-item">
-        <h2 class="accordion-header">
-            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-starters" aria-expanded="true" aria-controls="panelsStayOpen-starters">
-                Starters
-            </button>
-        </h2>
-        <div id="panelsStayOpen-starters" class="accordion-collapse collapse show">
-            <div class="accordion-body">
-                <table class="table align-middle">
-                    <tbody>
-                        {% for starter in starters %}
+    <h1 class="text-center">Menu</h1>
+    <div class="accordion" id="menu">
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-starters" aria-expanded="true" aria-controls="panelsStayOpen-starters">
+                    Starters
+                </button>
+            </h2>
+            <div id="panelsStayOpen-starters" class="accordion-collapse collapse show">
+                <div class="accordion-body">
+                    <table class="table align-middle">
+                        <tbody>
+                            {% for starter in starters %}
+                                <tr>
+                                    <td><img src="{{ url_for('static', filename=starter.image) }}" class="dish-image"></td>
+                                    <td class="dish-name align-start">{{ starter.name }}</td>
+                                    <td class="dish-price align-end">£ {{ starter.price }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-pastas" aria-expanded="true" aria-controls="panelsStayOpen-pastas">
+                    Pasta
+                </button>
+            </h2>
+            <div id="panelsStayOpen-pastas" class="accordion-collapse collapse show">
+                <div class="accordion-body">
+                    <table class="table align-middle">
+                        <tbody>
                             <tr>
-                                <td><img src="{{ url_for('static', filename=starter.image) }}" class="dish-image"></td>
-                                <td class="dish-name align-start">{{ starter.name }}</td>
-                                <td class="dish-price align-end">£ {{ starter.price }}</td>
+                                <td><img src="{{url_for('static', filename='images/pasta.jpg') }}" class="dish-image"></td>
+                                <td class="dish-name align-start"> Spaghetti alla carbonara</td>
+                                <td class="dish-price align-end">£ 13.50</td>
                             </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-
+                            {% for pasta in pastas %}
+                                <tr>
+                                    <td><img src="{{ url_for('static', filename=pasta.image) }}"></td>
+                                    <td>{{ pasta.name }}</td>
+                                    <td>£ {{ pasta.price }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-mains" aria-expanded="true" aria-controls="panelsStayOpen-mains">
+                    Mains
+                </button>
+            </h2>
+            <div id="panelsStayOpen-mains" class="accordion-collapse collapse show">
+                <div class="accordion-body">
+                    <table class="table align-middle">
+                        <tbody>
+                            {% for main in mains %}
+                                <tr>
+                                    <td><img src="{{ url_for('static', filename=main.image) }}" class="dish-image"></td>
+                                    <td class="dish-name align-start">{{ main.name }}</td>
+                                    <td class="dish-price align-end">£ {{ main.price }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-pizzas" aria-expanded="true" aria-controls="panelsStayOpen-pizzas">
+                    Pizza
+                </button>
+            </h2>
+            <div id="panelsStayOpen-pizzas" class="accordion-collapse collapse show">
+                <div class="accordion-body">
+                    <table class="table align-middle">
+                        <tbody>
+                            {% for pizza in pizzas %}
+                                <tr>
+                                    <td><img src="{{ url_for('static', filename=pizza.image) }}" class="dish-image"></td>
+                                    <td class="dish-name align-start">{{ pizza.name }}</td>
+                                    <td class="dish-price align-end">£ {{ pizza.price }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-drinks" aria-expanded="true" aria-controls="panelsStayOpen-drinks">
+                    Drinks
+                </button>
+            </h2>
+            <div id="panelsStayOpen-drinks" class="accordion-collapse collapse show">
+                <div class="accordion-body">
+                    <table class="table align-middle table-borderless">
+                        <tbody>
+                            {% for water in waters %}
+                                <tr>
+                                    <td><img src="{{ url_for('static', filename=water.image) }}" class="dish-image"></td>
+                                    <td class="dish-name align-start">{{ water.name }}</td>
+                                    <td class="dish-price align-end">£ {{ water.price }}</td>
+                                </tr>
+                            {% endfor %}
+                            {% for juice in juices %}
+                                <tr>
+                                    <td><img src="{{ url_for('static', filename=juice.image) }}" class="dish-image"></td>
+                                    <td>{{ juice.name }}</td>
+                                    <td class="dish-price">£ {{ juice.price }}</td>
+                                </tr>
+                            {% endfor %}
+                            {% for soft_drink in soft_drinks %}
+                                <tr>
+                                    <td><img src="{{ url_for('static', filename=soft_drink.image) }}" class="dish-image"></td>
+                                    <td class="dish-name">{{ soft_drink.name }}</td>
+                                    <td class="dish-price">£ {{ soft_drink.price }}</td>
+                                </tr>
+                            {% endfor %}
+                            {% for wine in wines %}
+                                <tr>
+                                    <td><img src="{{ url_for('static', filename=wine.image) }}" class="dish-image"></td>
+                                    <td class="dish-name">{{ wine.name }}</td>
+                                    <td class="dish-price">£ {{ wine.price }}</td>
+                                </tr>
+                            {% endfor %}
+                            {% for beer in beers %}
+                                <tr>
+                                    <td><img src="{{ url_for('static', filename=beer.image) }}" class="dish-image"></td>
+                                    <td class="dish-name">{{ beer.name }}</td>
+                                    <td class="dish-price">£ {{ beer.price }}</td>
+                                </tr>
+                            {% endfor %}
+                            {% for distillate in distillates %}
+                                <tr>
+                                    <td><img src="{{ url_for('static', filename=distillate.image) }}" class="dish-image"></td>
+                                    <td class="dish-name">{{ distillate.name }}</td>
+                                    <td class="dish-price">£ {{ distillate.price }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-    <div class="accordion-item">
-        <h2 class="accordion-header">
-            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-pastas" aria-expanded="true" aria-controls="panelsStayOpen-pastas">
-                Pasta
-            </button>
-        </h2>
-        <div id="panelsStayOpen-pastas" class="accordion-collapse collapse show">
-            <div class="accordion-body">
-                <table class="table align-middle">
-                    <tbody>
-                        <tr>
-                            <td><img src="{{url_for('static', filename='images/pasta.jpg') }}" class="dish-image"></td>
-                            <td class="dish-name align-start"> Spaghetti alla carbonara</td>
-                            <td class="dish-price align-end">£ 13.50</td>
-                        </tr>
-                        {% for pasta in pastas %}
-                            <tr>
-                                <td><img src="{{ url_for('static', filename=pasta.image) }}"></td>
-                                <td>{{ pasta.name }}</td>
-                                <td>£ {{ pasta.price }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-
-            </div>
-        </div>
-    </div>
-    <div class="accordion-item">
-        <h2 class="accordion-header">
-            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-mains" aria-expanded="true" aria-controls="panelsStayOpen-mains">
-                Mains
-            </button>
-        </h2>
-        <div id="panelsStayOpen-mains" class="accordion-collapse collapse show">
-            <div class="accordion-body">
-                <table class="table align-middle">
-                    <tbody>
-                        {% for main in mains %}
-                            <tr>
-                                <td><img src="{{ url_for('static', filename=main.image) }}" class="dish-image"></td>
-                                <td class="dish-name align-start">{{ main.name }}</td>
-                                <td class="dish-price align-end">£ {{ main.price }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-
-            </div>
-        </div>
-    </div>
-    <div class="accordion-item">
-        <h2 class="accordion-header">
-            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-pizzas" aria-expanded="true" aria-controls="panelsStayOpen-pizzas">
-                Pizza
-            </button>
-        </h2>
-        <div id="panelsStayOpen-pizzas" class="accordion-collapse collapse show">
-            <div class="accordion-body">
-                <table class="table align-middle">
-                    <tbody>
-                        {% for pizza in pizzas %}
-                            <tr>
-                                <td><img src="{{ url_for('static', filename=pizza.image) }}" class="dish-image"></td>
-                                <td class="dish-name align-start">{{ pizza.name }}</td>
-                                <td class="dish-price align-end">£ {{ pizza.price }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-
-            </div>
-        </div>
-    </div>
-    <div class="accordion-item">
-        <h2 class="accordion-header">
-            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-drinks" aria-expanded="true" aria-controls="panelsStayOpen-drinks">
-                Drinks
-            </button>
-        </h2>
-        <div id="panelsStayOpen-drinks" class="accordion-collapse collapse show">
-            <div class="accordion-body">
-                <table class="table align-middle table-borderless">
-                    <tbody>
-                        {% for water in waters %}
-                            <tr>
-                                <td><img src="{{ url_for('static', filename=water.image) }}" class="dish-image"></td>
-                                <td class="dish-name align-start">{{ water.name }}</td>
-                                <td class="dish-price align-end">£ {{ water.price }}</td>
-                            </tr>
-                        {% endfor %}
-                        {% for juice in juices %}
-                            <tr>
-                                <td><img src="{{ url_for('static', filename=juice.image) }}" class="dish-image"></td>
-                                <td>{{ juice.name }}</td>
-                                <td class="dish-price">£ {{ juice.price }}</td>
-                            </tr>
-                        {% endfor %}
-                        {% for soft_drink in soft_drinks %}
-                            <tr>
-                                <td><img src="{{ url_for('static', filename=soft_drink.image) }}" class="dish-image"></td>
-                                <td class="dish-name">{{ soft_drink.name }}</td>
-                                <td class="dish-price">£ {{ soft_drink.price }}</td>
-                            </tr>
-                        {% endfor %}
-                        {% for wine in wines %}
-                            <tr>
-                                <td><img src="{{ url_for('static', filename=wine.image) }}" class="dish-image"></td>
-                                <td class="dish-name">{{ wine.name }}</td>
-                                <td class="dish-price">£ {{ wine.price }}</td>
-                            </tr>
-                        {% endfor %}
-                        {% for beer in beers %}
-                            <tr>
-                                <td><img src="{{ url_for('static', filename=beer.image) }}" class="dish-image"></td>
-                                <td class="dish-name">{{ beer.name }}</td>
-                                <td class="dish-price">£ {{ beer.price }}</td>
-                            </tr>
-                        {% endfor %}
-                        {% for distillate in distillates %}
-                            <tr>
-                                <td><img src="{{ url_for('static', filename=distillate.image) }}" class="dish-image"></td>
-                                <td class="dish-name">{{ distillate.name }}</td>
-                                <td class="dish-price">£ {{ distillate.price }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}

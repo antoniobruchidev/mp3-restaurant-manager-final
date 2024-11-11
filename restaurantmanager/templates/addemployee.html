@@ -1,87 +1,86 @@
 {% from 'macros.html' import display_messages %}
 {% extends "base.html" %}
 {% block content %}
-<h1 class="text-center">Grant role</h1>
-<div class="text-center">
-  <div class="btn-group">
-    <a href="{{ url_for('get_employees') }}" class="btn">
-      Back to Staffs
-    </a>
-    <a href="{{ url_for('dashboard') }}" class="btn">
-      Dashboard
-    </a>
-    <a href="{{ url_for('logout') }}" class="btn">
-      Logout
-    </a>
-  </div>
-</div>
-<hr>
-{{ display_messages(messages) }}
-<div class="row">
-    <div class="col s12">
-      <div class="form-floating">
-        <label for="autocomplete-input">
-          <i class="fa-solid fa-comment-dots"></i>
-          <span class="sr-only">Search for users</span>
-        </label>
-        <input type="text" id="autocomplete-input" class="form-control" placeholder="Search for users">
+    <h1 class="text-center">Grant role</h1>
+    <div class="text-center">
+      <div class="btn-group">
+        <a href="{{ url_for('get_employees') }}" class="btn">
+          Back to Staffs
+        </a>
+        <a href="{{ url_for('dashboard') }}" class="btn">
+          Dashboard
+        </a>
+        <a href="{{ url_for('logout') }}" class="btn">
+          Logout
+        </a>
       </div>
     </div>
+    <hr>
+    {{ display_messages(messages) }}
+    <div class="row">
+        <div class="col s12">
+            <div class="form-floating">
+                <label for="autocomplete-input">
+                    <i class="fa-solid fa-comment-dots"></i>
+                    <span class="sr-only">Search for users</span>
+                </label>
+                <input type="text" id="autocomplete-input" class="form-control" placeholder="Search for users">
+            </div>
+        </div>
         <div class="card ">
-          <div class="card-body lime-text text-lighten-4">
-            <span class="card-title"></span>
-            <p id="user"></p>
-          </div>
+            <div class="card-body lime-text text-lighten-4">
+                <span class="card-title"></span>
+                <p id="user"></p>
+            </div>
         </div>
-    <form action="" method="POST" id="hire-form">
-        <div class="input-field col s12">
-            <select id="role" name="role">
-                <option value="" disabled selected>Hire as..</option>
-                {% if is_owner %}
-                <option value="1">Manager</option>
-                {% else %}
-                <option value="1" disabled>Manager</option>
-                {% endif %}
-                <option value="2">Chef</option>
-                <option value="3">Waiter</option>
-            </select>
-            <label>Give role</label>
-        </div>
-    </form>
-    <button class="btn" id="submitform">Hire</button>
-</div>
-<br>
+        <form action="" method="POST" id="hire-form">
+            <div class="input-field col s12">
+                <select id="role" name="role">
+                    <option value="" disabled selected>Hire as..</option>
+                    {% if is_owner %}
+                        <option value="1">Manager</option>
+                    {% else %}
+                        <option value="1" disabled>Manager</option>
+                    {% endif %}
+                    <option value="2">Chef</option>
+                    <option value="3">Waiter</option>
+                </select>
+                <label>Give role</label>
+            </div>
+        </form>
+        <button class="btn" id="submitform">Hire</button>
+    </div>
+    <br>
 {% endblock %}
 {% block postloadjs %}
-<script type="module">
-  import Autocomplete from "https://cdn.jsdelivr.net/gh/lekoala/bootstrap5-autocomplete@master/autocomplete.js";
-  var src = [];
-  let user = {
-    "id": null,
-    "title": null,
-    "web3_address": null
-  }
-  {% for user in users %}
-    src.push({
-      title: "{{ user.title }}",
-      id: "{{ user.id }}",
-      data: {
-        "web3_address": "{{ user.web3_address }}"
-      },
-    });
-  {% endfor %}
-  Autocomplete.init("#autocomplete-input", {
-    items: src,
-    valueField: "id",
-    labelField: "title",
-    highlightTyped: true,
-    onSelectItem: function(e){
-      user["id"] = e.id;
-      user["title"] = e.title;
-      user["web3_address"] = e.data["web3_address"]
-      $("#user").html(`${user.id} - ${user.title} - ${user.web3_address}`)
-    },
-  });
- 
-</script>
+  <script type="module">
+      import Autocomplete from "https://cdn.jsdelivr.net/gh/lekoala/bootstrap5-autocomplete@master/autocomplete.js";
+      var src = [];
+      let user = {
+          "id": null,
+          "title": null,
+          "web3_address": null
+      }
+      {% for user in users %}
+          src.push({
+              title: "{{ user.title }}",
+              id: "{{ user.id }}",
+              data: {
+                "web3_address": "{{ user.web3_address }}"
+              },
+          });
+      {% endfor %}
+      Autocomplete.init("#autocomplete-input", {
+          items: src,
+          valueField: "id",
+          labelField: "title",
+          highlightTyped: true,
+          onSelectItem: function (e) {
+              user["id"] = e.id;
+              user["title"] = e.title;
+              user["web3_address"] = e.data["web3_address"]
+              $("#user").html(`${user.id} - ${user.title} - ${user.web3_address}`)
+          },
+      });
+  </script>
 {% endblock %}

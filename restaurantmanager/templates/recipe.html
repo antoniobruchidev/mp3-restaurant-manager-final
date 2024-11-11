@@ -127,92 +127,92 @@
 
 {% endblock %}
 {% block postloadjs %}
-<script type="module">
-  import Autocomplete from "https://cdn.jsdelivr.net/gh/lekoala/bootstrap5-autocomplete@master/autocomplete.js";
-  var src = [];
-  {% for ingredient in ingredients_data %}
-    src.push({
-      title: "{{ingredient.name}}",
-      id: "{{ingredient.id}}",
-      data: {
-        "manufactored": {% if ingredient.manufactored %}true{% else %}false{% endif %}
-      },
+    <script type="module">
+    import Autocomplete from "https://cdn.jsdelivr.net/gh/lekoala/bootstrap5-autocomplete@master/autocomplete.js";
+    var src = [];
+    {% for ingredient in ingredients_data %}
+        src.push({
+        title: "{{ingredient.name}}",
+        id: "{{ingredient.id}}",
+        data: {
+            "manufactored": {% if ingredient.manufactored %}true{% else %}false{% endif %}
+        },
+        });
+    {% endfor %}
+    Autocomplete.init("#autocomplete-input", {
+        items: src,
+        valueField: "id",
+        labelField: "title",
+        highlightTyped: true,
+        onSelectItem: function(e){
+            console.log(e)
+            if (e.data["manufactored"]) {
+                var row = document.createElement("div")
+                row.classList.add("row")
+                var p = document.createElement("p")
+                p.classList.add("col", "s7")
+                var label = document.createElement("label")
+                var checkbox = document.createElement("input")
+                checkbox.setAttribute("type", "checkbox")
+                var checkboxId = `manufactored_ingredient_${e.id}`
+                checkbox.setAttribute("id", checkboxId)
+                checkbox.setAttribute("name", checkboxId)
+                var span = document.createElement("span")
+                span.innerText = e.title
+                label.appendChild(checkbox)
+                label.appendChild(span)
+                p.appendChild(label)
+                var div = document.createElement("div")
+                div.classList.add("col", "s3", "input-group")
+                var quantity = document.createElement("input")
+                var quantityId = `manufactored_ingredient_quantity_${e.id}`
+                quantity.setAttribute("id", quantityId)
+                quantity.setAttribute("name", quantityId)
+                quantity.setAttribute("type", "number")
+                var quantityLabel = document.createElement("label")
+                quantityLabel.setAttribute("for", quantityId)
+                quantityLabel.innerText = "portions"
+                div.appendChild(quantity)
+                div.appendChild(quantityLabel)
+                row.appendChild(p)
+                row.appendChild(div)
+                var manufactored = document.getElementById("manufactored_ingredients")
+                manufactored.appendChild(row)
+            } else {
+                var row = document.createElement("div")
+                row.classList.add("row")
+                var p = document.createElement("p")
+                p.classList.add("col", "s7")
+                var label = document.createElement("label")
+                var checkbox = document.createElement("input")
+                checkbox.setAttribute("type", "checkbox")
+                var checkboxId = `ingredient_${e.id}`
+                checkbox.setAttribute("id", checkboxId)
+                checkbox.setAttribute("name", checkboxId)
+                var span = document.createElement("span")
+                span.innerText = e.title
+                label.appendChild(checkbox)
+                label.appendChild(span)
+                p.appendChild(label)
+                var div = document.createElement("div")
+                div.classList.add("col", "s3", "input-group")
+                var quantity = document.createElement("input")
+                var quantityId = `ingredient_quantity_${e.id}`
+                quantity.setAttribute("id", quantityId)
+                quantity.setAttribute("name", quantityId)
+                quantity.setAttribute("type", "number")
+                var quantityLabel = document.createElement("label")
+                quantityLabel.setAttribute("for", quantityId)
+                quantityLabel.innerText = "grams"
+                div.appendChild(quantity)
+                div.appendChild(quantityLabel)
+                row.appendChild(p)
+                row.appendChild(div)
+                var manufactored = document.getElementById("ingredients")
+                manufactored.appendChild(row)
+            }
+        },
     });
-  {% endfor %}
-  Autocomplete.init("#autocomplete-input", {
-    items: src,
-    valueField: "id",
-    labelField: "title",
-    highlightTyped: true,
-    onSelectItem: function(e){
-        console.log(e)
-        if (e.data["manufactored"]) {
-            var row = document.createElement("div")
-            row.classList.add("row")
-            var p = document.createElement("p")
-            p.classList.add("col", "s7")
-            var label = document.createElement("label")
-            var checkbox = document.createElement("input")
-            checkbox.setAttribute("type", "checkbox")
-            var checkboxId = `manufactored_ingredient_${e.id}`
-            checkbox.setAttribute("id", checkboxId)
-            checkbox.setAttribute("name", checkboxId)
-            var span = document.createElement("span")
-            span.innerText = e.title
-            label.appendChild(checkbox)
-            label.appendChild(span)
-            p.appendChild(label)
-            var div = document.createElement("div")
-            div.classList.add("col", "s3", "input-group")
-            var quantity = document.createElement("input")
-            var quantityId = `manufactored_ingredient_quantity_${e.id}`
-            quantity.setAttribute("id", quantityId)
-            quantity.setAttribute("name", quantityId)
-            quantity.setAttribute("type", "number")
-            var quantityLabel = document.createElement("label")
-            quantityLabel.setAttribute("for", quantityId)
-            quantityLabel.innerText = "portions"
-            div.appendChild(quantity)
-            div.appendChild(quantityLabel)
-            row.appendChild(p)
-            row.appendChild(div)
-            var manufactored = document.getElementById("manufactored_ingredients")
-            manufactored.appendChild(row)
-        } else {
-            var row = document.createElement("div")
-            row.classList.add("row")
-            var p = document.createElement("p")
-            p.classList.add("col", "s7")
-            var label = document.createElement("label")
-            var checkbox = document.createElement("input")
-            checkbox.setAttribute("type", "checkbox")
-            var checkboxId = `ingredient_${e.id}`
-            checkbox.setAttribute("id", checkboxId)
-            checkbox.setAttribute("name", checkboxId)
-            var span = document.createElement("span")
-            span.innerText = e.title
-            label.appendChild(checkbox)
-            label.appendChild(span)
-            p.appendChild(label)
-            var div = document.createElement("div")
-            div.classList.add("col", "s3", "input-group")
-            var quantity = document.createElement("input")
-            var quantityId = `ingredient_quantity_${e.id}`
-            quantity.setAttribute("id", quantityId)
-            quantity.setAttribute("name", quantityId)
-            quantity.setAttribute("type", "number")
-            var quantityLabel = document.createElement("label")
-            quantityLabel.setAttribute("for", quantityId)
-            quantityLabel.innerText = "grams"
-            div.appendChild(quantity)
-            div.appendChild(quantityLabel)
-            row.appendChild(p)
-            row.appendChild(div)
-            var manufactored = document.getElementById("ingredients")
-            manufactored.appendChild(row)
-        }
-    },
-  });
- 
-</script>
+    
+    </script>
 {% endblock %}

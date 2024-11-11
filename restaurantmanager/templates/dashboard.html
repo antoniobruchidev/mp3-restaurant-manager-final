@@ -1,47 +1,46 @@
 {% from 'macros.html' import display_reply, display_employee_menu_items, display_messages %}
 {% extends "base.html" %}
 {% block headscripts %}
-<script>
-    const user = {
-        f_name: "{{ f_name }}",
-        l_name: "{{ l_name }}",
-        email: "{{ email }}",
-        web3_address: "{{ web3_address }}",
-        is_owner: "{{ is_owner }}",
-        is_manager: "{{ is_manager }}",
-        is_chef: "{{ is_chef }}",
-        is_waiter: "{{ is_waiter }}"
-    }
-</script>
+    <script>
+        const user = {
+            f_name: "{{ f_name }}",
+            l_name: "{{ l_name }}",
+            email: "{{ email }}",
+            web3_address: "{{ web3_address }}",
+            is_owner: "{{ is_owner }}",
+            is_manager: "{{ is_manager }}",
+            is_chef: "{{ is_chef }}",
+            is_waiter: "{{ is_waiter }}"
+        }
+    </script>
 {% endblock %}
 {% block content %}
-<h1>Welcome to your dashboard</h1>
-<p>Account: {{ web3_address }}</p>
-{% if email != (web3_address + '@internal.kitchenmanager') %}
-<p>Email:  {{ email }}</p>
-{% endif %}
-{% if (f_name + l_name) != '' %}
-<p>User:  {{ f_name + " " + l_name }}</p>
-{% endif %}
-<hr>
-{{ display_employee_menu_items(is_manager,is_chef,is_waiter) }}
-{{ display_messages(messages) }}
-{% for my_message in my_messages  %}
-<div class="row">
-    <div class="col s8 push-s1">
-      <div class="card brown darken-4">
-        <div class="card-content lime-text text-lighten-4">
-          <span class="card-title">Subject {{my_message.subject}}</span>
-          <p><em>{{my_message.sender_id}} @ {{my_message.board}}</em></p>
-          <p><em>{{my_message.timestamp}}</em></p>
-          <p>{{my_message.message}}</p>
+    <h1>Welcome to your dashboard</h1>
+    <p>Account: {{ web3_address }}</p>
+    {% if email != (web3_address + '@internal.kitchenmanager') %}
+        <p>Email:  {{ email }}</p>
+    {% endif %}
+    {% if (f_name + l_name) != '' and (f_name + l_name) != 'EOA EOA' %}
+        <p>User:  {{ f_name + " " + l_name }}</p>
+    {% endif %}
+    <hr>
+    {{ display_employee_menu_items(is_manager,is_chef,is_waiter) }}
+    {{ display_messages(messages) }}
+    {% for my_message in my_messages %}
+    <div class="row">
+        <div class="col-8">
+            <div class="card">
+                <div class="card-body">
+                    <span class="card-title">Subject {{my_message.subject}}</span>
+                    <p><em>{{my_message.sender_id}} @ {{my_message.board}}</em></p>
+                    <p><em>{{my_message.timestamp}}</em></p>
+                    <p>{{my_message.message}}</p>
+                </div>
+                <div class="card-action">
+                    <a class="card-link" href="{{ url_for('delete_message', message_id=my_message.id) }}">Delete</a>
+                </div>
+            </div>
         </div>
-        <div class="card-action">
-          <a class="lime-text" href="{{ url_for('delete_message', message_id=my_message.id) }}">Delete</a>
-        </div>
-      </div>
     </div>
-</div>
-{{ display_reply(my_message) }}
 {% endfor %}
 {% endblock %}

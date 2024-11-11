@@ -1,23 +1,23 @@
 {% from 'macros.html' import display_reply, display_messages, display_ingredients, display_manufactored_ingredients %}
 {% extends "base.html" %}
 {% block content %}
-<h1 class="text-center">
-    create recipe Page
-</h1>
-<div class="text-center">
-  <div class="btn-group">
-    <a href="{{ url_for('get_recipes') }}" class="btn">
-      Back to Recipes
-    </a>
-    <a href="{{ url_for('dashboard') }}" class="btn">
-      Dashboard
-    </a>
-    <a href="{{ url_for('logout') }}" class="btn">
-      Logout
-    </a>
-  </div>
-</div>
-<hr>
+    <h1 class="text-center">
+        create recipe Page
+    </h1>
+    <div class="text-center">
+        <div class="btn-group">
+            <a href="{{ url_for('get_recipes') }}" class="btn">
+                Back to Recipes
+            </a>
+            <a href="{{ url_for('dashboard') }}" class="btn">
+                Dashboard
+            </a>
+            <a href="{{ url_for('logout') }}" class="btn">
+                Logout
+            </a>
+        </div>
+    </div>
+    <hr>
 {{ display_messages(messages) }}
 <form action="" method="POST" id="create_recipe_form">
     <div class="row">

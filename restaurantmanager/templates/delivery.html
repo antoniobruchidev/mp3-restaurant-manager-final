@@ -1,26 +1,27 @@
 {% from 'macros.html' import display_placed_order, display_messages, display_employee_menu_items, display_table_ingredient_quantities %}
 {% extends "base.html" %}
 {% block content %}
-<h1 class="text-center">
-    Deliveries
-</h1>
-<div class="btn-group">
-  <a href="{{ url_for('get_deliveries', supplier_id=supplier.id) }}" class="btn">
-    Back to Delivieries
-  </a>
-  <a href="{{ url_for('dashboard') }}" class="btn">
-    Dashboard
-  </a>
-  <a href="{{ url_for('logout') }}" class="btn">
-    Logout
-  </a>
-</div>
-<hr>
-{{ display_messages(messages) }}
-<div class="container">
-    <form action="" id="delivery"></form>
-    {{ display_table_ingredient_quantities(ingredients, delivery.ingredient_quantities) }}
-    </form>
+    <h1 class="text-center">
+        Deliveries
+    </h1>
+    <div class="text-center">
+        <div class="btn-group">
+            <a href="{{ url_for('get_deliveries', supplier_id=supplier.id) }}" class="btn">
+                Back to Delivieries
+            </a>
+            <a href="{{ url_for('dashboard') }}" class="btn">
+                Dashboard
+            </a>
+            <a href="{{ url_for('logout') }}" class="btn">
+                Logout
+            </a>
+        </div>
+    </div>
     <hr>
-</div>
+    {{ display_messages(messages) }}
+    <div class="container">
+        <form action="" id="delivery"></form>
+            {{ display_table_ingredient_quantities(ingredients, delivery.ingredient_quantities) }}
+        </form>
+    </div>
 {% endblock %}

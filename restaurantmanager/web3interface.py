@@ -28,7 +28,9 @@ with open('restaurantmanager/AccessManager.json') as f:
     abi=json.load(f)
 
 # create an instance of the contract
-accessmanager = w3.eth.contract(address=os.environ.get("CONTRACT_ADDRESS"), abi=abi)
+accessmanager = w3.eth.contract(address=os.environ.get(
+    "CONTRACT_ADDRESS"), abi=abi
+)
 
 # defining the functions we are going to call
 has_role_func = accessmanager.get_function_by_signature(
@@ -62,9 +64,15 @@ def grant_role(role, granting_address, granted_address):
         nonce = w3.eth.get_transaction_count(account.address)
         call_function = grant_role_func(
             role,cs_granted_address
-            ).build_transaction({"chainId": Chain_id, "from": account.address, "nonce": nonce})
+            ).build_transaction({
+                "chainId": Chain_id,
+                "from": account.address,
+                "nonce": nonce
+            })
         # Sign transaction
-        signed_tx = w3.eth.account.sign_transaction(call_function, private_key=private_key)
+        signed_tx = w3.eth.account.sign_transaction(
+            call_function, private_key=private_key
+        )
         # Send transaction
         send_tx = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
 

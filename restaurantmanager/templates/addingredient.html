@@ -1,36 +1,35 @@
 {% from 'macros.html' import display_messages %}
 {% extends "base.html" %}
 {% block content %}
-<h1 class="text-center">
-    Add Ingredient
-</h1>
-<div class="text-center">
-  <div class="btn-group">
-    <a href="{{ url_for('get_supplier', supplier_id=supplier.id) }}" class="btn">
-      Back to {{ supplier.name }}
-    </a>
-    <a href="{{ url_for('dashboard') }}" class="btn">
-      Dashboard
-    </a>
-    <a href="{{ url_for('logout') }}" class="btn">
-      Logout
-    </a>
-  </div>
-</div>
-
-<hr>
-{{ display_messages(messages) }}
-<form method="POST" action="{{ url_for('add_ingredient', supplier_id=supplier.id)}}">
-    {{ form.hidden_tag() }}
-    {{ form.supplier_id(value=supplier.id, hidden=True) }}
-    <div class="container mt-3">
-      <label>Ingredient Name:</label>
-      {{ form.name(placeholder="Ingredient name", class_='form-control mt-2') }}
+    <h1 class="text-center">
+        Add Ingredient
+    </h1>
+    <div class="text-center">
+        <div class="btn-group">
+            <a href="{{ url_for('get_supplier', supplier_id=supplier.id) }}" class="btn">
+              Back to {{ supplier.name }}
+            </a>
+            <a href="{{ url_for('dashboard') }}" class="btn">
+              Dashboard
+            </a>
+            <a href="{{ url_for('logout') }}" class="btn">
+              Logout
+            </a>
+        </div>
     </div>
-    <div class="container mt-3">
-      <label>Description:</label>
-      {{ form.description(placeholder="Description", class_='form-control mt-2') }}
-    </div>
-    {{ form.submit(class_='btn mt-2') }}
-</form>
+    <hr>
+    {{ display_messages(messages) }}
+    <form method="POST" action="{{ url_for('add_ingredient', supplier_id=supplier.id)}}">
+        {{ form.hidden_tag() }}
+        {{ form.supplier_id(value=supplier.id, hidden=True) }}
+        <div class="container mt-3">
+            <label>Ingredient Name:</label>
+            {{ form.name(placeholder="Ingredient name", class_='form-control mt-2') }}
+        </div>
+        <div class="container mt-3">
+            <label>Description:</label>
+            {{ form.description(placeholder="Description", class_='form-control mt-2') }}
+        </div>
+        {{ form.submit(class_='btn mt-2') }}
+    </form>
 {% endblock %}

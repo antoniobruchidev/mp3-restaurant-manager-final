@@ -398,7 +398,11 @@ class PlacedOrder(db.Model):
         lazy=True,
     )
     sent = db.Column(db.Boolean, default=False)
-    supplier_id = db.Column(db.Integer, db.ForeignKey("suppliers.id", ondelete="CASCADE"), nullable=False)
+    supplier_id = db.Column(
+        db.Integer,
+        db.ForeignKey("suppliers.id", ondelete="CASCADE"),
+        nullable=False
+    )
 
 
 class Delivery(db.Model):
@@ -407,10 +411,14 @@ class Delivery(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     supplier_id = db.Column(
-        db.Integer, db.ForeignKey("suppliers.id", ondelete="CASCADE"), nullable=False
+        db.Integer,
+        db.ForeignKey("suppliers.id", ondelete="CASCADE"),
+        nullable=False
     )
     user_id = db.Column(
-        db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+        db.Integer,
+        db.ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False
     )
     date = db.Column(db.DateTime, nullable=False)
     ingredient_quantities = db.relationship(

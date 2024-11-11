@@ -1,19 +1,23 @@
 {% from 'macros.html' import display_messages, display_board_messages %}
 {% extends "base.html" %}
 {% block content %}
-<h1 class="center-align">
-  Messageboard Page
-</h1>
-<a href="{{ url_for('sendmessage') }}">
-  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Send message</button>
-</a>
-<a href="{{ url_for('dashboard') }}">
-  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Dashboard</button>
-</a>
-<a href="{{ url_for('logout') }}">
-  <button class="btn waves-effect waves-light brown lime-text darken-4 text-lighten-4">Logout</button>
-</a>
-<hr>
+    <h1 class="center-align">
+        Messageboard Page
+    </h1>
+    <div class="text-center">
+        <div class="btn-group">
+          <a href="{{ url_for('sendmessage') }}" class="btn">
+            Send message
+          </a>
+          <a href="{{ url_for('dashboard') }}" class="btn">
+            Dashboard
+          </a>
+          <a href="{{ url_for('logout') }}" class="btn">
+            Logout
+          </a>
+        </div>
+        <hr>
+    </div>
 {{ display_messages(messages) }}
 {{ display_board_messages(board_messages) }}
 {% endblock %}

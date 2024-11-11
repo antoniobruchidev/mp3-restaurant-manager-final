@@ -1,243 +1,239 @@
 {% macro display_messages(messages) %}
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-{% for message in messages %}
-{{ message }}
-{% endfor %}
-{% endif %}
-{% endwith %}
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
 {% endmacro %}
 
 {% macro display_ingredients(ingredients) %}
-{% for ingredient in ingredients %}
-<div class="row">
-  <p class="col s7 form-check">
-    <input type="checkbox" id="ingredient_{{ingredient.id}}" name="ingredient{{ingredient.id}}" class="form-check-input" />
-    <label class="form-check-label" for="ingredient_{{ingredient.id}}">{{ ingredient.name }}</label>
-  </p>
-  <div class="input-group col s3 push-s1 view-toggle">
-    <input placeholder="0" id="ingredient_quantity_{{ingredient.id}}" name="ingredient_quantity_{{ingredient.id}}"
-      type="number" class="form-control">
-    <label for="ingredient_quantity_{{ingredient.id}}" class="quantity-label">grams</label>
-  </div>
-</div>
-{% endfor %}
+    {% for ingredient in ingredients %}
+      <div class="row">
+          <p class="col s7 form-check">
+              <input type="checkbox" id="ingredient_{{ingredient.id}}" name="ingredient{{ingredient.id}}" class="form-check-input" />
+              <label class="form-check-label" for="ingredient_{{ingredient.id}}">{{ ingredient.name }}</label>
+          </p>
+          <div class="input-group col s3 push-s1 view-toggle">
+              <input placeholder="0" id="ingredient_quantity_{{ingredient.id}}" name="ingredient_quantity_{{ingredient.id}}"
+                type="number" class="form-control">
+              <label for="ingredient_quantity_{{ingredient.id}}" class="quantity-label">grams</label>
+          </div>
+      </div>
+    {% endfor %}
 {% endmacro %}
 
 {% macro display_manufactored_ingredients(manufactored_ingredients) %}
-{% for manufactored_ingredient in manufactored_ingredients %}
-<div class="row">
-  <p class="col s7 form-check">
-    <label>
-      <input type="checkbox" id="manufactored_ingredient_{{manufactored_ingredient.id}}"
-        name="manufactored_ingredient_{{manufactored_ingredient.id}}" class="form-check-input"  />
-      <span>{{manufactored_ingredient.name}}</span>
-    </label>
-  </p>
-  <div class="input-group col s3 push-s1 view-toggle">
-    <input placeholder="0" id="manufactored_ingredient_quantity_{{manufactored_ingredient.id}}"
-      name="manufactored_ingredient_quantity_{{manufactored_ingredient.id}}" type="number" class="form-control">
-    <label for="manufactored_ingredient_quantity_{{manufactored_ingredient.id}}" class="quantity-label">portions</label>
-  </div>
-</div>
-{% endfor %}
+    {% for manufactored_ingredient in manufactored_ingredients %}
+        <div class="row">
+            <p class="col s7 form-check">
+                <label>
+                    <input type="checkbox" id="manufactored_ingredient_{{manufactored_ingredient.id}}"
+                      name="manufactored_ingredient_{{manufactored_ingredient.id}}" class="form-check-input"  />
+                    <span>{{manufactored_ingredient.name}}</span>
+                </label>
+            </p>
+            <div class="input-group col s3 push-s1 view-toggle">
+                <input placeholder="0" id="manufactored_ingredient_quantity_{{manufactored_ingredient.id}}"
+                  name="manufactored_ingredient_quantity_{{manufactored_ingredient.id}}" type="number" class="form-control">
+                <label for="manufactored_ingredient_quantity_{{manufactored_ingredient.id}}" class="quantity-label">portions</label>
+            </div>
+        </div>
+    {% endfor %}
 {% endmacro %}
 
 {% macro display_board_messages(board_messages) %}
-{% for board_message in board_messages %}
-<div class="row">
-        <span class="card-title">Subject {{board_message.subject}}</span>
-        <p><em>{{board_message.sender_id}} @ {{board_message.board}}</em></p>
-        <p><em>{{board_message.timestamp}}</em></p>
-        <p>{{board_message.message}}</p>
-        <a class="card-link" href="#">Delete</a>
-        <a class="card-link" href="{{ url_for('answer_message', message_id=board_message.id) }}">Answer</a>
-      </div>
-    </div>
-  </div>
-</div>
-<br>
-{{ display_reply(board_message) }}
-<hr>
-{% endfor %}
+    {% for board_message in board_messages %}
+        <div class="row">
+            <div class="col-8 col-lg-6 mx-auto">
+                <div class="card">
+                    <div class="card-body">
+                        <span class="card-title">Subject {{board_message.subject}}</span>
+                        <p><em>{{board_message.sender_id}} @ {{board_message.board}}</em></p>
+                        <p><em>{{board_message.timestamp}}</em></p>
+                        <p>{{board_message.message}}</p>
+                        <a class="card-link" href="#">Delete</a>
+                        <a class="card-link" href="{{ url_for('answer_message', message_id=board_message.id) }}">Answer</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+        {{ display_reply(board_message) }}
+        <hr>
+    {% endfor %}
 {% endmacro %}
 
 {% macro display_reply(board_message)%}
-{% for reply in board_message.replies %}
-<div class="row">
-  <div class="col-8 col-lg-6 mx-auto">
-    <div class="card">
-      <div class="card-body">
-        <span class="card-title">Answer to: {{board_message.subject}}</span>
-        <p><em>{{reply.timestamp}}</em></p>
-        <p>{{reply.reply}}</p>
-        <a class="card-link" href="#">Delete</a>
-      </div>
-    </div>
-  </div>
-</div>
-<br>
-{% endfor %}
+    {% for reply in board_message.replies %}
+        <div class="row">
+            <div class="col-8 col-lg-6 mx-auto">
+                <div class="card">
+                    <div class="card-body">
+                        <span class="card-title">Answer to: {{board_message.subject}}</span>
+                        <p><em>{{reply.timestamp}}</em></p>
+                        <p>{{reply.reply}}</p>
+                        <a class="card-link" href="#">Delete</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+    {% endfor %}
 {% endmacro %}
 
 
 {% macro display_placed_order(placed_orders)%}
-{% for placed_order, supplier in placed_orders %}
-<div class="row">
-  <div class="col-8 col-lg-6 mx-auto">
-    <div class="card">
-      <div class="card-body">
-        <span class="card-title">From supplier: {{ supplier.name }}</span>
-        <p><em>{{placed_order.dateTime}}</em></p>
-        <a class="card-link" href="{{url_for('delete_placedorder', order_id=placed_order.id)}}">Delete</a>
-        <a class="card-link" href="{{ url_for('get_placedorder', supplier_id=placed_order.supplier_id, order_id=placed_order.id)}}">view/Update</a>
-      </div>
-    </div>
-  </div>
-</div>
-<br>
-{% endfor %}
+    {% for placed_order, supplier in placed_orders %}
+        <div class="row">
+            <div class="col-8 col-lg-6 mx-auto">
+                <div class="card">
+                    <div class="card-body">
+                        <span class="card-title">From supplier: {{ supplier.name }}</span>
+                        <p><em>{{placed_order.dateTime}}</em></p>
+                        <a class="card-link" href="{{url_for('delete_placedorder', order_id=placed_order.id)}}">Delete</a>
+                        <a class="card-link" href="{{ url_for('get_placedorder', supplier_id=placed_order.supplier_id, order_id=placed_order.id)}}">view/Update</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+    {% endfor %}
 {% endmacro %}
 
 {% macro display_deliveries(deliveries)%}
-{% for delivery, supplier in deliveries %}
-<div class="row">
-  <div class="col-8 col-lg-6 mx-auto">
-    <div class="card">
-      <div class="card-body">
-        <span class="card-title">From supplier: {{ supplier.name }}</span>
-        <p><em>{{delivery.date}}</em></p>
-        <p><em>{{delivery.info}}</em></p>
-        <a class="card-link" href="{{ url_for('get_delivery', supplier_id=delivery.supplier_id, delivery_id=delivery.id)}}">View</a>
-      </div>
-    </div>
-  </div>
-</div>
-<br>
-{% endfor %}
+    {% for delivery, supplier in deliveries %}
+        <div class="row">
+            <div class="col-8 col-lg-6 mx-auto">
+                <div class="card">
+                    <div class="card-body">
+                        <span class="card-title">From supplier: {{ supplier.name }}</span>
+                        <p><em>{{delivery.date}}</em></p>
+                        <p><em>{{delivery.info}}</em></p>
+                        <a class="card-link" href="{{ url_for('get_delivery', supplier_id=delivery.supplier_id, delivery_id=delivery.id)}}">View</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+    {% endfor %}
 {% endmacro %}
 
 {% macro display_wastages(wastages)%}
-{% for wastage in wastages %}
-<div class="row">
-  <div class="col-8 col-lg-6 mx-auto">
-    <div class="card">
-      <div class="card-body">
-        <span class="card-title">Wastage: {{ wastage.date }}</span>
-        <p><em>{{wastage.info}}</em></p>
-        <a class="card-link" href="{{ url_for('get_wastage', wastage_id=wastage.id )}}">View</a>
-      </div>
-    </div>
-  </div>
-</div>
-<br>
-{% endfor %}
+    {% for wastage in wastages %}
+        <div class="row">
+            <div class="col-8 col-lg-6 mx-auto">
+                <div class="card">
+                    <div class="card-body">
+                        <span class="card-title">Wastage: {{ wastage.date }}</span>
+                        <p><em>{{wastage.info}}</em></p>
+                        <a class="card-link" href="{{ url_for('get_wastage', wastage_id=wastage.id )}}">View</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+    {% endfor %}
 {% endmacro %}
 
 {% macro display_recipes(recipes, recipes_for)%}
-<div class="row">
-{% for recipe in recipes %}
-{% set recipe_for = recipes_for[recipes.index(recipe)] %}
-  <div class="col-8 col-lg-5 mx-auto mt-3 {% if recipe_for.kind|string == 'ItemKind.starter' %}starter{% elif recipe_for.kind|string == 'ItemKind.pasta' %}pasta{% elif recipe_for.kind|string == 'ItemKind.pizza' %}pizza{% elif recipe_for.kind|string == 'ItemKind.main' %}main{% elif recipe_for.kind|string == 'ItemKind.dessert' %}dessert{% elif recipe_for.kind|string == 'ItemKind.pizza_topping' %}topping{% elif recipe_for.kind|string == 'ItemKind.water' %}water{% elif recipe_for.kind|string == 'ItemKind.juice' %}juice{% elif recipe_for.kind|string == 'ItemKind.soft_drinks' %}soft{% elif recipe_for.kind|string == 'ItemKind.wine' %}wine{% elif recipe_for.kind|string == 'ItemKind.beer' %}beer{% elif recipe_for.kind|string == 'ItemKind.distillates' %}distillate{% else %}other{% endif %}">
-    <div class="card">
-      <div class="card-body">
-        <span class="card-title">{{ recipe_for.name }}</span>
-        <p><em>{{recipe_for.description}}</em></p>
-        <a class="card-link" href="{{ url_for('get_recipe', recipe_id=recipe.id)}}">View</a>
-      </div>
+    <div class="row">
+        {% for recipe in recipes %}
+            {% set recipe_for = recipes_for[recipes.index(recipe)] %}
+              <div class="col-8 col-lg-5 mx-auto mt-3 {% if recipe_for.kind|string == 'ItemKind.starter' %}starter{% elif recipe_for.kind|string == 'ItemKind.pasta' %}pasta{% elif recipe_for.kind|string == 'ItemKind.pizza' %}pizza{% elif recipe_for.kind|string == 'ItemKind.main' %}main{% elif recipe_for.kind|string == 'ItemKind.dessert' %}dessert{% elif recipe_for.kind|string == 'ItemKind.pizza_topping' %}topping{% elif recipe_for.kind|string == 'ItemKind.water' %}water{% elif recipe_for.kind|string == 'ItemKind.juice' %}juice{% elif recipe_for.kind|string == 'ItemKind.soft_drinks' %}soft{% elif recipe_for.kind|string == 'ItemKind.wine' %}wine{% elif recipe_for.kind|string == 'ItemKind.beer' %}beer{% elif recipe_for.kind|string == 'ItemKind.distillates' %}distillate{% else %}other{% endif %}">
+                  <div class="card">
+                      <div class="card-body">
+                          <span class="card-title">{{ recipe_for.name }}</span>
+                          <p><em>{{recipe_for.description}}</em></p>
+                          <a class="card-link" href="{{ url_for('get_recipe', recipe_id=recipe.id)}}">View</a>
+                      </div>
+                  </div>
+              </div>
+        {% endfor  %}
     </div>
-  </div>
-{% endfor  %}
-</div>
-<br>
+    <br>
 {% endmacro  %}
 
 {% macro display_table_ingredient_quantities(ingredients, ingredient_quantities) %}
-{% for ingredient_quantity in ingredient_quantities %}
-<div class="row">
-  <p class="col s7">
-    <label>
-      {% set ingredient = ingredients[ingredient_quantities.index(ingredient_quantity)] %}
-      <input type="checkbox" id="ingredient_{{ingredient.id}}" name="ingredient_{{ingredient.id}}" class="myCheckbox" checked disabled />
-      <span>{{ingredient.name}}</span>
-    </label>
-  </p>
-  <div class="input-group col s3 push-s1">
-    <input value="{{ingredient_quantity.quantity}}" id="ingredient_quantity_{{ingredient.id}}" name="ingredient_quantity_{{ingredient.id}}"
-      type="number" class="validate" disabled>
-    <label for="ingredient_quantity_{{ingredient.id}}">grams</label>
-  </div>
-</div>
-{% endfor %}
+    {% for ingredient_quantity in ingredient_quantities %}
+        <div class="row">
+            <p class="col s7">
+                <label>
+                    {% set ingredient = ingredients[ingredient_quantities.index(ingredient_quantity)] %}
+                    <input type="checkbox" id="ingredient_{{ingredient.id}}" name="ingredient_{{ingredient.id}}" class="myCheckbox" checked disabled />
+                    <span>{{ingredient.name}}</span>
+                </label>
+            </p>
+            <div class="input-group col s3 push-s1">
+                <input value="{{ingredient_quantity.quantity}}" id="ingredient_quantity_{{ingredient.id}}" name="ingredient_quantity_{{ingredient.id}}"
+                  type="number" class="validate" disabled>
+                <label for="ingredient_quantity_{{ingredient.id}}">grams</label>
+            </div>
+        </div>
+    {% endfor %}
 {% endmacro %}
 
 {% macro display_table_manufactored_ingredient_quantities(manufactored_ingredients, manufactored_ingredient_quantities) %}
-{% for manufactored_ingredient_quantity in manufactored_ingredient_quantities %}
-<div class="row">
-  <p class="col s7">
-    <label>
-      {% set manufactored_ingredient = manufactored_ingredients[manufactored_ingredient_quantities.index(manufactored_ingredient_quantity)] %}
-      <input type="checkbox" id="manufactored_ingredient_{{manufactored_ingredient.id}}" name="manufactored_ingredient_{{manufactored_ingredient.id}}" class="myCheckbox" checked disabled />
-      <span>{{manufactored_ingredient.name}}</span>
-    </label>
-  </p>
-  <div class="input-group col s3 push-s1">
-    <input value="{{manufactored_ingredient_quantity.quantity}}" id="manufactored_ingredient_quantity_{{manufactored_ingredient.id}}" name="manufactored_ingredient_quantity_{{manufactored_ingredient.id}}"
-      type="number" disabled>
-    <label for="ingredient_quantity_{{manufactored_ingredient.id}}">portions</label>
-  </div>
-</div>
-{% endfor %}
+    {% for manufactored_ingredient_quantity in manufactored_ingredient_quantities %}
+        <div class="row">
+            <p class="col s7">
+                <label>
+                    {% set manufactored_ingredient = manufactored_ingredients[manufactored_ingredient_quantities.index(manufactored_ingredient_quantity)] %}
+                    <input type="checkbox" id="manufactored_ingredient_{{manufactored_ingredient.id}}" name="manufactored_ingredient_{{manufactored_ingredient.id}}" class="myCheckbox" checked disabled />
+                    <span>{{manufactored_ingredient.name}}</span>
+                </label>
+            </p>
+            <div class="input-group col s3 push-s1">
+                <input value="{{manufactored_ingredient_quantity.quantity}}" id="manufactored_ingredient_quantity_{{manufactored_ingredient.id}}" name="manufactored_ingredient_quantity_{{manufactored_ingredient.id}}"
+                  type="number" disabled>
+                <label for="ingredient_quantity_{{manufactored_ingredient.id}}">portions</label>
+            </div>
+        </div>
+    {% endfor %}
 {% endmacro %}
 
 {% macro display_employee_menu_items(is_manager,is_chef,is_waiter) %}
-<div class="text-center">
-  <div class="btn-group" role="group" aria-label="Dashboard menu">
-    {% if is_manager %}
-      <a href="{{ url_for('get_employees') }}" class="btn">
-        Staff
-      </a>
-      <a href="{{ url_for('get_suppliers') }}" class="btn">
-        Suppliers
-      </a>
-      <a href="{{ url_for('stockmanagement') }}" class="btn">
-        Manage
-      </a>
-      <a href="{{ url_for('get_all_placedorders') }}" class="btn">
-        Placed Orders
-      </a>
-      <a href="{{ url_for('get_all_recipes') }}" class="btn">
-        Recipes
-      </a>
-    {% endif %}
-    {% if is_chef and not is_manager %}
-      <a href="{{ url_for('get_suppliers') }}" class="btn">
-        Suppliers
-      </a>
-      <a href="{{ url_for('get_all_recipes') }}" class="btn">
-        Recipes
-      </a>
-      <a href="{{ url_for('create_recipe') }}" class="btn">
-        Create Recipe
-      </a>
-    {% endif %}
-    <a href="{{ url_for('get_wastages') }}" class="btn">
-      Wastages
-    </a>
-    <a href="{{ url_for('get_all_deliveries') }}" class="btn">
-      Deliveries
-    </a>
-    <a href="{{ url_for('messageboard') }}" class="btn">
-      Messageboard
-    </a>
-  </div>
-  <hr>
-</div>
-
-
+    <div class="text-center">
+        <div class="btn-group" role="group" aria-label="Dashboard menu">
+            {% if is_manager %}
+                <a href="{{ url_for('get_employees') }}" class="btn">
+                    Staff
+                </a>
+                <a href="{{ url_for('get_suppliers') }}" class="btn">
+                    Suppliers
+                </a>
+                <a href="{{ url_for('stockmanagement') }}" class="btn">
+                    Manage
+                </a>
+                <a href="{{ url_for('get_all_placedorders') }}" class="btn">
+                    Placed Orders
+                </a>
+                <a href="{{ url_for('get_all_recipes') }}" class="btn">
+                    Recipes
+                </a>
+            {% endif %}
+            {% if is_chef and not is_manager %}
+                <a href="{{ url_for('get_suppliers') }}" class="btn">
+                    Suppliers
+                </a>
+                <a href="{{ url_for('get_all_recipes') }}" class="btn">
+                    Recipes
+                </a>
+                <a href="{{ url_for('create_recipe') }}" class="btn">
+                    Create Recipe
+                </a>
+            {% endif %}
+            <a href="{{ url_for('get_wastages') }}" class="btn">
+                Wastages
+            </a>
+            <a href="{{ url_for('get_all_deliveries') }}" class="btn">
+                Deliveries
+            </a>
+            <a href="{{ url_for('messageboard') }}" class="btn">
+                Messageboard
+            </a>
+        </div>
+        <hr>
+    </div>
 {% endmacro %}
-{% block postloadjs %}
-<script>
-
-</script>
-{% endblock %}

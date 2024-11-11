@@ -1,50 +1,50 @@
 {% from 'macros.html' import display_messages %}
 {% extends "base.html" %}
 {% block content %}
-<h1 class="center-align">
-    Login Page
-</h1>
-{{ display_messages(messages) }}
-<form method="POST" action="" id="login_form">
-    <div class="row">
-        <!-- Metamask -->
-        <div class="col s2 push-s1">
-            <img src="{{ url_for('static', filename='images/metamask.svg') }}" alt="Metamask sign in" id="metamask">
-        </div>
-        <!-- Google -->
-        <div class="col s2 push-s1">
-            <div id="g_id_onload"
-                data-client_id="{{ g_client_id }}"
-                data-context="signin"
-                data-ux_mode="popup"
-                data-callback="handleCredentialResponse"
-                data-auto_prompt="false">
-            </div>
-
-            <div class="g_id_signin"
-                data-type="icon"
-                data-shape="circle"
-                data-theme="outline"
-                data-text="continue_with"
-                data-size="large">
-            </div>
-        </div>
-    </div>
-    <div class="row">
+    <h1 class="text-center">
+        Login Page
+    </h1>
+    {{ display_messages(messages) }}
+    <form method="POST" action="" id="login_form">
         <div class="row">
-          <div class="input-field col s12">
-            <input id="email" type="email" name="email" class="validate">
-            <label for="email">Email</label>
-          </div>
+            <!-- Metamask -->
+            <div class="col-4">
+                <img src="{{ url_for('static', filename='images/metamask.svg') }}" alt="Metamask sign in" id="metamask">
+            </div>
+            <!-- Google -->
+            <div class="col-4">
+                <div id="g_id_onload"
+                    data-client_id="{{ g_client_id }}"
+                    data-context="signin"
+                    data-ux_mode="popup"
+                    data-callback="handleCredentialResponse"
+                    data-auto_prompt="false">
+                </div>
+                <div class="g_id_signin"
+                    data-type="icon"
+                    data-shape="circle"
+                    data-theme="outline"
+                    data-text="continue_with"
+                    data-size="large">
+                </div>
+            </div>
         </div>
-        <div class="input-field col s12">
-          <input id="password" type="password" name="password" class="validate">
-          <label for="password">Password</label>
+        <div class="row mt-4">
+            <div class="input-group col-6 mt-2">
+                <label for="email" class="input-group-text">Email</label>
+                <input id="email" type="email" name="email">
+            </div>
+            <div class="input-group col-6 mt-2">
+                <label for="password" class="input-group-text">Password</label>
+                <input id="password" type="password" name="password">
+            </div>
         </div>
-      </div>
-</form>
-<button class="btn waves-effect waves-light brown darken-4 lime-text text-lighten-4" id="submitform">Login</button>
-<a href="{{ url_for('register') }}">
-  <button class="btn waves-effect waves-light brown darken-4 lime-text text-lighten-4">Register</button>
-</a>
+    </form>
+    <div class="btn-group mt-3">
+      <button class="btn" id="submitform">Login</button>
+      <a href="{{ url_for('register') }}" class="btn">
+          Register
+      </a>
+    </div>
+    
 {% endblock %}

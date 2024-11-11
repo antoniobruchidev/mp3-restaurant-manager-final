@@ -1,74 +1,68 @@
 {% from 'macros.html' import display_messages, display_employee_menu_items %}
 {% extends "base.html" %}
 {% block content %}
-<h1 class="text-center">
-    Staff Page
-</h1>
-<div class="text-center">
-  <div class="btn-group">
-    <a href="{{ url_for('dashboard') }}" class="btn">
-      Dashboard
-    </a>
-    <a href="{{ url_for('add_employee') }}" class="btn">
-      Give role
-    </a>
-    <a href="{{ url_for('logout') }}" class="btn">
-      Logout
-    </a>
-  </div>
-</div>
-
-<hr>
-
-{{ display_messages(messages) }}
-
-<br>
-
-<div id="managers" class="flex view-toggle">
-  <h3 class="text-center mb-2">Managers</h3>
-  {% for employee, manager, chef, waiter in staff_data %}
-    {% if manager %}
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title"> {{ employee.f_name + " " + employee.l_name}}</h5>
-          <h6>Email: {{ employee.email }}</h6>
-          <a class="card-link" href="#">Send message</a>
-          <a class="card-link" href="#">Remove</a>
+    <h1 class="text-center">
+        Staff Page
+    </h1>
+    <div class="text-center">
+        <div class="btn-group">
+            <a href="{{ url_for('dashboard') }}" class="btn">
+                Dashboard
+            </a>
+            <a href="{{ url_for('add_employee') }}" class="btn">
+                Give role
+            </a>
+            <a href="{{ url_for('logout') }}" class="btn">
+                Logout
+            </a>
         </div>
-      </div>
-    {% endif %}
-  {% endfor %}
-</div>
-
-<div id="chefs" class="flex view-toggle">
-  <h3 class="text-center mb-2">Chefs</h3>
-  {% for employee, manager, chef, waiter in staff_data %}
-    {% if chef %}
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title"> {{ employee.f_name + " " + employee.l_name}}</h5>
-          <h6>Email: {{ employee.email }}</h6>
-          <a class="card-link" href="#">Send message</a>
-          <a class="card-link" href="#">Remove</a>
-        </div>
-      </div>
-    {% endif %}
-  {% endfor %}
-</div>
-
-<div id="waiters" class="flex view-toggle">
-  <h3 class="text-center mb-2">Waiters</h3>
-  {% for employee, manager, chef, waiter in staff_data %}
-    {% if waiter %}
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title"> {{ employee.f_name + " " + employee.l_name}}</h5>
-          <h6>Email: {{ employee.email }}</h6>
-          <a class="card-link" href="#">Send message</a>
-          <a class="card-link" href="#">Remove</a>
-        </div>
-      </div>
-    {% endif %}
-  {% endfor %}
-</div>
+    </div>
+    <hr>
+    {{ display_messages(messages) }}
+    <br>
+    <div id="managers" class="flex view-toggle">
+        <h3 class="text-center mb-2">Managers</h3>
+        {% for employee, manager, chef, waiter in staff_data %}
+            {% if manager %}
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"> {{ employee.f_name + " " + employee.l_name}}</h5>
+                        <h6>Email: {{ employee.email }}</h6>
+                        <a class="card-link" href="#">Send message</a>
+                        <a class="card-link" href="#">Remove</a>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+    <div id="chefs" class="flex view-toggle">
+        <h3 class="text-center mb-2">Chefs</h3>
+        {% for employee, manager, chef, waiter in staff_data %}
+            {% if chef %}
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"> {{ employee.f_name + " " + employee.l_name}}</h5>
+                        <h6>Email: {{ employee.email }}</h6>
+                        <a class="card-link" href="#">Send message</a>
+                        <a class="card-link" href="#">Remove</a>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+    <div id="waiters" class="flex view-toggle">
+        <h3 class="text-center mb-2">Waiters</h3>
+        {% for employee, manager, chef, waiter in staff_data %}
+            {% if waiter %}
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"> {{ employee.f_name + " " + employee.l_name}}</h5>
+                        <h6>Email: {{ employee.email }}</h6>
+                        <a class="card-link" href="#">Send message</a>
+                        <a class="card-link" href="#">Remove</a>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
 {% endblock %}

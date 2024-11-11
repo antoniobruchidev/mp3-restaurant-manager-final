@@ -1,90 +1,86 @@
 {% from 'macros.html' import display_table_ingredient_quantities, display_messages %}
 {% extends "base.html" %}
 {% block headscripts %}
-<script>
-    const supplierId = "{{ placedorder.supplier_id }}"
-    const orderId = "{{ placedorder.id }}"
-</script>
+    <script>
+        const supplierId = "{{ placedorder.supplier_id }}"
+        const orderId = "{{ placedorder.id }}"
+    </script>
 {% endblock %}
 {% block content %}
-<h1 class="text-center">
-{% if placedorder %}
-    Order: {{ placedorder.id }} open on {{ placedorder.date }}
-{% else %}
-    New order
-{% endif %}
-</h1>
-<div class="text-center">
-    <div class="btn-group">
-        <a href="{{ url_for('get_placedorders', supplier_id=placedorder.supplier_id) }}" class="btn">
-            Back to Placed Orders
-        </a>
-        <a href="{{ url_for('dashboard') }}" class="btn">
-            Dashboard
-        </a>
-        <a href="{{ url_for('logout') }}" class="btn">
-            Logout
-        </a>
+    <h1 class="text-center">
+    {% if placedorder %}
+        Order: {{ placedorder.id }} open on {{ placedorder.date }}
+    {% else %}
+        New order
+    {% endif %}
+    </h1>
+    <div class="text-center">
+        <div class="btn-group">
+            <a href="{{ url_for('get_placedorders', supplier_id=placedorder.supplier_id) }}" class="btn">
+                Back to Placed Orders
+            </a>
+            <a href="{{ url_for('dashboard') }}" class="btn">
+                Dashboard
+            </a>
+            <a href="{{ url_for('logout') }}" class="btn">
+                Logout
+            </a>
+        </div>
     </div>
-</div>
-
-<hr>
-{{ display_messages(messages) }}
-  <form class="form-group" id="ingredient_quantity_form">
-    <div class="flex justify-content-between">
-      <div class="input-group">
-        <span class="input-group-text">
-          <i class="fa-solid fa-comment-dots"></i>
-          <span class="sr-only">Search for ingredients</span>
-        </span>
-        <input type="text" id="autocomplete-input" class="form-control input-group" placeholder="Search for ingredients">
-      </div>
-      
-      <input type="number" id="stock" name="stock" class="form-control mt-2" placeholder="0">
-      <button type="button" id="add_to_order" class="btn mt-2">Add to order</button>
+    <hr>
+    {{ display_messages(messages) }}
+        <form class="form-group" id="ingredient_quantity_form">
+            <div class="flex justify-content-between">
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fa-solid fa-comment-dots"></i>
+                        <span class="sr-only">Search for ingredients</span>
+                    </span>
+                    <input type="text" id="autocomplete-input" class="form-control input-group" placeholder="Search for ingredients">
+                </div>
+                <input type="number" id="stock" name="stock" class="form-control mt-2" placeholder="0">
+                <button type="button" id="add_to_order" class="btn mt-2">Add to order</button>
+            </div>
+            <input type="hidden" name="supplier_id" id="supplier_id">
+            <input type="hidden" name="ingredient_id" id="ingredient_id">
+        </form>
+        <hr>
+        <div class="container">
+            <form action="" id="send-order"></form>
+                {{ display_table_ingredient_quantities(ingredients_in_order, placedorder.ingredient_quantities) }}
+            </form>
+        {% if placedorder.sent %}
+            <button class="btn" id="submitform" disabled>Sent</button>
+        {% else  %}
+            <button class="btn" id="submitform">Send</button>
+        {% endif  %}
     </div>
-    <input type="hidden" name="supplier_id" id="supplier_id">
-    <input type="hidden" name="ingredient_id" id="ingredient_id">
-  </form>
-  
-<hr>
-<div class="container">
-    <form action="" id="send-order"></form>
-    {{ display_table_ingredient_quantities(ingredients_in_order, placedorder.ingredient_quantities) }}
-    </form>
-    {% if placedorder.sent %}
-    <button class="btn" id="submitform" disabled>Sent</button>
-    {% else  %}
-    <button class="btn" id="submitform">Send</button>
-    {% endif  %}
-</div>
 {% endblock %}
 
 {% block postloadjs %}
-<script type="module">
-  import Autocomplete from "https://cdn.jsdelivr.net/gh/lekoala/bootstrap5-autocomplete@master/autocomplete.js";
-  var src = [];
-  {% for ingredient in ingredients %}
-    src.push({
-      title: "{{ingredient.name}}",
-      id: "{{ingredient.id}}",
-      data: {
-        "supplier_id": {{ ingredient.supplier_id }}
-      },
-    });
-  {% endfor %}
-  Autocomplete.init("#autocomplete-input", {
-    items: src,
-    valueField: "id",
-    labelField: "title",
-    highlightTyped: true,
-    onSelectItem: function(e){
-      $("#supplier_id").val(e.data.supplier_id)
-      $("#ingredient_id").val(e.id)
-      console.log(e.data.supplier_id, $("#supplier_id").val())
-    },
-  });
-  $("#add_to_order").on("click", addToOrder)
- 
-</script>
+    <script type="module">
+        import Autocomplete from "https://cdn.jsdelivr.net/gh/lekoala/bootstrap5-autocomplete@master/autocomplete.js";
+        var src = [];
+        {% for ingredient in ingredients %}
+            src.push({
+                title: "{{ingredient.name}}",
+                id: "{{ingredient.id}}",
+                data: {
+                    "supplier_id": {{ ingredient.supplier_id }}
+                },
+            });
+        {% endfor %}
+        Autocomplete.init("#autocomplete-input", {
+            items: src,
+            valueField: "id",
+            labelField: "title",
+            highlightTyped: true,
+            onSelectItem: function(e){
+                $("#supplier_id").val(e.data.supplier_id)
+                $("#ingredient_id").val(e.id)
+                console.log(e.data.supplier_id, $("#supplier_id").val())
+            },
+        });
+        $("#add_to_order").on("click", addToOrder)
+    </script>
 {% endblock %}
