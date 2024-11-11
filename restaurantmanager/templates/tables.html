@@ -1,0 +1,23 @@
+{% from 'macros.html' display_messages %}
+{% extends "base.html" %}
+{% block content %}
+<h1 class="text-center">
+    Tables
+</h1>
+<hr>
+{{ display_messages(messages) }}
+
+<div class="container">
+  <div class="row">
+    <div class="col-8 col-lg-6 mx-auto">
+      <div class="card">
+        <div class="card-body">
+          <span class="card-title">Table: {{ order.table }}</span>
+          <p><em>{{ total }}</em></p>
+          <a class="card-link" href="{{ url_for('table_management', table_number=order.table )}}">View</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

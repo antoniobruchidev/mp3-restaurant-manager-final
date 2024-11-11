@@ -1,0 +1,28 @@
+{% from 'macros.html' import display_messages, display_employee_menu_items %}
+{% extends "base.html" %}
+{% block content %}
+<h1 class="text-center">
+    Table Management
+</h1>
+
+{{ display_messages(messages) }}
+
+<br>
+<div class="container">
+    <div class="row">
+        {% for order, total in orders_data %}
+            <div class="col-8 col-lg-4 mx-auto">
+                <div class="card">
+                    <div class="card-body">
+                        <span class="card-title">Table Number: {{ order.table }}</span>
+                        <p><em>Total: {{ total }}</em></p>
+                        <a class="card-link" href="{{ url_for('close_table', order_id=order.id )}}">View</a>
+                        <a class="card-link" href="{{ url_for('close_table', order_id=order.id )}}">Close Table</a>
+                    </div>
+                </div>
+          </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

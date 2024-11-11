@@ -371,7 +371,7 @@ class Order(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     dateTime = db.Column(db.DateTime, nullable=False)
-    manufactoredimgredient_quantities = db.relationship(
+    manufactoredingredient_quantities = db.relationship(
         "ManufactoredIngredientQuantity",
         secondary=order_manufactoredingredientquantity,
         backref="orders",

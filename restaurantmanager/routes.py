@@ -50,6 +50,7 @@ from restaurantmanager.middleware import (
     update_manufactored_ingredient_quantity,
 )
 from flask_login import (
+    AnonymousUserMixin,
     UserMixin,
     login_user,
     LoginManager,
@@ -1495,3 +1496,167 @@ def delete_user(web3_address):
     db.session.commit()
     flash("Successfully deleted user")
     return redirect(url_for("menu"))
+
+
+@app.route('/table')
+def table():
+    """route to table management"""
+    if current_user is not AnonymousUserMixin:
+        is_manager = check_role(role_hash("manager"), current_user.web3_address)
+        is_chef = check_role(role_hash("chef"), current_user.web3_address)
+        is_waiter = check_role(role_hash("waiter"), current_user.web3_address)
+        if is_manager or is_chef or is_waiter:
+            return redirect('tables')
+        else:
+            return render_template('table.html')
+    return render_template('table.html')
+
+@app.route("/tables")
+@login_required
+def tables_management():
+    """ route to list every open table"""
+    open_tables = db.session.query(Order).filter_by(paid=False).all()
+    totals = []
+    for table in open_tables:
+        total = 0
+        for (
+            manufactored_ingredient_quantity
+        ) in table.manufactoredingredient_quantities:
+            manufactored_ingredient = (
+                db.session.query(ManufactoredIngredient)
+                .filter_by(
+                    id=manufactored_ingredient_quantity.manufactored_ingredient_id
+                )
+                .first()
+            )
+            total += manufactored_ingredient.price * manufactored_ingredient_quantity.quantity
+        totals.append(total)
+    orders_data = list(zip(open_tables, totals))
+    return render_template("table_management.html", orders_data=orders_data)
+
+
+
+@app.route("/tables/<table_number>", methods=["GET", "POST"])
+def table_management(table_number):
+    starters = (
+        db.session.query(ManufactoredIngredient)
+        .filter(
+            ManufactoredIngredient.sellable_item == True,
+            ManufactoredIngredient.kind == ItemKind(1),
+        )
+        .all()
+    )
+    mains = (
+        db.session.query(ManufactoredIngredient)
+        .filter_by(sellable_item=True)
+        .filter_by(kind=ItemKind.main)
+        .all()
+    )
+    desserts = (
+        db.session.query(ManufactoredIngredient)
+        .filter_by(sellable_item=True)
+        .filter_by(kind=ItemKind.dessert)
+        .all()
+    )
+    pizzas = (
+        db.session.query(ManufactoredIngredient)
+        .filter_by(sellable_item=True)
+        .filter_by(kind=ItemKind.pizza)
+        .all()
+    )
+    pastas = (
+        db.session.query(ManufactoredIngredient)
+        .filter_by(sellable_item=True)
+        .filter_by(kind=ItemKind.pasta)
+        .all()
+    )
+    water = (
+        db.session.query(ManufactoredIngredient)
+        .filter_by(sellable_item=True)
+        .filter_by(kind=ItemKind.water)
+        .all()
+    )
+    soft_drinks = (
+        db.session.query(ManufactoredIngredient)
+        .filter_by(sellable_item=True)
+        .filter_by(kind=ItemKind.soft_drinks)
+        .all()
+    )
+    juices = (
+        db.session.query(ManufactoredIngredient)
+        .filter_by(sellable_item=True)
+        .filter_by(kind=ItemKind.juice)
+        .all()
+    )
+    wines = (
+        db.session.query(ManufactoredIngredient)
+        .filter_by(sellable_item=True)
+        .filter_by(kind=ItemKind.wine)
+        .all()
+    )
+    beers = (
+        db.session.query(ManufactoredIngredient)
+        .filter_by(sellable_item=True)
+        .filter_by(kind=ItemKind.beer)
+        .all()
+    )
+    distillates = (
+        db.session.query(ManufactoredIngredient)
+        .filter_by(sellable_item=True)
+        .filter_by(kind=ItemKind.distillates)
+        .all()
+    )
+    if request.method == "POST":
+        keys = request.form.keys()
+        print(request.form)
+        manufactored_ingredient_quantity = (
+            get_manufactored_ingredient_quantity_from_form(keys, request.form)
+        )
+        open_table = Order(
+            dateTime = datetime.datetime.now(),
+            paid = False,
+            table = table_number
+        )
+        db.session.add(open_table)
+        db.session.commit()
+        open_table = db.session.query(Order).filter_by(paid=False).filter_by(table=table_number).first()
+        assert update_manufactored_ingredient_quantity(
+            manufactored_ingredient_quantity, open_table
+        )
+        flash("Order add successfully at table".format(table_number))
+        return {"success": True}
+    else:
+        return render_template(
+            "menu_at_table.html", 
+            table_number=table_number,
+            starters=starters,
+            mains=mains,
+            desserts=desserts,
+            pizzas=pizzas,
+            pastas=pastas,
+            water=water,
+            soft_drinks=soft_drinks,
+            juices=juices,
+            wines=wines,
+            beers=beers,
+            distillates=distillates
+            )
+
+
+@app.route("/orders/<order_id>/close")
+@login_required
+def close_table(order_id):
+    is_manager = check_role(role_hash("manager"), current_user.web3_address)
+    is_waiter = check_role(role_hash("waiter"), current_user.web3_address)
+    if is_manager or is_waiter:
+        order = db.session.query(Order).filter_by(id=order_id).first()
+        order.paid = True
+        db.session.add(order)
+        db.session.commit()
+        flash("successfully closed table")
+        return redirect(url_for('tables_management'))
+    else:
+        flash("Only managers and waiters can close a table")
+        return redirect(url_for("dashboard"))
+
+

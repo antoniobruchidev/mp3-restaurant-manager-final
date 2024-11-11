@@ -1,0 +1,343 @@
+{% from 'macros.html' import display_messages %}
+{% extends "base.html" %}
+{% block content %}
+{{display_messages(messages)}}
+<h1 class="text-center">Menu</h1>
+<div class="accordion" id="menu">
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-starters" aria-expanded="true" aria-controls="panelsStayOpen-starters">
+                Starters
+            </button>
+        </h2>
+        <div id="panelsStayOpen-starters" class="accordion-collapse collapse show">
+            <div class="accordion-body">
+                <table class="table align-middle">
+                    <tbody>
+                        {% for starter in starters %}
+                            <tr id="dish_{{ starter.id }}">
+                                <td><img src="{{ url_for('static', filename=starter.image) }}" class="dish-image"></td>
+                                <td class="dish-name align-start">{{ starter.name }}</td>
+                                <td>
+                                    <p class="dish-price text-end">£ {{ starter.price }}</p>
+                                    <div class="dish-info text-end">
+                                        <div class="btn-group">
+                                            <button id="remove_{{ starter.id }}" class="btn" type="button">
+                                                <i class="fa-solid fa-minus"></i><span class="sr-only">Remove {{ starter.name }}</span>
+                                            </button>
+                                            <span id="quantity_{{ starter.id }}" class="input-group-text">0</span>
+                                            <button id="add_{{ starter.id }}" class="btn" type="button">
+                                                <i class="fa-solid fa-plus"></i><span class="sr-only">Add {{ starter.name }}</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-pastas" aria-expanded="true" aria-controls="panelsStayOpen-pastas">
+                Pasta
+            </button>
+        </h2>
+        <div id="panelsStayOpen-pastas" class="accordion-collapse collapse show">
+            <div class="accordion-body">
+                <table class="table align-middle">
+                    <tbody>
+                        {% for pasta in pastas %}
+                            <tr id="dish_{{ pasta.id }}">
+                                <td><img src="{{ url_for('static', filename=pasta.image) }}"></td>
+                                <td>{{ pasta.name }}</td>
+                                <td>
+                                    <p class="dish-price text-end">£ {{ pasta.price }}</p>
+                                    <div class="dish-info text-end">
+                                        <div class="btn-group">
+                                            <button id="remove_{{ pasta.id }}" class="btn" type="button">
+                                                <i class="fa-solid fa-minus"></i><span class="sr-only">Remove {{ pasta.name }}</span>
+                                            </button>
+                                            <span id="quantity_{{ pasta.id }}" class="input-group-text">0</span>
+                                            <button id="add_{{ pasta.id }}" class="btn" type="button">
+                                                <i class="fa-solid fa-plus"></i><span class="sr-only">Add {{ pasta.name }}</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                                
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-mains" aria-expanded="true" aria-controls="panelsStayOpen-mains">
+                Mains
+            </button>
+        </h2>
+        <div id="panelsStayOpen-mains" class="accordion-collapse collapse show">
+            <div class="accordion-body">
+                <table class="table align-middle">
+                    <tbody>
+                        {% for main in mains %}
+                            <tr id="dish_{{ main.id }}">
+                                <td><img src="{{ url_for('static', filename=main.image) }}" class="dish-image"></td>
+                                <td class="dish-name align-start">{{ main.name }}</td>
+                                <td>
+                                    <p class="dish-price text-end">£ {{ main.price }}</p>
+                                    <div class="dish-info text-end">
+                                        <div class="btn-group">
+                                            <button id="remove_{{ main.id }}" class="btn" type="button">
+                                                <i class="fa-solid fa-minus"></i><span class="sr-only">Remove {{ main.name }}</span>
+                                            </button>
+                                            <span id="quantity_{{ main.id }}" class="input-group-text">0</span>
+                                            <button id="add_{{ main.id }}" class="btn" type="button">
+                                                <i class="fa-solid fa-plus"></i><span class="sr-only">Add {{ main.name }}</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-pizzas" aria-expanded="true" aria-controls="panelsStayOpen-pizzas">
+                Pizza
+            </button>
+        </h2>
+        <div id="panelsStayOpen-pizzas" class="accordion-collapse collapse show">
+            <div class="accordion-body">
+                <table class="table align-middle">
+                    <tbody>
+                        {% for pizza in pizzas %}
+                            <tr id="dish_{{ pizza.id }}">
+                                <td><img src="{{ url_for('static', filename=pizza.image) }}" class="dish-image"></td>
+                                <td class="dish-name align-start">{{ pizza.name }}</td>
+                                <td>
+                                    <p class="dish-price text-end">£ {{ pizza.price }}</p>
+                                    <div class="dish-info text-end">
+                                        <div class="btn-group">
+                                            <button id="remove_{{ pizza.id }}" class="btn" type="button">
+                                                <i class="fa-solid fa-minus"></i><span class="sr-only">Remove {{ pizza.name }}</span>
+                                            </button>
+                                            <span id="quantity_{{ pizza.id }}" class="input-group-text">0</span>
+                                            <button id="add_{{ pizza.id }}" class="btn" type="button">
+                                                <i class="fa-solid fa-plus"></i><span class="sr-only">Add {{ pizza.name }}</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-drinks" aria-expanded="true" aria-controls="panelsStayOpen-drinks">
+                Drinks
+            </button>
+        </h2>
+        <div id="panelsStayOpen-drinks" class="accordion-collapse collapse show">
+            <div class="accordion-body">
+                <table class="table align-middle table-borderless">
+                    <tbody>
+                        {% for water in waters %}
+                            <tr id="dish_{{ water.id }}">
+                                <td><img src="{{ url_for('static', filename=water.image) }}" class="dish-image"></td>
+                                <td class="dish-name align-start">{{ water.name }}</td>
+                                <td>
+                                    <p class="dish-price text-end">£ {{ water.price }}</p>
+                                    <div class="dish-info text-end">
+                                        <div class="btn-group">
+                                            <button id="remove_{{ water.id }}" class="btn" type="button">
+                                                <i class="fa-solid fa-minus"></i><span class="sr-only">Remove {{ water.name }}</span>
+                                            </button>
+                                            <span id="quantity_{{ water.id }}" class="input-group-text">0</span>
+                                            <button id="add_{{ water.id }}" class="btn" type="button">
+                                                <i class="fa-solid fa-plus"></i><span class="sr-only">Add {{ water.name }}</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        {% for juice in juices %}
+                            <tr id="dish_{{ juice.id }}">
+                                <td><img src="{{ url_for('static', filename=juice.image) }}" class="dish-image"></td>
+                                <td class="dish-name">{{ juice.name }}</td>
+                                <td>
+                                    <p class="dish-price text-end">£ {{ juice.price }}</p>
+                                    <div class="dish-info text-end">
+                                        <div class="btn-group">
+                                            <button id="remove_{{ juice.id }}" class="btn" type="button">
+                                                <i class="fa-solid fa-minus"></i><span class="sr-only">Remove {{ juice.name }}</span>
+                                            </button>
+                                            <span id="quantity_{{ juice.id }}" class="input-group-text">0</span>
+                                            <button id="add_{{ juice.id }}" class="btn" type="button">
+                                                <i class="fa-solid fa-plus"></i><span class="sr-only">Add {{ juice.name }}</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        {% for soft_drink in soft_drinks %}
+                            <tr id="dish_{{ soft_drink.id }}">
+                                <td><img src="{{ url_for('static', filename=soft_drink.image) }}" class="dish-image"></td>
+                                <td class="dish-name">{{ soft_drink.name }}</td>
+                                <td>
+                                    <p class="dish-price text-end">£ {{ soft_drink.price }}</p>
+                                    <div class="dish-info text-end">
+                                        <div class="btn-group">
+                                            <button id="remove_{{ soft_drink.id }}" class="btn" type="button">
+                                                <i class="fa-solid fa-minus"></i><span class="sr-only">Remove {{ soft_drink.name }}</span>
+                                            </button>
+                                            <span id="remove_{{ soft_drink.id }}" class="input-group-text">0</span>
+                                            <button id="add_{{ soft_drink.id }}" class="btn" type="button">
+                                                <i class="fa-solid fa-plus"></i><span class="sr-only">Add {{ soft_drink.name }}</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        {% for wine in wines %}
+                            <tr id="dish_{{ wine.id }}">
+                                <td><img src="{{ url_for('static', filename=wine.image) }}" class="dish-image"></td>
+                                <td class="dish-name">{{ wine.name }}</td>
+                                <td>
+                                    <p class="dish-price text-end">£ {{ wine.price }}</p>
+                                    <div class="dish-info text-end">
+                                        <div class="btn-group">
+                                            <button id="remove_{{ wine.id }}" class="btn" type="button">
+                                                <i class="fa-solid fa-minus"></i><span class="sr-only">Remove {{ wine.name }}</span>
+                                            </button>
+                                            <span id="quantity_{{ wine.id }}" class="input-group-text">0</span>
+                                            <button id="add_{{ wine.id }}" class="btn" type="button">
+                                                <i class="fa-solid fa-plus"></i><span class="sr-only">Add {{ wine.name }}</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        {% for beer in beers %}
+                            <tr id="dish_{{ beer.id }}">
+                                <td><img src="{{ url_for('static', filename=beer.image) }}" class="dish-image"></td>
+                                <td class="dish-name">{{ beer.name }}</td>
+                                <td>
+                                    <p class="dish-price text-end">£ {{ beer.price }}</p>
+                                    <div class="dish-info text-end">
+                                        <div class="btn-group">
+                                            <button id="remove_{{ beer.id }}" class="btn" type="button">
+                                                <i class="fa-solid fa-minus"></i><span class="sr-only">Remove {{ beer.name }}</span>
+                                            </button>
+                                            <span id="quantity_{{ beer.id }}" class="input-group-text">0</span>
+                                            <button id="add_{{ beer.id }}" class="btn" type="button">
+                                                <i class="fa-solid fa-plus"></i><span class="sr-only">Add {{ beer.name }}</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        {% for distillate in distillates %}
+                            <tr id="dish_{{ distillate.id }}">
+                                <td><img src="{{ url_for('static', filename=distillate.image) }}" class="dish-image"></td>
+                                <td class="dish-name">{{ distillate.name }}</td>
+                                <td>
+                                    <p class="dish-price text-end">£ {{ distillate.price }}</p>
+                                    <div class="dish-info text-end">
+                                        <div class="btn-group">
+                                            <button id="remove_{{ distillate.id }}" class="btn" type="button">
+                                                <i class="fa-solid fa-minus"></i><span class="sr-only">Remove {{ distillate.name }}</span>
+                                            </button>
+                                            <span id="quantity_{{ distillate.id }}" class="input-group-text">0</span>
+                                            <button id="add_{{ distillate.id }}" class="btn" type="button">
+                                                <i class="fa-solid fa-plus"></i><span class="sr-only">Add {{ distillate.name }}</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div class="text-end">
+                    <div class="btn-group">
+                        <a class="btn" type="button" id="order">Place Order</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block postloadjs %}
+<script>
+    var buttons = $("button.btn")
+    for (let button of buttons) {
+        if ($(button).attr("id").split("_")[0] == "remove") {
+            $(button).prop("disabled", true)
+        }
+    }
+    $(".btn").on("click", function(){
+        var add_or_remove = $(this).attr("id").split("_")[0]
+        var id = $(this).attr("id").split("_")[1]
+        var quantity = parseInt($(`#quantity_${id}`).text())
+        if (add_or_remove == "remove") {
+            $(`#quantity_${id}`).text(quantity - 1)
+            if ($(`#quantity_${id}`).text() == "0") {
+                $(`#remove_${id}`).prop("disabled", true)
+            }
+        } else if (add_or_remove == "add" && quantity == 0) {
+            $(`#quantity_${id}`).text(quantity + 1)
+            $(`#remove_${id}`).prop("disabled", false)
+        }
+    })
+
+        
+    $("#order").on("click", async function() {
+        var form = new FormData()
+        quantities = $("span.input-group-text")
+        for (let quantity of quantities) {
+            var id = $(quantity).attr("id").split("_")[1]
+            var key = `manufactored_ingredient_quantity_${id}`
+            form.append(key, $(quantity).text())
+        }
+        form.append("table", "{{ table_number }}")
+        console.log(form)
+        try {
+            const data = await fetch(window.location.pathname,{
+                method: "POST",
+                body: form
+            })
+            if (await data.success) {
+                window.location.reload()
+            }
+            console.log(await data.success)
+        } catch (error) {
+            
+        }
+    })
+
+</script>
+{% endblock %}

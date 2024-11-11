@@ -1,0 +1,32 @@
+{% from 'macros.html' import display_reply, display_employee_menu_items, display_messages %}
+{% extends "base.html" %}
+{% block headscripts %}
+<script src="https://unpkg.com/html5-qrcode"></script>
+{% endblock %}
+{% block content %}
+<h1 class="text-center">
+  Table
+</h1>
+<div id="qr-reader" style="max-width:500px"></div>
+{% endblock %}
+{% block postloadjs %}
+<script>
+  var resultContainer = document.getElementById('qr-reader-results');
+  var lastResult, countResults = 0;
+
+  function onScanSuccess(decodedText, decodedResult) {
+      if (decodedText !== lastResult) {
+          ++countResults;
+          lastResult = decodedText;
+          // Handle on success condition with the decoded message.
+          window.location.href = lastResult;
+      }
+  }
+
+  var html5QrcodeScanner = new Html5QrcodeScanner(
+      "qr-reader", { fps: 10, qrbox: 250 });
+  html5QrcodeScanner.render(onScanSuccess);
+
+</script>
+
+{% endblock %}
