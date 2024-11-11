@@ -307,8 +307,9 @@
                 if ($(`#quantity_${id}`).text() == "0") {
                     $(`#remove_${id}`).prop("disabled", true)
                 }
-            } else if (add_or_remove == "add" && quantity == 0) {
+            } else if (add_or_remove == "add") {
                 $(`#quantity_${id}`).text(quantity + 1)
+                if ($(`#quantity_${id}`).text() > "0")
                 $(`#remove_${id}`).prop("disabled", false)
             }
         })
