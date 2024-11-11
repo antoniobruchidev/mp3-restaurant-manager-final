@@ -1756,7 +1756,7 @@ def delete_user(web3_address):
 @app.route("/table")
 def table():
     """route to table management"""
-    if current_user is not AnonymousUserMixin:
+    if current_user.is_authenticated:
         is_manager = check_role(
             role_hash("manager"), current_user.web3_address
         )
