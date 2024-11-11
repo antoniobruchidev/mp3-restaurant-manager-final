@@ -14,7 +14,7 @@
                         <tbody>
                             {% for starter in starters %}
                                 <tr>
-                                    <td><img src="{{ url_for('static', filename=starter.image) }}" class="dish-image"></td>
+                                    <td><img src="{{ url_for('static', filename=starter.image) }}" class="dish-image" alt="{{ starter.name }}"></td>
                                     <td class="dish-name align-start">{{ starter.name }}</td>
                                     <td class="dish-price align-end">£ {{ starter.price }}</td>
                                 </tr>
@@ -34,14 +34,9 @@
                 <div class="accordion-body">
                     <table class="table align-middle">
                         <tbody>
-                            <tr>
-                                <td><img src="{{url_for('static', filename='images/pasta.jpg') }}" class="dish-image"></td>
-                                <td class="dish-name align-start"> Spaghetti alla carbonara</td>
-                                <td class="dish-price align-end">£ 13.50</td>
-                            </tr>
                             {% for pasta in pastas %}
                                 <tr>
-                                    <td><img src="{{ url_for('static', filename=pasta.image) }}"></td>
+                                    <td><img src="{{ url_for('static', filename=pasta.image) }}" class="dish-image" alt="{{ pasta.name }}"></td>
                                     <td>{{ pasta.name }}</td>
                                     <td>£ {{ pasta.price }}</td>
                                 </tr>
@@ -63,7 +58,7 @@
                         <tbody>
                             {% for main in mains %}
                                 <tr>
-                                    <td><img src="{{ url_for('static', filename=main.image) }}" class="dish-image"></td>
+                                    <td><img src="{{ url_for('static', filename=main.image) }}" class="dish-image" alt="{{ main.name }}"></td>
                                     <td class="dish-name align-start">{{ main.name }}</td>
                                     <td class="dish-price align-end">£ {{ main.price }}</td>
                                 </tr>
@@ -85,7 +80,7 @@
                         <tbody>
                             {% for pizza in pizzas %}
                                 <tr>
-                                    <td><img src="{{ url_for('static', filename=pizza.image) }}" class="dish-image"></td>
+                                    <td><img src="{{ url_for('static', filename=pizza.image) }}" class="dish-image" alt="{{ pizza.name }}"></td>
                                     <td class="dish-name align-start">{{ pizza.name }}</td>
                                     <td class="dish-price align-end">£ {{ pizza.price }}</td>
                                 </tr>
@@ -107,42 +102,42 @@
                         <tbody>
                             {% for water in waters %}
                                 <tr>
-                                    <td><img src="{{ url_for('static', filename=water.image) }}" class="dish-image"></td>
+                                    <td><img src="{{ url_for('static', filename=water.image) }}" class="dish-image" alt="{{ water.name }}"></td>
                                     <td class="dish-name align-start">{{ water.name }}</td>
                                     <td class="dish-price align-end">£ {{ water.price }}</td>
                                 </tr>
                             {% endfor %}
                             {% for juice in juices %}
                                 <tr>
-                                    <td><img src="{{ url_for('static', filename=juice.image) }}" class="dish-image"></td>
+                                    <td><img src="{{ url_for('static', filename=juice.image) }}" class="dish-image" alt="{{ juice.name }}"></td>
                                     <td>{{ juice.name }}</td>
                                     <td class="dish-price">£ {{ juice.price }}</td>
                                 </tr>
                             {% endfor %}
                             {% for soft_drink in soft_drinks %}
                                 <tr>
-                                    <td><img src="{{ url_for('static', filename=soft_drink.image) }}" class="dish-image"></td>
+                                    <td><img src="{{ url_for('static', filename=soft_drink.image) }}" class="dish-image" alt="{{ soft_drink.name }}"></td>
                                     <td class="dish-name">{{ soft_drink.name }}</td>
                                     <td class="dish-price">£ {{ soft_drink.price }}</td>
                                 </tr>
                             {% endfor %}
                             {% for wine in wines %}
                                 <tr>
-                                    <td><img src="{{ url_for('static', filename=wine.image) }}" class="dish-image"></td>
+                                    <td><img src="{{ url_for('static', filename=wine.image) }}" class="dish-image" alt="{{ wine.name }}"></td>
                                     <td class="dish-name">{{ wine.name }}</td>
                                     <td class="dish-price">£ {{ wine.price }}</td>
                                 </tr>
                             {% endfor %}
                             {% for beer in beers %}
                                 <tr>
-                                    <td><img src="{{ url_for('static', filename=beer.image) }}" class="dish-image"></td>
+                                    <td><img src="{{ url_for('static', filename=beer.image) }}" class="dish-image" alt="{{ beer.name }}"></td>
                                     <td class="dish-name">{{ beer.name }}</td>
                                     <td class="dish-price">£ {{ beer.price }}</td>
                                 </tr>
                             {% endfor %}
                             {% for distillate in distillates %}
                                 <tr>
-                                    <td><img src="{{ url_for('static', filename=distillate.image) }}" class="dish-image"></td>
+                                    <td><img src="{{ url_for('static', filename=distillate.image) }}" class="dish-image" alt="{{ distillate.name }}"></td>
                                     <td class="dish-name">{{ distillate.name }}</td>
                                     <td class="dish-price">£ {{ distillate.price }}</td>
                                 </tr>
