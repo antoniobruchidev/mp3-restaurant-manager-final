@@ -18,52 +18,51 @@
         </div>
     </div>
     <hr>
-{{ display_messages(messages) }}
-<form action="" method="POST" id="create_recipe_form">
-    <div class="row">
-        <div class="input-field col s4">
-            <input type="text" id="name" name="name" placeholder="Recipe name" required>
+    <form action="" method="POST" id="create_recipe_form">
+        <div class="row">
+            <div class="input-field col s4">
+                <input type="text" id="name" name="name" placeholder="Recipe name" required>
+            </div>
+            <div class="input-field col s4 push-s1">
+                <select id="itemkind" name="itemkind" required>
+                    <option value="" disabled selected>Choose your option</option>
+                    <option value="1">Starter</option>
+                    <option value="2">Pasta</option>
+                    <option value="3">Pizza</option>
+                    <option value="4">Main</option>
+                    <option value="5">Dessert</option>
+                    <option value="6">Pizza topping</option>
+                    <option value="7">Water</option>
+                    <option value="8">Juice</option>
+                    <option value="9">Soft drink</option>
+                    <option value="10">Wine</option>
+                    <option value="11">Beer</option>
+                    <option value="12">Distillates</option>
+                    <option value="13">Other</option>
+                  </select>
+                  <label>Kind of item</label>
+                </select>
+            </div>
+            <div class="input-field col s2 push-s2">
+                <input type="number" id="portions" name="portions" placeholder="portions" required>
+            </div>
         </div>
-        <div class="input-field col s4 push-s1">
-            <select id="itemkind" name="itemkind" required>
-                <option value="" disabled selected>Choose your option</option>
-                <option value="1">Starter</option>
-                <option value="2">Pasta</option>
-                <option value="3">Pizza</option>
-                <option value="4">Main</option>
-                <option value="5">Dessert</option>
-                <option value="6">Pizza topping</option>
-                <option value="7">Water</option>
-                <option value="8">Juice</option>
-                <option value="9">Soft drink</option>
-                <option value="10">Wine</option>
-                <option value="11">Beer</option>
-                <option value="12">Distillates</option>
-                <option value="13">Other</option>
-              </select>
-              <label>Kind of item</label>
-            </select>
+        <div class="row">
+            <div class="input-field col s12">
+                <textarea id="description" name="description"></textarea>
+                <label for="description">Description</label>
+              </div>
         </div>
-        <div class="input-field col s2 push-s2">
-            <input type="number" id="portions" name="portions" placeholder="portions" required>
+        <div class="row">
+            <div class="col s6" id="ingredients">
+                <h5> Ingredients</h5>
+                {{ display_ingredients(ingredients) }}    
+            </div>
+            <div class="col s6" id="manufactored_ingredients">
+                <h5>Manufactored items</h5>
+                {{ display_manufactored_ingredients(manufactored_ingredients) }}
+            </div>
         </div>
-    </div>
-    <div class="row">
-        <div class="input-field col s12">
-            <textarea id="description" name="description"></textarea>
-            <label for="description">Description</label>
-          </div>
-    </div>
-    <div class="row">
-        <div class="col s6" id="ingredients">
-            <h5> Ingredients</h5>
-            {{ display_ingredients(ingredients) }}    
-        </div>
-        <div class="col s6" id="manufactored_ingredients">
-            <h5>Manufactored items</h5>
-            {{ display_manufactored_ingredients(manufactored_ingredients) }}
-        </div>
-    </div>
-</form>
-<button class="btn" id="submitform">Submit</button>
+    </form>
+    <button class="btn" id="submitform">Submit</button>
 {% endblock %}

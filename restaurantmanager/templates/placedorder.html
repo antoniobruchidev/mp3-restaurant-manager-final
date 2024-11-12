@@ -4,6 +4,7 @@
     <script>
         const supplierId = "{{ placedorder.supplier_id }}"
         const orderId = "{{ placedorder.id }}"
+        const is_manager = "{{ is_manager }}"
     </script>
 {% endblock %}
 {% block content %}
@@ -16,7 +17,7 @@
     </h1>
     <div class="text-center">
         <div class="btn-group">
-            <a href="{{ url_for('get_placedorders', supplier_id=placedorder.supplier_id) }}" class="btn">
+            <a href="{{ url_for('get_all_placedorders') }}" class="btn">
                 Back to Placed Orders
             </a>
             <a href="{{ url_for('dashboard') }}" class="btn">
@@ -28,7 +29,6 @@
         </div>
     </div>
     <hr>
-    {{ display_messages(messages) }}
         <form class="form-group" id="ingredient_quantity_form">
             <div class="flex justify-content-between">
                 <div class="input-group">
@@ -49,11 +49,14 @@
             <form action="" id="send-order"></form>
                 {{ display_table_ingredient_quantities(ingredients_in_order, placedorder.ingredient_quantities) }}
             </form>
-        {% if placedorder.sent %}
-            <button class="btn" id="submitform" disabled>Sent</button>
-        {% else  %}
-            <button class="btn" id="submitform">Send</button>
-        {% endif  %}
+        
+        {% if placedorder != None %}
+            {% if placedorder.sent or not is_manager %}
+                <button class="btn" id="submitform" disabled>{% if placedorder.sent %}Sent{% else %}Sent{% endif %}</button>
+            {% else  %}
+                <button class="btn" id="submitform">Send</button>
+            {% endif %}
+        {% endif %}
     </div>
 {% endblock %}
 

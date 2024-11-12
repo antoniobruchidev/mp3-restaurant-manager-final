@@ -674,42 +674,12 @@ def get_all_placedorders():
         return redirect(url_for("logout"))
 
 
-@app.route("/suppliers/<supplier_id>/placedorders")
-@login_required
-def get_placedorders(supplier_id):
-    """route to list the placed orders from a given supplier"""
-    is_manager = check_role(role_hash("manager"), current_user.web3_address)
-    is_chef = check_role(role_hash("chef"), current_user.web3_address)
-    is_waiter = check_role(role_hash("waiter"), current_user.web3_address)
-    if is_manager or is_chef or is_waiter:
-        supplier = db.session.query(Supplier).filter_by(
-            id=order.supplier_id
-        ).first()
-        orders = db.session.query(PlacedOrder).filter_by(
-            supplier_id=supplier_id
-        ).all()
-        suppliers = []
-        for order in orders:
-            suppliers.append(supplier)
-        orders_data = list(zip(orders, suppliers))
-        return render_template(
-            "placedorders.html",
-            orders_data=orders_data,
-            is_manager=is_manager,
-            is_chef=is_chef,
-            is_waiter=is_waiter,
-        )
-    else:
-        return redirect(url_for("logout"))
-
-
 @app.route(
     "/suppliers/<int:supplier_id>/placedorders/<int:order_id>/view-placedorder"
 )
 @login_required
 def get_placedorder(supplier_id, order_id):
     """route to see a single placed order info"""
-    print(supplier_id, order_id)
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
     is_chef = check_role(role_hash("chef"), current_user.web3_address)
     is_waiter = check_role(role_hash("waiter"), current_user.web3_address)
@@ -728,7 +698,6 @@ def get_placedorder(supplier_id, order_id):
             )
             ingredients_in_order = []
             if placedorder != None:
-                print(placedorder.id)
                 for ingredient_quantity in placedorder.ingredient_quantities:
                     ingredient = (
                         db.session.query(Ingredient)
@@ -736,7 +705,6 @@ def get_placedorder(supplier_id, order_id):
                         .first()
                     )
                     ingredients_in_order.append(ingredient)
-                print(ingredients_in_order)
                 return render_template(
                     "placedorder.html",
                     placedorder=placedorder,
@@ -746,6 +714,7 @@ def get_placedorder(supplier_id, order_id):
                     is_chef=is_chef,
                 )
             else:
+                print(placedorder)
                 return render_template(
                     "placedorder.html",
                     supplier_id=supplier_id,

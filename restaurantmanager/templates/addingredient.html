@@ -18,7 +18,6 @@
         </div>
     </div>
     <hr>
-    {{ display_messages(messages) }}
     <form method="POST" action="{{ url_for('add_ingredient', supplier_id=supplier.id)}}">
         {{ form.hidden_tag() }}
         {{ form.supplier_id(value=supplier.id, hidden=True) }}
