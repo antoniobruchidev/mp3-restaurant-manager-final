@@ -84,13 +84,13 @@ tr:hover {
 }
 
 .btn {
-  background-color: lightcoral !important;
+  background-color: brown !important;
   color: snow !important;
 }
 
-.btn-show {
-  background-color: brown !important;
-  color: lightyellow;
+.btn-hide {
+  background-color: transparent !important;
+  color: black !important;
 }
 
 .btn-group {
@@ -98,8 +98,8 @@ tr:hover {
 }
 
 .btn:hover {
-  background-color: brown !important;
-  color: lightyellow !important;
+  background-color: chocolate !important;
+  color: black !important;
 }
 
 .card {

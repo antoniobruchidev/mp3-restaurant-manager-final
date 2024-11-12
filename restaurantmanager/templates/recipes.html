@@ -9,6 +9,45 @@
             <a href="{{ url_for('dashboard') }}" class="btn">
                 Back to Dashboard
             </a>
+            <button data-kind="starter" class="btn">
+                Starters
+            </button>
+            <button data-kind="pasta" type="button" class="btn">
+                Pastas
+            </button>
+            <button data-kind="pizza" type="button" class="btn">
+                Pizzas
+            </button>
+            <button data-kind="main" type="button" class="btn">
+                Mains
+            </button>
+            <button data-kind="dessert" type="button" class="btn">
+                Desserts
+            </button>
+            <button data-kind="topping" type="button" class="btn">
+                Pizza toppings
+            </button>
+            <button data-kind="water" type="button" class="btn">
+                Waters
+            </button>
+            <button data-kind="juice" type="button" class="btn">
+                Juices
+            </button>
+            <button data-kind="soft" type="button" class="btn">
+                Soft drinks
+            </button>
+            <button data-kind="wine" type="button" class="btn">
+                Wines
+            </button>
+            <button data-kind="beer" type="button" class="btn">
+                Beers
+            </button>
+            <button data-kind="distillates" type="button" class="btn">
+                Distillates
+            </button>
+            <button data-kind="other" type="button" class="btn">
+                Others
+            </button>
             {% if is_chef %}
                 <a href="{{ url_for('create_recipe') }}" class="btn">
                     Create Recipe
@@ -17,49 +56,6 @@
             <a href="{{ url_for('logout') }}" class="btn">
                 Logout
             </a>
-        </div>
-    </div>
-    <div class="text-center mt-2">
-        <div class="btn-group">
-            <button data-kind="starter" class="btn btn-show">
-                Starters
-            </button>
-            <button data-kind="pasta" type="button" class="btn btn-show">
-                Pastas
-            </button>
-            <button data-kind="pizza" type="button" class="btn btn-show">
-                Pizzas
-            </button>
-            <button data-kind="main" type="button" class="btn btn-show">
-                Mains
-            </button>
-            <button data-kind="dessert" type="button" class="btn btn-show">
-                Desserts
-            </button>
-            <button data-kind="topping" type="button" class="btn btn-show">
-                Pizza toppings
-            </button>
-            <button data-kind="water" type="button" class="btn btn-show">
-                Waters
-            </button>
-            <button data-kind="juice" type="button" class="btn btn-show">
-                Juices
-            </button>
-            <button data-kind="soft" type="button" class="btn btn-show">
-                Soft drinks
-            </button>
-            <button data-kind="wine" type="button" class="btn btn-show">
-                Wines
-            </button>
-            <button data-kind="beer" type="button" class="btn btn-show">
-                Beers
-            </button>
-            <button data-kind="distillates" type="button" class="btn btn-show">
-                Distillates
-            </button>
-            <button data-kind="other" type="button" class="btn btn-show">
-                Others
-            </button>
         </div>
     </div>
     <hr>
@@ -71,11 +67,11 @@
     $("button").on("click", function(){
         var data = $(this).data()
         kind = `.${data["kind"]}`
-        $(this).toggleClass("btn-show")
-        if ($(this).hasClass("btn-show")) {
-            $(kind).show("300")
-        } else {
+        $(this).toggleClass("btn-hide")
+        if ($(this).hasClass("btn-hide")) {
             $(kind).hide("300")
+        } else {
+            $(kind).show("300")
         }
     })
 </script>
