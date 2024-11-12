@@ -233,12 +233,26 @@ def login():
     )
 
 
-@app.route("/dashboard")
+@app.route("/dashboard", methods=["GET", "POST"])
 @login_required
 def dashboard():
     """
     Route for dashboard
     """
+    if request.method == "POST":
+        user = db.session.query(User).filter_by(id=current_user.id).one()
+        if request.form["f_name"]:
+            user.f_name = request.form["f_name"]
+        if request.form["l_name"]:
+            user.l_name = request.form["l_name"]
+        if request.form["email"]:
+            user.email = request.form["email"]
+        if request.form["phone"]:
+            user.phone = request.form["phone"]
+        db.session.add(user)
+        db.session.commit()
+        flash("Profile update successfully")
+        return {"success": True}
     is_owner = check_role(role_hash("owner"), current_user.web3_address)
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
     is_chef = check_role(role_hash("chef"), current_user.web3_address)
@@ -268,6 +282,7 @@ def dashboard():
         f_name=f_name,
         l_name=l_name,
         email=email,
+        phone=current_user.phone,
         my_messages=my_messages,
     )
 
@@ -694,6 +709,7 @@ def get_placedorders(supplier_id):
 @login_required
 def get_placedorder(supplier_id, order_id):
     """route to see a single placed order info"""
+    print(supplier_id, order_id)
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
     is_chef = check_role(role_hash("chef"), current_user.web3_address)
     is_waiter = check_role(role_hash("waiter"), current_user.web3_address)
@@ -712,6 +728,7 @@ def get_placedorder(supplier_id, order_id):
             )
             ingredients_in_order = []
             if placedorder != None:
+                print(placedorder.id)
                 for ingredient_quantity in placedorder.ingredient_quantities:
                     ingredient = (
                         db.session.query(Ingredient)
@@ -719,6 +736,7 @@ def get_placedorder(supplier_id, order_id):
                         .first()
                     )
                     ingredients_in_order.append(ingredient)
+                print(ingredients_in_order)
                 return render_template(
                     "placedorder.html",
                     placedorder=placedorder,
@@ -775,6 +793,7 @@ def send_order(order_id):
     """
     is_manager = check_role(role_hash("manager"), current_user.web3_address)
     if is_manager:
+        print(order_id)
         order = db.session.query(PlacedOrder).filter_by(id=order_id).first()
         order.sent = True
         # TODO: send order to supplier via email

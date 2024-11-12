@@ -198,3 +198,49 @@ textarea {
 .text-end {
   text-align: end;
 }
+
+.toast-container {
+  top: 75px !important;
+  right: 0 !important;
+}
+
+.toast-header {
+  background-color: brown;
+  color: snow;
+}
+
+.toast-body {
+  background-color: blanchedalmond;
+  color: brown;
+}
+
+.overlay {
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background-color: brown;
+  z-index: -99999;
+}
+
+.please-rotate {
+  margin-top: 200px;
+  text-align: center;
+  color: snow;
+}
+
+#edit_profile {
+  display: none;
+}
+
+#edit, #save {
+  cursor: pointer;
+}
+
+@media (max-width: 799px) {
+  .overlay {
+    z-index: 99;
+  }
+}

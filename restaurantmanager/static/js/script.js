@@ -392,7 +392,7 @@ const submitOrderForm = async () => {
       body: formData,
     })
     const data = await response.json();
-    if (data.success) {
+    if (await data.success) {
       window.location.reload();
     }
   } catch (e) {
@@ -681,7 +681,25 @@ const createRelatedDeliveryRecords = (data) => {
   return div
 }
 
-$(document).ready(function () {  if (window.location.pathname === '/chef/createrecipe') {
+const diplayToast = () => {
+  const toastLive = document.getElementsByClassName('toast')
+  if (toastLive.length > 0){
+    for (let t of toastLive) {
+    const toastBootstrap = bootstrap.Toast.getOrCreateInstance(t)
+    toastBootstrap.show()
+    }
+  }
+}
+
+$(document).ready(function () {
+  const toastLive = document.getElementsByClassName('toast')
+  if (toastLive.length > 0){
+    for (let t of toastLive) {
+    const toastBootstrap = bootstrap.Toast.getOrCreateInstance(t)
+    toastBootstrap.show()
+    }
+  }
+  if (window.location.pathname === '/chef/createrecipe') {
     const inputFields = $('.view-toggle');
     for (let inputField of inputFields) {
       $(inputField).hide();
@@ -729,7 +747,9 @@ $(document).ready(function () {  if (window.location.pathname === '/chef/creater
         $(itemId).parent().hide();
       }
     });
-    $('#submitform').on('click', submitPlaceOrderForm)
+    if (is_manager == "True"){
+      $('#submitform').on('click', submitPlaceOrderForm)
+    }
   } else if (window.location.pathname === '/login') {
     $('#metamask').on('click', connectWithMetamask);
     $('#submitform').on('click', submitLoginForm)
@@ -764,6 +784,28 @@ $(document).ready(function () {  if (window.location.pathname === '/chef/creater
     $('#submitform').on('click', submitHireForm);
   } else if (window.location.pathname.includes('view-placedorder')) {
     $('#submitform').on('click', submitOrderForm);
+  } else if (window.location.pathname == '/dashboard'){
+    $("#edit").on('click', function() {
+      $("#edit_profile").css({"display": "flex"})
+      $("#save").prop("disabled", false)
+      $(this).prop("disabled", true)
+      $("#save").on("click", async function(){
+        var form = document.getElementById("edit_profile")
+        var formData = new FormData(form)
+        try {
+          const data = await fetch(window.location.pathname, {
+            method: "POST",
+            body: formData
+          })
+          if(await data.success) {
+            window.location.reload()
+          }
+        } catch (error) {
+          console.log(error)
+        }
+        
+      })
+    })
   }
 });
 

@@ -1,9 +1,19 @@
 {% macro display_messages(messages) %}
     {% with messages = get_flashed_messages() %}
         {% if messages %}
-            {% for message in messages %}
-                {{ message }}
-            {% endfor %}
+            <div class="toast-container position-fixed p-3">
+                {% for message in messages %}
+                  <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header">
+                      <strong class="me-auto">Carpez Kitchen Manager</strong>
+                      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body">
+                      {{ message }}
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
         {% endif %}
     {% endwith %}
 {% endmacro %}
@@ -196,10 +206,7 @@
 {% macro display_employee_menu_items(is_manager,is_chef,is_waiter) %}
     <div class="text-center">
         <div class="btn-group" role="group" aria-label="Dashboard menu">
-            {% if is_manager %}
-                <a href="{{ url_for('get_employees') }}" class="btn">
-                    Staff
-                </a>
+            {% if is_manager or is_chef or is_waiter %}
                 <a href="{{ url_for('get_suppliers') }}" class="btn">
                     Suppliers
                 </a>
@@ -212,24 +219,23 @@
                 <a href="{{ url_for('get_all_recipes') }}" class="btn">
                     Recipes
                 </a>
+                <a href="{{ url_for('get_wastages') }}" class="btn">
+                    Wastages
+                </a>
+                <a href="{{ url_for('get_all_deliveries') }}" class="btn">
+                    Deliveries
+                </a>
+                {% if is_manager %}
+                    <a href="{{ url_for('get_employees') }}" class="btn">
+                        Staff
+                    </a>
+                {% endif %}
             {% endif %}
             {% if is_chef and not is_manager %}
-                <a href="{{ url_for('get_suppliers') }}" class="btn">
-                    Suppliers
-                </a>
-                <a href="{{ url_for('get_all_recipes') }}" class="btn">
-                    Recipes
-                </a>
                 <a href="{{ url_for('create_recipe') }}" class="btn">
                     Create Recipe
                 </a>
             {% endif %}
-            <a href="{{ url_for('get_wastages') }}" class="btn">
-                Wastages
-            </a>
-            <a href="{{ url_for('get_all_deliveries') }}" class="btn">
-                Deliveries
-            </a>
             <a href="{{ url_for('messageboard') }}" class="btn">
                 Messageboard
             </a>

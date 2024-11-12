@@ -15,17 +15,44 @@
     </script>
 {% endblock %}
 {% block content %}
-    <h1>Welcome to your dashboard</h1>
-    <p>Account: {{ web3_address }}</p>
-    {% if email != (web3_address + '@internal.kitchenmanager') %}
-        <p>Email:  {{ email }}</p>
-    {% endif %}
-    {% if (f_name + l_name) != '' and (f_name + l_name) != 'EOA EOA' %}
-        <p>User:  {{ f_name + " " + l_name }}</p>
-    {% endif %}
-    <hr>
+    <h1 class="text-center">Welcome to your dashboard</h1>
     {{ display_employee_menu_items(is_manager,is_chef,is_waiter) }}
-    {{ display_messages(messages) }}
+    <div class="container-sm">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Account: {{ web3_address }}</h5>
+                {% if email != (web3_address + '@internal.kitchenmanager') %}
+                    <p><em>Email:  {{ email }}</em></p>
+                {% endif %}
+                {% if (f_name + l_name) != '' and (f_name + l_name) != 'EOA EOA' %}
+                    <p><em>User:  {{ f_name + " " + l_name }}</em></p>
+                {% endif %}
+                {% if phone != '' %}
+                    <p><em>Phone: {{ phone }}</em></p>
+                {% endif %}
+                <a class="card-link" id="edit">Edit</a>
+                <a class="card-link" id="save">Save</a>
+                <form id="edit_profile" class="mt-3">
+                    <div>
+                        <label for="f_name">First name</label>
+                        <input class="form-control" type="text" id="f_name" name="f_name" value="{% if f_name != 'EOA' %}{{ f_name }}{% endif %}">
+                    </div>
+                    <div>
+                        <label for="l_name">Last name</label>
+                        <input class="form-control" type="text" id="l_name" name="l_name" value="{% if l_name != 'EOA' %}{{ l_name }}{% endif %}">
+                    </div>
+                    <div>
+                        <label for="email">Email</label>
+                        <input class="form-control" type="email" id="email" name="email" value="{% if email != (web3_address + '@internal.kitchenmanager') %}{{ email }}{% endif %}">
+                    </div>
+                    <div>
+                        <label for="phone">Phone</label>
+                        <input class="form-control" type="text" id="phone" name="phone" value="{{ phone }}">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     {% for my_message in my_messages %}
     <div class="row">
         <div class="col-8">
@@ -43,4 +70,14 @@
         </div>
     </div>
 {% endfor %}
+{% endblock %}
+
+{% block overlay %}
+    {% if not is_manager and not is_chef and not is_waiter and not is_owner %}
+        <div class="overlay">
+        <h1 class="please-rotate">
+            Please rotate your device
+        </h1>
+        </div>
+    {% endif %}
 {% endblock %}
