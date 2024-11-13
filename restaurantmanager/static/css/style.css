@@ -15,7 +15,7 @@ main {
 }
 
 .navbar {
-  background-color: brown !important;
+  background-color: darkred !important;
 }
 
 .brand-logo {
@@ -35,10 +35,6 @@ main {
   margin-right: 35px;
 }
 
-.active {
-  color: lightyellow !important;
-}
-
 .brand-logo:hover, .nav-link:hover {
   text-decoration: underline;
   color:lightyellow;
@@ -49,12 +45,12 @@ main {
 }
 
 h1 {
-  color: brown;
+  color: darkred;
   margin-bottom: 20px;
 }
 
 .accordion-button {
-  background-color: brown !important;
+  background-color: darkred !important;
   color: snow !important;
   font-weight: bold;
 }
@@ -74,17 +70,13 @@ tr:hover {
   width: 90px;
 }
 
-.dish-name {
-  color: brown !important;
+.dish-name, .dish-price {
+  color: darkred !important;
   font-weight: bold;
 }
 
-.dish-price {
-  color: brown !important;
-}
-
 .btn {
-  background-color: brown !important;
+  background-color: darkred !important;
   color: snow !important;
 }
 
@@ -103,41 +95,41 @@ tr:hover {
 }
 
 .card {
-  background-color: blanchedalmond;
+  background-color: snow;
 }
 
-.card-title {
-  color: brown;
+.card-title, .related-headers {
+  color: darkred;
   font-weight: bold;
 }
 
 .card-subtitle {
-  color: brown;
+  color: darkred;
 }
 
 .card-body p {
-  color: brown;
+  color: darkred;
 }
 
 .card-link {
-  color: brown;
+  color: darkred;
   font-weight: bold;
   text-decoration: none;
 }
 
 .card-link:hover {
-  color: brown;
+  color: darkred;
   text-decoration: underline !important;
   font-weight: bolder;
 }
 
 .list-group-item {
-  color: brown;
+  color: darkred;
   background-color: blanchedalmond;
 }
 
 .list-group-item a {
-  color: snow
+  color: darkred
 }
 
 .badge:hover {
@@ -221,7 +213,7 @@ textarea {
   left: 0;
   bottom: 0;
   right: 0;
-  background-color: brown;
+  background-color: darkred;
   z-index: -99999;
 }
 

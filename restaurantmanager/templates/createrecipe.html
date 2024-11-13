@@ -6,7 +6,7 @@
     </h1>
     <div class="text-center">
         <div class="btn-group">
-            <a href="{{ url_for('get_recipes') }}" class="btn">
+            <a href="{{ url_for('get_all_recipes') }}" class="btn">
                 Back to Recipes
             </a>
             <a href="{{ url_for('dashboard') }}" class="btn">
@@ -20,11 +20,13 @@
     <hr>
     <form action="" method="POST" id="create_recipe_form">
         <div class="row">
-            <div class="input-field col s4">
-                <input type="text" id="name" name="name" placeholder="Recipe name" required>
+            <div class="input-group col-4">
+                <span class="input-group-text">Recipe name:</span>
+                <input class="form-control" type="text" id="name" name="name" placeholder="Recipe name" required>
             </div>
-            <div class="input-field col s4 push-s1">
-                <select id="itemkind" name="itemkind" required>
+            <div class="input-group col-4 mt-3">
+                <span class="input-group-text">Dish type:</span>
+                <select id="itemkind" name="itemkind" class="form-select" required>
                     <option value="" disabled selected>Choose your option</option>
                     <option value="1">Starter</option>
                     <option value="2">Pasta</option>
@@ -40,25 +42,23 @@
                     <option value="12">Distillates</option>
                     <option value="13">Other</option>
                   </select>
-                  <label>Kind of item</label>
                 </select>
             </div>
-            <div class="input-field col s2 push-s2">
+            <div class="input-group col-2 mt-3">
+                <span class="input-group-text">Recipe outcome:</span>
                 <input type="number" id="portions" name="portions" placeholder="portions" required>
             </div>
         </div>
-        <div class="row">
-            <div class="input-field col s12">
+            <div class="input-group mt-3">
+                <span class="input-group-text">Description</span>
                 <textarea id="description" name="description"></textarea>
-                <label for="description">Description</label>
-              </div>
-        </div>
-        <div class="row">
-            <div class="col s6" id="ingredients">
+            </div>
+        <div class="row mt-3">
+            <div class="col-6" id="ingredients">
                 <h5> Ingredients</h5>
                 {{ display_ingredients(ingredients) }}    
             </div>
-            <div class="col s6" id="manufactored_ingredients">
+            <div class="col-6" id="manufactored_ingredients">
                 <h5>Manufactored items</h5>
                 {{ display_manufactored_ingredients(manufactored_ingredients) }}
             </div>

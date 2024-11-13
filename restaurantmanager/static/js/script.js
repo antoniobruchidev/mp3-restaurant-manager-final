@@ -342,9 +342,11 @@ const submitWastageForm = async () => {
 }
 
 const submitPrepareRecipeForm = async () =>  {
-  const url = window.location.pathname.replace('manager', 'chef') + '/prepare'
   form = document.getElementById('add_preparation_form');
   formData = new FormData(form);
+  var id = $("#prepare").data("id")
+  console.log(id)
+  const url = `/chef/recipes/${id}/prepare`
   try {
     const response = await fetch(url, {
       method: "POST",
@@ -427,7 +429,7 @@ const getIngredientData = async (ingredient_id) => {
     displayIngredientData()
     $('#go_to').attr('disabled', true)
     $('#add_to_order').attr('disabled', false)
-    $('#add_to_order').on('click', addToOrder)
+    $('#addToOrder').on('click', addToOrder)
   } catch (error) {
     
   }
@@ -439,12 +441,13 @@ const getManufactoredIngredientData = async (ingredient_id) => {
       method:  "GET",
     })
     const data = await response.json();
+    console.log(await data)
     recipes = createRelatedRecipeRecords(await data['recipes'])
     orders = createRelatedOrderRecords(await data['orders'])
     wastages = createRelatedWastageRecords(await data['wastages'])
     preparations = createRelatedPreparationRecords(await data['preparations'])
     stockTakes = createRelatedStockTakeRecords(await data['stock_takes'])
-    manufactored_ingredient = await data['ingredient']
+    ingredient = await data['ingredient']
     deliveries = undefined
     placedorders = undefined
     displayIngredientData()
@@ -458,22 +461,38 @@ const getManufactoredIngredientData = async (ingredient_id) => {
 }
 
 const goToRecipe = () => {
-  window.location.href = "/manager/recipes/" + ingredient['recipe']
+  window.location.href = "/manager/recipes/" + ingredient["recipe"]
 }
 
 const displayIngredientData = () => {
-  $('#name').html(ingredient.name)
-  $('#description').html(ingredient.description)
+  $('#name').html(ingredient["name"])
+  $('#description').html(ingredient["description"])
   $('#stock').parent().find("label").addClass('active')
-  $('#stock').val(Number(ingredient.stock))
+  $('#stock').val(Number(ingredient["stock"]))
   $('#stock').attr('disabled', false)
   $("#recipes").html(recipes)
-  $("#placed_orders").html(placedorders)
-  $("#deliveries").html(deliveries)
-  $("#preparations").html(preparations)
-  $("#watages").html(wastages)
+  $("#wastages").html(wastages)
   $("#stock_takes").html(stockTakes)
-  $("#sales").html(orders)
+  if (deliveries == undefined) {
+    $("#deliveries").html()
+  } else {
+    $("#deliveries").html(deliveries)
+  }
+  if (placedorders == undefined) {
+    $("#placed_orders").html()
+  } else {
+    $("#placed_orders").html(placedorders)
+  }
+  if (preparations == undefined) {
+    $("#preparations").html()
+  } else {
+    $("#preparations").html(preparations)
+  }
+  if (orders == undefined) {
+    $("#orders").html()
+  } else {
+    $("#orders").html(orders)
+  }
 }
 
 const switchGetIngredientData = (id, manufactored, name) => {
@@ -481,6 +500,7 @@ const switchGetIngredientData = (id, manufactored, name) => {
   $('#stock_take').on('click', switchSetStock)
   if (window.location.pathname == "/manager/stockmanagement") {
     if (!manufactored)  {
+      console.log(manufactored, id)
       getIngredientData(id)
       $('.ingredient-only').show()
       $('.manufactored-only').hide() 
@@ -494,46 +514,11 @@ const switchGetIngredientData = (id, manufactored, name) => {
   }
 }
 
-const showTabData = (tabId) => {
-  console.log(tabId,placedorders)
-  if (tabId == 0 && recipes != undefined) {
-    tab = document.getElementById('recipes')
-    tab.innerHTML = ''
-    tab.appendChild(recipes)
-  } else if  (tabId == 1 && placedorders != undefined)  {
-    console.log(placedorders)
-    tab = document.getElementById('placedorders')
-    tab.innerHTML = ''
-    tab.appendChild(placedorders)
-  } else if  (tabId == 2 && deliveries != undefined)  {
-    tab = document.getElementById('deliveries')
-    tab.innerHTML = ''
-    tab.appendChild(deliveries)
-  } else if (tabId == 3 && preparations != undefined) {
-    tab = document.getElementById('preparations')
-    tab.innerHTML = ''
-    tab.appendChild(preparations)
-  } else if (tabId == 4  && wastages != undefined) {
-    tab = document.getElementById('wastages')
-    tab.innerHTML = ''
-    console.log(wastages)
-    tab.appendChild(wastages)
-  } else if  (tabId == 5  && stockTakes  != undefined)  {
-    tab = document.getElementById('stocktakes')
-    tab.innerHTML = ''
-    tab.appendChild(stockTakes)
-  } else if  (tabId == 6  && orders  != undefined)  {
-    tab = document.getElementById('orders')
-    tab.innerHTML = ''
-    tab.appendChild(orders)
-   }
-}
-
 const createRelatedOrderRecords = (data) => {
   let div = document.createElement('div')
-  div.classList.add('container-fluid')
+  div.classList.add('container')
   let h5 = document.createElement('h5')
-  h5.classList.add('text-center')
+  h5.classList.add('text-center', 'related-headers')
   h5.innerHTML = 'Releated sales'
   div.appendChild(h5)
   let ul = document.createElement('ul')
@@ -552,9 +537,9 @@ const createRelatedOrderRecords = (data) => {
 
 const createRelatedWastageRecords = (data) => {
   let div = document.createElement('div')
-  div.classList.add('container-fluid')
+  div.classList.add('container')
   let h5 = document.createElement('h5')
-  h5.classList.add('text-center')
+  h5.classList.add('text-center', 'related-headers')
   h5.innerHTML = 'Releated wastages'
   div.appendChild(h5)
   let dataDiv = document.createElement('div')
@@ -575,9 +560,9 @@ const createRelatedWastageRecords = (data) => {
 
 const createRelatedPreparationRecords = (data) => {
   let div = document.createElement('div')
-  div.classList.add('container-fluid')
+  div.classList.add('container')
   let h5 = document.createElement('h5')
-  h5.classList.add('text-center')
+  h5.classList.add('text-center', 'related-headers')
   h5.innerHTML = 'Releated preparations'
   div.appendChild(h5)
   let ul = document.createElement('ul')
@@ -596,9 +581,9 @@ const createRelatedPreparationRecords = (data) => {
 
 const createRelatedStockTakeRecords = (data) => {
   let div = document.createElement('div')
-  div.classList.add('container-fluid')
+  div.classList.add('container')
   let h5 = document.createElement('h5')
-  h5.classList.add('text-center')
+  h5.classList.add('text-center', 'related-headers')
   h5.innerHTML = 'Releated stock takes'
   div.appendChild(h5)
   let ul = document.createElement('ul')
@@ -617,9 +602,9 @@ const createRelatedStockTakeRecords = (data) => {
 
 const createRelatedRecipeRecords = (data) => {
   let div = document.createElement('div')
-  div.classList.add('container-fluid')
+  div.classList.add('container')
   let h5 = document.createElement('h5')
-  h5.classList.add('text-center')
+  h5.classList.add('text-center', 'related-headers')
   h5.innerHTML = 'Releated recipes'
   div.appendChild(h5)
   let dataDiv = document.createElement('div')
@@ -639,9 +624,9 @@ const createRelatedRecipeRecords = (data) => {
 
 const createRelatedPlacedOrderRecords = (data) => {
   let div = document.createElement('div')
-  div.classList.add('container-fluid')
+  div.classList.add('container')
   let h5 = document.createElement('h5')
-  h5.classList.add('text-center')
+  h5.classList.add('text-center', 'related-headers')
   h5.innerHTML = 'Releated placed orders'
   div.appendChild(h5)
   let dataDiv = document.createElement('div')
@@ -661,9 +646,9 @@ const createRelatedPlacedOrderRecords = (data) => {
 
 const createRelatedDeliveryRecords = (data) => {
   let div = document.createElement('div')
-  div.classList.add('container-fluid')
+  div.classList.add('container')
   let h5 = document.createElement('h5')
-  h5.classList.add('text-center')
+  h5.classList.add('text-center', 'related-headers')
   h5.innerHTML = 'Related deliveries'
   div.appendChild(h5)
   let dataDiv = document.createElement('div')
@@ -810,10 +795,10 @@ $(document).ready(function () {
 });
 
 const addToOrder = async () => {
-  const form = document.getElementById('ingredient_quantity_form')
-  const formData = new FormData(form)
-  const quantity = formData.get('stock')
   if(window.location.pathname == '/manager/stockmanagement'){
+    const form = document.getElementById('add_to_order_form')
+    const formData = new FormData(form)
+    const quantity = formData.get('quantity')
     formData.append('ingredient_quantity_'+ingredient['ingredient_id'], quantity)
 
     try  {
@@ -829,6 +814,9 @@ const addToOrder = async () => {
       console.log(error)
     }
   } else {
+  const form = document.getElementById('ingredient_quantity_form')
+  const formData = new FormData(form)
+  const quantity = formData.get('stock')
     formData.append('ingredient_quantity_'+$("#ingredient_id").val(), quantity)
 
     try  {

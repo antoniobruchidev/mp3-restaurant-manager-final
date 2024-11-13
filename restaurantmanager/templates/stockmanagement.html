@@ -25,7 +25,7 @@
     </form>
     <div class="text-center">
         <div class="btn-group">
-            <button type="button" class="btn" id="add_to_order" disabled>ADD TO ORDER</button>
+            <button type="button" id="add_to_order" class="btn" data-bs-toggle="modal" data-bs-target="#staticBackdrop" disabled>ADD TO ORDER</button>
             <button type="button" class="btn" id="stock_take" disabled>STOCK TAKE</button>
             <button type="button" class="btn" id="go_to" disabled>GO TO</button>
         </div>
@@ -39,6 +39,31 @@
         <div id="stocktakes" class="related-info"></div>
         <div id="orders" class="related-info"></div>
     </div>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="staticBackdropLabel">Add to order</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="add_to_order_form">
+            <div class="modal-body">
+                    <div class="input-group col s3">
+                        <input id="quantity" name="quantity" type="number">
+                        <span class="input-group-text">grams</span>
+                    </div>
+            </div>
+            <div class="modal-footer">
+            <button type="reset" class="btn" data-bs-dismiss="modal">Close</button>
+            <button type="button" id="addToOrder" class="btn">Add</button>
+            </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
 {% endblock %}
 
 {% block overlay %}

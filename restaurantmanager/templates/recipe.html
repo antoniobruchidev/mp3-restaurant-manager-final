@@ -118,8 +118,9 @@
 <form id="add_preparation_form">
     <div class="input-group">
         <button class="btn" id="submitform" type="button" disabled>Update Recipe</button>
-        <input id="portions" name="portions" type="number" class="form-control">
-        <button class="btn" id="prepare" >Prepare Recipe</button>
+        <input id="portion_to_prep" name="portions" type="number" class="form-control">
+        <input id="m_ingredient_to_prep" name="m_ingredient_to_prep" type="hidden">
+        <button class="btn" id="prepare" data-id="{{ recipe.id }}" type="button" {% if not is_chef %}disabled{% endif %}>Prepare Recipe</button>
     </div>
 </form>
 

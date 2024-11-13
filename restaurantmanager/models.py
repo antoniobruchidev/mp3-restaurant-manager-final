@@ -382,7 +382,7 @@ class Order(db.Model):
 
     def __repr__(self):
         return "#{0} | Date: {1} | Status: {2}".format(
-            self.id, self.dateTime
+            self.id, self.dateTime, self.table
         )
 
 

@@ -280,7 +280,7 @@
                     </table>
                     <div class="text-end">
                         <div class="btn-group">
-                            <a class="btn" type="button" id="order">Place Order</a>
+                            <a class="btn" id="order">Place Order</a>
                         </div>
                     </div>
                 </div>
@@ -323,12 +323,15 @@
             form.append("table", "{{ table_number }}")
             console.log(form)
             try {
-                const data = await fetch(window.location.pathname,{
+                const response = await fetch(window.location.pathname,{
                     method: "POST",
                     body: form
                 })
-                if (await data.success) {
+
+                const data = await response.json()
+                if (await data["success"]) {
                     window.location.reload()
+                    console.log(await data["success"])
                 }
                 console.log(await data.success)
             } catch (error) {

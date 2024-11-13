@@ -159,8 +159,8 @@ Almost ninthy percent of the bugs solved are due mistyping and in this kind of p
 https://validator.w3.org/nu/?doc=https%3A%2F%2Fcarpez-kitchen-manager-e9e93ef660cf.herokuapp.com%2F
 
 #### Color checker
-https://webaim.org/resources/contrastchecker/?fcolor=ECE889&bcolor=3E2723
-https://webaim.org/resources/contrastchecker/?fcolor=F9FBE7&bcolor=3E2723
+https://webaim.org/resources/contrastchecker/?fcolor=FFFFDB&bcolor=A52A2A
+https://webaim.org/resources/contrastchecker/?fcolor=FFFFDB&bcolor=A52A2A
 
 ### Deployement
 

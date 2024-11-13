@@ -25,6 +25,7 @@
                 <a class="card-link" href="{{ url_for('get_supplier', supplier_id=supplier.id) }}">Go to</a>
                 <a class="card-link" href="{{ url_for('get_placedorder', supplier_id=supplier.id, order_id=0) }}">Open order</a>
                 <a class="card-link" href="{{ url_for('add_delivery', supplier_id=supplier.id) }}">Add delivery</a>
+                <a class="card-link" href="{{ url_for('get_deliveries', supplier_id=supplier.id) }}">View deliveries</a>
             </div>
         </div>
     {% endfor %}

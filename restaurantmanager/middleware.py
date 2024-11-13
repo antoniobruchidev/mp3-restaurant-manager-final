@@ -380,8 +380,8 @@ def get_manufactored_ingredient_related_orders(related_order_ids):
             id=related_order_id
         ).first()
         r_i_q = (
-            db.session.query(stockmovement_manufactoredingredientquantity)
-            .filter_by(stockmovement_id=related_order.id)
+            db.session.query(order_manufactoredingredientquantity)
+            .filter_by(order_id=related_order.id)
             .first()
         )
         ingredient_quantity = (

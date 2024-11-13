@@ -6,14 +6,38 @@
     </h1>
     <div class="text-center">
         <div class="btn-group">
-            <a href="{{ url_for('stockmanagement') }}" class="btn">
-                Back to Manage
-            </a>
+            {% if supplier %}
+                <a href="{{ url_for('stockmanagement') }}" class="btn">
+                    Back to {{ supplier.name }}
+                </a>
+            {% else %}
+                <a href="{{ url_for('stockmanagement') }}" class="btn">
+                    Back to Manage
+                </a>
+            {% endif %}
             <a href="{{ url_for('logout') }}" class="btn">
                 Logout
             </a>
         </div>
     </div>
     <hr>
-{{ display_deliveries(deliveries) }}
+    {% if not supplier %}
+        {{ display_deliveries(deliveries_data) }}
+    {% else %}
+        {% for delivery in deliveries_data %}
+            <div class="row">
+                <div class="col-8 col-lg-6 mx-auto">
+                    <div class="card">
+                        <div class="card-body">
+                            <span class="card-title">From supplier: {{ supplier.name }}</span>
+                            <p><em>{{delivery.date}}</em></p>
+                            <p><em>{{delivery.info}}</em></p>
+                            <a class="card-link" href="{{ url_for('get_delivery', supplier_id=delivery.supplier_id, delivery_id=delivery.id)}}">View</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br>
+        {% endfor %}
+    {% endif %}
 {% endblock %}

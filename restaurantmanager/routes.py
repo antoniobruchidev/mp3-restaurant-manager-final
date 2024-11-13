@@ -656,12 +656,13 @@ def get_all_placedorders():
         orders = db.session.query(PlacedOrder).all()
         suppliers = []
         for order in orders:
-            supplier = (
-                db.session.query(Supplier).filter_by(
-                    id=order.supplier_id
-                ).first()
-            )
-            suppliers.append(supplier)
+            if order.id != 5:
+                supplier = (
+                    db.session.query(Supplier).filter_by(
+                        id=order.supplier_id
+                    ).first()
+                )
+                suppliers.append(supplier)
         orders_data = list(zip(orders, suppliers))
         return render_template(
             "placedorders.html",
@@ -858,16 +859,13 @@ def get_deliveries(supplier_id):
         supplier = db.session.query(Supplier).filter_by(
             id=supplier_id
         ).first()
-        suppliers = []
         deliveries = db.session.query(Delivery).filter_by(
             supplier_id=supplier_id
         ).all()
-        for delivery in deliveries:
-            suppliers.append(supplier)
-        deliveries_data = list(zip(deliveries, suppliers))
         return render_template(
             "deliveries.html",
-            deliveries_data=deliveries_data,
+            deliveries_data=deliveries,
+            supplier=supplier,
             is_manager=is_manager,
             is_chef=is_chef,
             is_waiter=is_waiter,
@@ -1488,7 +1486,7 @@ def get_wastages():
         )
 
 
-@app.route("/suppliers/<supplier_id>/deliveries/<delivery_id>")
+@app.route("/wastages/<wastage_id>")
 @login_required
 def get_wastage(wastage_id):
     """route to list a single wastage info"""
@@ -1518,7 +1516,7 @@ def get_wastage(wastage_id):
             )
             manufactored_ingredients.append(manufactored_ingredient)
             return render_template(
-                "delivery.html",
+                "wastage.html",
                 wastage=wastage,
                 ingredients=ingredients,
                 manufactored_ingredients=manufactored_ingredients,
@@ -1526,7 +1524,7 @@ def get_wastage(wastage_id):
                 is_chef=is_chef,
             )
         else:
-            return render_template("delivery.html", delivery=None)
+            return render_template("wastage.html", wastage=wastage)
     else:
         return redirect(url_for("logout"))
 
@@ -1590,7 +1588,6 @@ def add_preparation(recipe_id):
     is_chef = check_role(role_hash("chef"), current_user.web3_address)
     recipe = db.session.query(Recipe).filter_by(id=recipe_id).first()
     if is_chef:
-        recipe = db.session.query(Recipe).filter_by(id=recipe_id).first()
         if request.method == "POST":
             new_preparation = StockMovement(
                 preparation_kind=StockManagement(1),
@@ -1603,7 +1600,6 @@ def add_preparation(recipe_id):
                     recipe, request.form["portions"]
                 )
             )
-            print(recipe, request.form["portions"])
             assert decrease_stock(ingredient_quantity_used)
             assert decrease_stock_manufactored(
                 manufactored_ingredient_quantity_used
@@ -1724,6 +1720,7 @@ def set_manufactoredingredient_stock(ingredient_id):
 def delete_placedorder(order_id):
     """route to delete a placed order"""
     order = db.session.query(PlacedOrder).filter_by(id=order_id).one()
+    order.ingredient_quantities = []
     db.session.delete(order)
     db.session.commit()
     flash("Order deleted")
@@ -1753,8 +1750,8 @@ def table():
         if is_manager or is_chef or is_waiter:
             return redirect("tables")
         else:
-            return render_template("table.html")
-    return render_template("table.html")
+            return render_template("table.html", logged_out=True)
+    return render_template("table.html", logged_out=True)
 
 
 @app.route("/tables")
@@ -1853,8 +1850,7 @@ def table_management(table_number):
     )
     if request.method == "POST":
         keys = request.form.keys()
-        print(request.form)
-        manufactored_ingredient_quantity = (
+        manufactored_ingredient_quantities = (
             get_manufactored_ingredient_quantity_from_form(keys, request.form)
         )
         open_table = Order(
@@ -1862,15 +1858,38 @@ def table_management(table_number):
         )
         db.session.add(open_table)
         db.session.commit()
-        open_table = (
-            db.session.query(Order)
-            .filter_by(paid=False)
-            .filter_by(table=table_number)
-            .first()
+        assert append_manufactored_ingredient_quantity(
+            manufactored_ingredient_quantities, open_table
         )
-        assert update_manufactored_ingredient_quantity(
-            manufactored_ingredient_quantity, open_table
-        )
+        recipes=[]
+        quantities=[]
+        for manufactored_ingredient in manufactored_ingredient_quantities:
+            m_i_id = int(
+                manufactored_ingredient["manufactored_ingredient_id"]
+            )
+            recipe = db.session.query(Recipe).filter_by(
+                recipe_for=m_i_id
+            ).first()
+            recipes.append(recipe)
+            quantities.append(manufactored_ingredient["quantity"])
+        ingredient_quantities_data = list(zip(recipes, quantities))
+        ingredient_quantities = []
+        m_i_qs = []
+        for recipe, quantity in ingredient_quantities_data:
+            for ingredient_quantity in recipe.ingredient_quantities:
+                ingredient_quantities.append({
+                    "ingredient_id": ingredient_quantity.ingredient_id,
+                    "quantity": ingredient_quantity.quantity * quantity
+                })
+            for m_i_q in recipe.manufactoredingredient_quantities:
+                m_i_qs.append({
+                    "manufactored_ingredient_id": m_i_q.manufactored_ingredient_id,
+                    "quantity": m_i_q.quantity * quantity
+                })
+        print(ingredient_quantities, m_i_qs)
+        assert decrease_stock(ingredient_quantities)
+        assert decrease_stock_manufactored(m_i_qs)
+        db.session.commit()
         flash("Order add successfully at table".format(table_number))
         return {"success": True}
     else:
