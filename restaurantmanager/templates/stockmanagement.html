@@ -12,22 +12,45 @@
         </label>
         <input type="text" id="autocomplete-input" class="form-control" placeholder="Search for ingredients">
     </div>
-    <div id="ingredient">
-        <h5 class="text-center" id="name"></h5>
-        <p id="description"></p>
-        <p id="stock_level"></p>
-    </div>
-    <form id="ingredient_quantity_form">
-        <div class="input-field col s3">
-            <input id="stock" name="stock" type="number" disabled>
-            <label for="stock">stock</label>
+    <div class="card mt-4 hidden" id="ingredient">
+        <div class="card-body">
+            <h5 class="text-center card-title" id="name"></h5>
+            <p id="description"></p>
+            <p id="stock_level"></p>
+            <form id="ingredient_quantity_form">
+                <div class="input-group col s3">
+                    <span class="input-group-text">Stock take</span>
+                    <input id="stock" name="stock" type="number" disabled>
+                </div>
+            </form>
         </div>
-    </form>
-    <div class="text-center">
+    </div>
+    <div class="text-center mt-3">
         <div class="btn-group">
             <button type="button" id="add_to_order" class="btn" data-bs-toggle="modal" data-bs-target="#staticBackdrop" disabled>ADD TO ORDER</button>
             <button type="button" class="btn" id="stock_take" disabled>STOCK TAKE</button>
             <button type="button" class="btn" id="go_to" disabled>GO TO</button>
+            <button data-id="recipes" type="button" class="btn btn-hide">
+                Recipes
+            </button>
+            <button data-id="placed_orders" type="button" class="btn btn-hide info-trigger">
+                Placed orders
+            </button>
+            <button data-id="deliveries" type="button" class="btn btn-hide info-trigger">
+                Deliveries
+            </button>
+            <button data-id="preparations" type="button" class="btn btn-hide info-trigger">
+                Preparations
+            </button>
+            <button Data-id="wastages" type="button" class="btn btn-hide info-trigger">
+                Wastages
+            </button>
+            <button data-id="stocktakes" type="button" class="btn btn-hide info-trigger">
+                Stock takes
+            </button>
+            <button data-id="orders" type="button" class="btn btn-hide info-trigger">
+                Sales
+            </button>
         </div>
     </div>
     </div>

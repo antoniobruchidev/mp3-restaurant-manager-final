@@ -148,6 +148,28 @@
         </div>
         <div class="accordion-item">
             <h2 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-pizzas" aria-expanded="true" aria-controls="panelsStayOpen-pizzas">
+                    Dessert
+                </button>
+            </h2>
+            <div id="panelsStayOpen-pizzas" class="accordion-collapse collapse show">
+                <div class="accordion-body">
+                    <table class="table align-middle">
+                        <tbody>
+                            {% for dessert in desserts %}
+                                <tr>
+                                    <td><img src="{{ url_for('static', filename=dessert.image) }}" class="dish-image" alt="{{ dessert.name }}"></td>
+                                    <td class="dish-name align-start">{{ dessert.name }}</td>
+                                    <td class="dish-price align-end">£ {{ dessert.price }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header">
                 <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-drinks" aria-expanded="true" aria-controls="panelsStayOpen-drinks">
                     Drinks
                 </button>

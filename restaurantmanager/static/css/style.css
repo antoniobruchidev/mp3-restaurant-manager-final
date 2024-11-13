@@ -123,13 +123,9 @@ tr:hover {
   font-weight: bolder;
 }
 
-.list-group-item {
+.list-group-item, .list-group-item {
   color: darkred;
-  background-color: blanchedalmond;
-}
-
-.list-group-item a {
-  color: darkred
+  background-color: snow;
 }
 
 .badge:hover {
@@ -202,7 +198,7 @@ textarea {
 }
 
 .toast-body {
-  background-color: blanchedalmond;
+  background-color: snow;
   color: brown;
 }
 
@@ -229,6 +225,10 @@ textarea {
 
 #edit, #save {
   cursor: pointer;
+}
+
+.hidden {
+  display: none
 }
 
 @media (max-width: 799px) {

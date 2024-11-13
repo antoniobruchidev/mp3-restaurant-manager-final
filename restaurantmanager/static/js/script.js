@@ -424,6 +424,7 @@ const getIngredientData = async (ingredient_id) => {
     wastages = createRelatedWastageRecords(await data['wastages'])
     stockTakes = createRelatedStockTakeRecords(await data['stock_takes'])
     ingredient = await data['ingredient']
+    manufactored_ingredient = false
     preparations = undefined
     orders = undefined
     displayIngredientData()
@@ -448,6 +449,7 @@ const getManufactoredIngredientData = async (ingredient_id) => {
     preparations = createRelatedPreparationRecords(await data['preparations'])
     stockTakes = createRelatedStockTakeRecords(await data['stock_takes'])
     ingredient = await data['ingredient']
+    manufactored_ingredient = true
     deliveries = undefined
     placedorders = undefined
     displayIngredientData()
@@ -465,11 +467,17 @@ const goToRecipe = () => {
 }
 
 const displayIngredientData = () => {
+  $('#ingredient').toggleClass("hidden")
   $('#name').html(ingredient["name"])
   $('#description').html(ingredient["description"])
-  $('#stock').parent().find("label").addClass('active')
-  $('#stock').val(Number(ingredient["stock"]))
-  $('#stock').attr('disabled', false)
+  var span = document.createElement('span')
+  if (manufactored_ingredient) {
+    $(span).text(" Portions")
+  } else {
+    $(span).text(" grams")
+  }
+  $('#stock_level').html(`Stock level: ${ingredient["stock"]}`)
+  $('#stock_level').append(span)
   $("#recipes").html(recipes)
   $("#wastages").html(wastages)
   $("#stock_takes").html(stockTakes)
@@ -493,6 +501,17 @@ const displayIngredientData = () => {
   } else {
     $("#orders").html(orders)
   }
+  $(".info-trigger").on("click", function(){
+    var btnData = $(this).data("id")
+    var element = `#${btnData}`
+    $(this).toggleClass('btn-hide')
+    var condition = $(this).hasClass('btn-hide')
+    if (condition) {
+      $(element).hide(500)
+    } else {
+      $(element).show(500)
+    }
+  })
 }
 
 const switchGetIngredientData = (id, manufactored, name) => {
@@ -857,7 +876,7 @@ const stockTakeIngredient = async () => {
 }
 
 const stockTakeManufactoredIngredient = async () => {
-  const id = manufactored_ingredient.manufactored_ingredient_id
+  const id = ingredient.manufactored_ingredient_id
   const form = document.getElementById('ingredient_quantity_form')
   const formData = new FormData(form)
   console.log(formData)
