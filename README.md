@@ -155,12 +155,56 @@ Almost ninthy percent of the bugs solved are due mistyping and in this kind of p
 
 ### Testing
 
-#### HTML checker
-https://validator.w3.org/nu/?doc=https%3A%2F%2Fcarpez-kitchen-manager-e9e93ef660cf.herokuapp.com%2F
+#### Features
+
+##### DB features
+
+|Feature                        |Expected result                     |Result                                  |Action|
+|-------------------------------|------------------------------------|----------------------------------------|-|
+|Register user                  |Add user to the database            |![Success](restaurantmanager/static/images/checkmark.png)| |
+|Edit user profile              |Update the user profile             |![Success](restaurantmanager/static/images/checkmark.png)| |
+|Add a supplier                 |Add a supplier to the database      |![Success](restaurantmanager/static/images/checkmark.png)| |
+|Add a supplier related ingredient|Add an ingredient to the database and relate it to the given supplier|![Success](restaurantmanager/static/images/checkmark.png)| |
+|Get ingredients per supplier   |Return the supplier's ingredient list|![Success](restaurantmanager/static/images/checkmark.png)| |
+|Delete an ingredient from the given supplier list of ingredients|Ingredient is deleted|![Success](restaurantmanager/static/images/checkmark.png)| |
+|Create a open order for a given supplier|Creates an open order related to the given supplier|![Success](restaurantmanager/static/images/checkmark.png)| |
+|Add an ingredient and related quantity to the open order from the order related supplier|Update the ingredient list|![Success](restaurantmanager/static/images/checkmark.png)| |
+|Send the order                 |Change the sent property to the order to false and avoids adding other ingredients|![Success](restaurantmanager/static/images/checkmark.png)| |
+|Delete a placed order          |Delete the placed order from the database|![Partial success](restaurantmanager/static/images/checkmark.png)| trying to delete placed order with id of 5 creates an error|not ideal, filtered id from the query so it doesn't show and therefore cannot throw the order| 
+|Create a manufactored ingredient and related recipe|Create a manufactored ingredient and related recipe in the database|![Success](restaurantmanager/static/images/checkmark.png)| |
+|Edit a recipe - chef|Let a user with chef role to add edit and remove ingredient quantities from the recipe|![Success](restaurantmanager/static/images/checkmark.png)| |
+|Edit recipe - manager|Let a user with role of manager to edit sellable (if true it becomes a dish and it goes in the menu) and set a price|![Success](restaurantmanager/static/images/checkmark.png)| |
+|Display all recipes|Return all the recipes and display them in cards, possibile to filter them with the submenu|![Success](restaurantmanager/static/images/checkmark.png)| |
+|Display menu|Let a user see all the items with relative price and image|![Success](restaurantmanager/static/images/checkmark.png)| |
+|Display ingredient or manufactored ingrediet related data|Return all the related data, possible to filter it with the submenu|![Success](restaurantmanager/static/images/checkmark.png)| |
+|Stock take - manage page|Let an employee manually set the stock level for a given ingredient and save the stock movement in the database|![Success](restaurantmanager/static/images/checkmark.png)| |
+|Close table|Set the order as paid and removes it from the table list|![Success](restaurantmanager/static/images/checkmark.png)| |
+
+##### DB and computational features
+
+|Feature                        |Expected result                     |Result                                  |Action|
+|-------------------------------|------------------------------------|----------------------------------------|------|
+|Add a delivery for a given supplier| add the delivery to the database and updates all the stock levels of the ingredients delivered depending on the quantity|![Success](restaurantmanager/static/images/checkmark.png)| |
+|Add a preparation - chef|Let a user create a preparation for a given ingredient and a given number of portions to be prepared, decrease stock levels for the used ingredients and increase the stock levels for the manufactored ingredient prepared|![Success](restaurantmanager/static/images/checkmark.png)| |
+|Add a wastage for a list of given ingredients|Save the wastage record in the database and decrease the stock levels for the given ingredients|![Success](restaurantmanager/static/images/checkmark.png)| |
+|Add an table order|non employees user ar shown a qr-code reader which redirects to the their table endpoint, employees are presented with the tables list which they can choose from or open another table, when the order is placed it decrease the stock levels for the given dishes|![Success](restaurantmanager/static/images/checkmark.png)| |
+
+##### Display features
+
+|Feature                        |Expected result                     |Result                                  |Action|
+|-------------------------------|------------------------------------|----------------------------------------|------|
+|Force user to rotate the device in the dashboard and management page when on a small device|overlay layer comes upfront forcing the user to rotate the device|![Partial success](restaurantmanager/static/images/checkmark.png)|it creates a bug when resizing the viewportfrom developers tools in Firefox, the buttons stop triggering when hovered, it needs Firefox to be closed and reopen and everything works until you force the overlay upfront again, with Chrome no bug, took me hours|
+|Autocomplete inputs make api call for selected ingredient|when data is fetched it populates where required|![Success](restaurantmanager/static/images/checkmark.png)| |
+
+#### HTML and CSS checker
+[HTML](https://validator.w3.org/nu/?doc=https%3A%2F%2Fcarpez-kitchen-manager-e9e93ef660cf.herokuapp.com%2F)
+
+[CSS](https://jigsaw.w3.org/css-validator/validator?uri=https%3A%2F%2Fcarpez-kitchen-manager-e9e93ef660cf.herokuapp.com%2F&profile=css3svg&usermedium=all&warning=1&vextwarning=&lang=en)
 
 #### Color checker
-https://webaim.org/resources/contrastchecker/?fcolor=FFFFDB&bcolor=A52A2A
-https://webaim.org/resources/contrastchecker/?fcolor=FFFFDB&bcolor=A52A2A
+[NAVBAR and MENUS](https://webaim.org/resources/contrastchecker/?fcolor=FFFFDB&bcolor=A52A2A)
+
+[CARDS](https://webaim.org/resources/contrastchecker/?fcolor=FFFAFA&bcolor=8B0000)
 
 ### Deployement
 

@@ -3,17 +3,26 @@
 {% block content %}
     <h1 class="text-center">
         Table Management
-    </h1>
-    <br>
+    </h1>    <div class="text-center">
+        <div class="btn-group">
+            <a href="{{ url_for('dashboard') }}" class="btn">
+                Got to Manage
+            </a>
+            <btn class="btn" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                Open table
+            </btn>
+        </div>
+    </div>
+    <hr>
     <div class="container">
         <div class="row">
-            {% for order, total in orders_data %}
+            {% for order, total, dish_list in orders_data %}
                 <div class="col-8 col-lg-4 mx-auto">
                     <div class="card">
                         <div class="card-body">
                             <span class="card-title">Table Number: {{ order.table }}</span>
                             <p><em>Total: {{ total }}</em></p>
-                            <a class="card-link" href="{{ url_for('close_table', order_id=order.id )}}">View</a>
+                            <a class="card-link" data-bs-toggle="popover" data-bs-title="Dishes" data-bs-content="{{ order.manufactoredingredient_quantities }}">View</a>
                             <a class="card-link" href="{{ url_for('close_table', order_id=order.id )}}">Close Table</a>
                         </div>
                     </div>
@@ -21,4 +30,39 @@
             {% endfor %}
         </div>
     </div>
+    <!-- Modal -->
+    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h1 class="modal-title fs-5" id="staticBackdropLabel">Open table</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="open_table">
+                <div class="modal-body">
+                        <div class="input-group col s3">
+                            <span class="input-group-text">Table Number</span>
+                            <input id="table_number" name="table_number" type="number">
+                        </div>
+                </div>
+                <div class="modal-footer">
+                <button type="reset" class="btn" data-bs-dismiss="modal">Close</button>
+                <button type="button" id="open-table" class="btn">Add</button>
+                </div>
+            </form>
+        </div>
+        </div>
+    </div>
+{% endblock %}
+{% block postloadjs %}
+    <script>
+        const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
+        const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl))
+        $('#open-table').on("click", function(){
+            var form = document.getElementById("open_table")
+            var formData = new FormData(form)
+            var tableNumber = formData.get("table_number")
+            window.location.href = `/tables/${tableNumber}`
+        })
+    </script>
 {% endblock %}

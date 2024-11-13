@@ -306,8 +306,11 @@ class ManufactoredIngredientQuantity(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
 
     def __repr__(self):
+        manufactored_ingredient = db.session.query(
+            ManufactoredIngredient
+            ).filter_by(id=self.manufactored_ingredient_id).first()
         return "#{0} - {1} portions".format(
-            self.manufactored_ingredient_id, self.quantity
+            manufactored_ingredient.name, self.quantity
         )
 
 

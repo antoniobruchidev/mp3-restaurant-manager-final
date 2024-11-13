@@ -1748,7 +1748,7 @@ def table():
         is_chef = check_role(role_hash("chef"), current_user.web3_address)
         is_waiter = check_role(role_hash("waiter"), current_user.web3_address)
         if is_manager or is_chef or is_waiter:
-            return redirect("tables")
+            return redirect("tables_management")
         else:
             return render_template("table.html", logged_out=True)
     return render_template("table.html", logged_out=True)
@@ -1760,8 +1760,10 @@ def tables_management():
     """route to list every open table"""
     open_tables = db.session.query(Order).filter_by(paid=False).all()
     totals = []
+    dish_list = []
     for table in open_tables:
         total = 0
+        manufactored_ingredients = []
         for m_i_q in table.manufactoredingredient_quantities:
             manufactored_ingredient = (
                 db.session.query(ManufactoredIngredient)
@@ -1773,8 +1775,13 @@ def tables_management():
             total += (
                 manufactored_ingredient.price * m_i_q.quantity
             )
+            manufactored_ingredients.append({
+                "dish": manufactored_ingredient.name,
+                "quantity": str(m_i_q.quantity)
+            })
         totals.append(total)
-    orders_data = list(zip(open_tables, totals))
+        dish_list.append(manufactored_ingredients)
+    orders_data = list(zip(open_tables, totals, dish_list))
     return render_template("table_management.html", orders_data=orders_data)
 
 
