@@ -196,6 +196,13 @@ Almost ninthy percent of the bugs solved are due mistyping and in this kind of p
 |Force user to rotate the device in the dashboard and management page when on a small device|overlay layer comes upfront forcing the user to rotate the device|![Partial success](restaurantmanager/static/images/checkmark.png)|it creates a bug when resizing the viewportfrom developers tools in Firefox, the buttons stop triggering when hovered, it needs Firefox to be closed and reopen and everything works until you force the overlay upfront again, with Chrome no bug, took me hours|
 |Autocomplete inputs make api call for selected ingredient|when data is fetched it populates where required|![Success](restaurantmanager/static/images/checkmark.png)| |
 
+##### Blockchain features
+
+|Feature                        |Expected result                     |Result                                  |Action|
+|-------------------------------|------------------------------------|----------------------------------------|------|
+|Login via metamask or mobile wallet|login via externally owned wallet||![Partial success](restaurantmanager/static/images/checkmark.png)|on mobile doesn't work with metamask, it works with coinbase defi wallet and crypto.com defi wallet|
+|Give roles to employees|user related web3_address is given the role at the specified contract address|![Success](restaurantmanager/static/images/checkmark.png)| |
+
 #### HTML and CSS checker
 [HTML](https://validator.w3.org/nu/?doc=https%3A%2F%2Fcarpez-kitchen-manager-e9e93ef660cf.herokuapp.com%2F)
 
